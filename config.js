@@ -5,27 +5,25 @@
 
 const CONFIG = {
     // 👫 İsimler ve Başlıklar
-    partnerName: "Ayşe'm",
-    senderName: "Ali",
-    coupleTitle: "Ali & Ayşe",
+    partnerName: "Şirin'im",
+    senderName: "Ferhat",
+    coupleTitle: "Ferhat & Şirin",
     subTitle: "Seninle geçen her saniye hayatımın en güzel anı...",
     
-    // 📅 Tanışma / İlişki Başlangıç Tarihi (Yıl, Ay-1, Gün, Saat, Dakika)
-    // Örnek: Yıl: 2023, Ay: 10 (Ekim için 9 yazılır çünkü aylar 0'dan başlar), Gün: 14, Saat: 20, Dakika: 0
+    // 📅 Tanışma / İlişki Başlangıç Tarihi
     startDate: "2023-10-14T20:00:00",
 
     // 🎵 Bizim Şarkımız (Müzik Ayarları)
-    // MP3 linki veya hazır telifsiz romantik müzik
     music: {
         title: "Bizim Şarkımız",
-        artist: "Sana Özel Parçamız",
+        artist: "Sana Özel",
         url: "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=romantic-love-112199.mp3",
         autoPlayPrompt: "🎵 Şarkımızı dinlemek için ekrana tıkla ❤️"
     },
 
     // 💌 Aşk / Özür Mektubu (Daktilo ile yazılacak yazı)
     letter: {
-        heading: "Benim Güzel Sevgilim,",
+        heading: "Benim Güzel Şirin'im,",
         body: `Hayatıma girdiğin andan itibaren her şey o kadar güzelleşti ki, bazen seni hak edecek ne yaptım diye düşünüyorum. 
 Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel. 
 
@@ -36,7 +34,7 @@ Bazen ufak tefek anlaşmazlıklar olsa da, bil ki kalbim her zaman sadece senin 
 
     // 🏃‍♂️ Kaçan "Hayır" Butonu / İnteraktif Bölüm
     interactiveQuestion: {
-        question: "Beni dünyalar kadar seviyor musun? (Ve tabii ki affettin mi?)",
+        question: "Beni dünyalar kadar seviyor musun? (Ve beni affettin mi?)",
         yesBtn: "Evet, Sonsuza Dek! ❤️",
         noBtn: "Hayır 😜",
         successEmoji: "🥰🎉💍",
@@ -44,7 +42,7 @@ Bazen ufak tefek anlaşmazlıklar olsa da, bil ki kalbim her zaman sadece senin 
         successMessage: "Dünyanın en tatlı, en harika sevgilisi sensin. Artık kaçışın yok, hep benimlesin! ❤️✨"
     },
 
-    // 📸 Polaroid Anı Fotoğrafları (İstediğin kadar ekleyebilirsin)
+    // 📸 Polaroid Anı Fotoğrafları
     memories: [
         {
             image: "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600&auto=format&fit=crop&q=80",
@@ -78,7 +76,7 @@ Bazen ufak tefek anlaşmazlıklar olsa da, bil ki kalbim her zaman sadece senin 
         "Birlikte kurduğumuz o güzel gelecek hayalleri ✈️"
     ],
 
-    // 🎟️ Sevgi Kuponları (Tıklayınca 'Kullanıldı' olur!)
+    // 🎟️ Sevgi Kuponları
     coupons: [
         {
             icon: "🫂",
