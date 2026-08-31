@@ -5,14 +5,14 @@
 
 const CONFIG = {
     // 👫 İsimler ve Başlıklar
-    partnerName: "Ayşe'm",
+    partnerName: "Merve'm",
     senderName: "Ali",
-    coupleTitle: "Ali & Ayşe",
+    coupleTitle: "Ali & Merve",
     subTitle: "Seninle geçen her saniye hayatımın en güzel anı...",
     
     // 📅 Tanışma / İlişki Başlangıç Tarihi (Yıl, Ay-1, Gün, Saat, Dakika)
     // Örnek: Yıl: 2023, Ay: 10 (Ekim için 9 yazılır çünkü aylar 0'dan başlar), Gün: 14, Saat: 20, Dakika: 0
-    startDate: "2023-10-14T20:00:00",
+    startDate: "2025-02-17T20:00:00",
 
     // 🎵 Bizim Şarkımız (Müzik Ayarları)
     // MP3 linki veya hazır telifsiz romantik müzik
