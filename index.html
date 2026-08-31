@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Önbellek (Cache) Engelleme: Her zaman en güncel halini gösterir -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Sana Özel Bir Sürpriz ❤️</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,7 +16,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2.0">
 </head>
 <body>
 
@@ -208,8 +212,25 @@
         </div>
     </div>
 
-    <!-- Yapılandırma ve Ana Script -->
-    <script src="config.js"></script>
-    <script src="script.js"></script>
+    <!-- Yapılandırma ve Ana Script (Her zaman en güncel dosyayı çeker) -->
+    <script>
+        // Cache-busting: Dosyaların son halini zorla çeker
+        const timestamp = new Date().getTime();
+        
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src + '?v=' + timestamp;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.body.appendChild(script);
+            });
+        }
+
+        // Önce config'i, sonra script'i yükle
+        loadScript('config.js')
+            .then(() => loadScript('script.js'))
+            .catch(err => console.error("Script yükleme hatası:", err));
+    </script>
 </body>
 </html>
