@@ -3,14 +3,20 @@
 // ==============================================================================
 
 function initApp() {
-    // 1. URL PARAMETRELERİ İLE DİNAMİK ÖZELLEŞTİRME (Opsiyonel Kolaylık)
-    // Örn: site.com/?cift=Ali%20%26%20Ayse&tarih=2023-10-14
-    if (typeof CONFIG === "undefined") {
-        console.error("CONFIG nesnesi bulunamadı!");
-        return;
+    // 1. URL DATA DECODE (Sonsuz Farklı Müşteri İçin Otomatik Yükleme)
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    if (urlParams.has("data")) {
+        try {
+            // UTF-8 uyumlu Base64 çözümleme
+            const rawJson = decodeURIComponent(escape(atob(urlParams.get("data"))));
+            const parsedData = JSON.parse(rawJson);
+            Object.assign(CONFIG, parsedData);
+        } catch (e) {
+            console.error("Özel veri çözümlenirken hata oluştu:", e);
+        }
     }
 
-    const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has("cift")) CONFIG.coupleTitle = urlParams.get("cift");
     if (urlParams.has("tarih")) CONFIG.startDate = urlParams.get("tarih");
     if (urlParams.has("partner")) CONFIG.partnerName = urlParams.get("partner");

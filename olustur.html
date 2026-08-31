@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sipariş & Link Oluşturucu Panel 💖</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- QR Code Generator Lib -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0c0814;
+            --bg-card: rgba(26, 17, 43, 0.85);
+            --primary: #ff4d6d;
+            --primary-hover: #ff758f;
+            --border-glass: rgba(255, 182, 193, 0.2);
+            --text-main: #ffffff;
+            --text-muted: #d8c7e0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 10% 20%, rgba(255, 77, 109, 0.15) 0%, transparent 40%),
+                              radial-gradient(circle at 90% 80%, rgba(121, 40, 202, 0.2) 0%, transparent 40%);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 34px;
+            background: linear-gradient(135deg, #fff 40%, #ff758f 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            margin-bottom: 30px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        input, textarea, select {
+            background: rgba(12, 8, 20, 0.8);
+            border: 1px solid var(--border-glass);
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--primary);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .generate-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary) 0%, #c9184a 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 8px 25px rgba(255, 77, 109, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(255, 77, 109, 0.6);
+        }
+
+        /* SONUÇ KUTUSU */
+        .result-box {
+            display: none;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .result-box.show {
+            display: block;
+        }
+
+        .result-link-wrap {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .result-link-input {
+            flex: 1;
+            background: #110b1c;
+            border: 1px solid #332147;
+            padding: 12px;
+            border-radius: 10px;
+            color: #00f090;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .copy-btn, .test-btn {
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+
+        .copy-btn {
+            background: #00f090;
+            color: #062818;
+        }
+
+        .test-btn {
+            background: var(--primary);
+            color: white;
+        }
+
+        .qr-container {
+            margin: 25px auto;
+            background: white;
+            padding: 16px;
+            border-radius: 16px;
+            display: inline-block;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media(max-width: 650px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .form-group.full-width { grid-column: span 1; }
+            .result-link-wrap { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>✨ Özel Link & QR Kod Üretici</h1>
+        <p>Müşterinin bilgilerini gir, saniyeler içinde kalıcı linkini ve QR kodunu al!</p>
+    </div>
+
+    <div class="card">
+        <form id="generatorForm">
+            <div class="form-grid">
+                
+                <div class="form-group">
+                    <label><i class="fa-solid fa-heart"></i> Çift Başlığı (Örn: Ali & Merve)</label>
+                    <input type="text" id="coupleTitle" value="Ali & Merve" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fa-solid fa-user"></i> Sevgilinin İsmi (Kime)</label>
+                    <input type="text" id="partnerName" value="Merve'm" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fa-solid fa-signature"></i> Gönderenin İsmi (Kimden)</label>
+                    <input type="text" id="senderName" value="Ali" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fa-solid fa-calendar-days"></i> Tanışma / İlişki Tarihi</label>
+                    <input type="datetime-local" id="startDate" value="2023-10-14T20:00" required>
+                </div>
+
+                <div class="form-group full-width">
+                    <label><i class="fa-solid fa-quote-left"></i> Alt Başlık / Slogan</label>
+                    <input type="text" id="subTitle" value="Seninle geçen her saniye hayatımın en güzel anı...">
+                </div>
+
+                <div class="form-group full-width">
+                    <label><i class="fa-solid fa-envelope-open-text"></i> Aşk / Mektup Metni</label>
+                    <textarea id="letterBody">Hayatıma girdiğin andan itibaren her şey o kadar güzelleşti ki, bazen seni hak edecek ne yaptım diye düşünüyorum. 
+Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel. 
+
+İyi ki varsın, iyi ki hayatımdasın. Seni her şeyden çok seviyorum! ❤️</textarea>
+                </div>
+
+                <div class="form-group full-width">
+                    <label><i class="fa-solid fa-music"></i> Müzik Şarkı Adı</label>
+                    <input type="text" id="musicTitle" value="Bizim Şarkımız">
+                </div>
+
+            </div>
+
+            <button type="submit" class="generate-btn">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                Özel Linki ve QR Kodu Üret
+            </button>
+        </form>
+    </div>
+
+    <!-- SONUÇ ALANI -->
+    <div class="card result-box" id="resultCard">
+        <h2>🎉 Müşteri Linki Hazır!</h2>
+        <p style="color: var(--text-muted); font-size: 14px; margin-top: 4px;">
+            Bu link diğer müşterilerin linkleriyle <strong>asla karışmaz ve ömür boyu kalıcıdır</strong>.
+        </p>
+
+        <div class="result-link-wrap">
+            <input type="text" id="generatedUrl" class="result-link-input" readonly>
+            <button class="copy-btn" id="copyBtn"><i class="fa-regular fa-copy"></i> Kopyala</button>
+            <a href="#" target="_blank" class="test-btn" id="testLinkBtn"><i class="fa-solid fa-arrow-up-right-from-square"></i> Aç</a>
+        </div>
+
+        <div class="qr-section">
+            <h4 style="color: #fff; margin-bottom: 8px;">📱 Özel QR Kod (Müşteriye Gönderebilirsin):</h4>
+            <div id="qrcode" class="qr-container"></div>
+            <br>
+            <button class="copy-btn" id="downloadQrBtn" style="margin-top: 10px;">
+                <i class="fa-solid fa-download"></i> QR Kodu İndir (PNG)
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById("generatorForm");
+    const resultCard = document.getElementById("resultCard");
+    const generatedUrlInput = document.getElementById("generatedUrl");
+    const copyBtn = document.getElementById("copyBtn");
+    const testLinkBtn = document.getElementById("testLinkBtn");
+    const qrcodeDiv = document.getElementById("qrcode");
+    const downloadQrBtn = document.getElementById("downloadQrBtn");
+
+    let qrcodeObj = null;
+
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        // 1. Bilgileri topla
+        const payload = {
+            coupleTitle: document.getElementById("coupleTitle").value.trim(),
+            partnerName: document.getElementById("partnerName").value.trim(),
+            senderName: document.getElementById("senderName").value.trim(),
+            startDate: document.getElementById("startDate").value,
+            subTitle: document.getElementById("subTitle").value.trim(),
+            letter: {
+                heading: "Canımın İçi " + document.getElementById("partnerName").value.trim() + ",",
+                body: document.getElementById("letterBody").value.trim()
+            },
+            music: {
+                title: document.getElementById("musicTitle").value.trim(),
+                artist: "Sana Özel",
+                url: "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=romantic-love-112199.mp3"
+            }
+        };
+
+        // 2. Base64 UTF-8 Encode
+        const jsonStr = JSON.stringify(payload);
+        const encodedData = btoa(unescape(encodeURIComponent(jsonStr)));
+
+        // 3. Mevcut site URL'ini oluştur
+        const baseUrl = window.location.origin + window.location.pathname.replace("olustur.html", "");
+        const finalUrl = `${baseUrl}?data=${encodedData}`;
+
+        // 4. Ekrana bas
+        generatedUrlInput.value = finalUrl;
+        testLinkBtn.href = finalUrl;
+        resultCard.classList.add("show");
+
+        // 5. QR Kod oluştur
+        qrcodeDiv.innerHTML = "";
+        qrcodeObj = new QRCode(qrcodeDiv, {
+            text: finalUrl,
+            width: 180,
+            height: 180,
+            colorDark: "#10091d",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.M
+        });
+
+        // Sayfayı aşağı kaydır
+        resultCard.scrollIntoView({ behavior: "smooth" });
+    });
+
+    // Kopyalama
+    copyBtn.addEventListener("click", () => {
+        generatedUrlInput.select();
+        navigator.clipboard.writeText(generatedUrlInput.value).then(() => {
+            copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> Kopyalandı!';
+            setTimeout(() => {
+                copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> Kopyala';
+            }, 2000);
+        });
+    });
+
+    // QR Kod İndir
+    downloadQrBtn.addEventListener("click", () => {
+        const img = qrcodeDiv.querySelector("img");
+        if (img) {
+            const link = document.createElement("a");
+            link.download = "ozel-hediye-qr-kod.png";
+            link.href = img.src;
+            link.click();
+        }
+    });
+</script>
+
+</body>
+</html>
