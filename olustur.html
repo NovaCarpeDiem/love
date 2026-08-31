@@ -527,9 +527,9 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
             ]
         };
 
-        // 3. Base64 UTF-8 Encode
+        // 3. Base64 UTF-8 URL-Safe Encode
         const jsonStr = JSON.stringify(payload);
-        const encodedData = btoa(unescape(encodeURIComponent(jsonStr)));
+        const encodedData = encodeURIComponent(btoa(unescape(encodeURIComponent(jsonStr))));
 
         // 4. Mevcut site URL'ini oluştur
         const baseUrl = window.location.origin + window.location.pathname.replace("olustur.html", "");
