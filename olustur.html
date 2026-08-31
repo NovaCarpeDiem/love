@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sipariş & Link Oluşturucu Panel 💖</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
@@ -12,7 +12,7 @@
     <style>
         :root {
             --bg-dark: #0c0814;
-            --bg-card: rgba(26, 17, 43, 0.85);
+            --bg-card: rgba(26, 17, 43, 0.9);
             --primary: #ff4d6d;
             --primary-hover: #ff758f;
             --border-glass: rgba(255, 182, 193, 0.2);
@@ -33,22 +33,24 @@
                               radial-gradient(circle at 90% 80%, rgba(121, 40, 202, 0.2) 0%, transparent 40%);
             color: var(--text-main);
             min-height: 100vh;
-            padding: 40px 20px;
+            padding: 30px 15px;
+            overflow-x: hidden;
         }
 
         .container {
-            max-width: 820px;
+            width: 100%;
+            max-width: 740px;
             margin: 0 auto;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 35px;
+            margin-bottom: 30px;
         }
 
         .header h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 34px;
+            font-size: 32px;
             background: linear-gradient(135deg, #fff 40%, #ff758f 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -57,30 +59,34 @@
 
         .header p {
             color: var(--text-muted);
-            font-size: 15px;
+            font-size: 14px;
         }
 
         .card {
             background: var(--bg-card);
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border-glass);
             border-radius: 20px;
-            padding: 30px;
+            padding: 26px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.5);
             margin-bottom: 30px;
+            width: 100%;
         }
 
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            gap: 16px;
+            width: 100%;
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            margin-bottom: 18px;
+            gap: 6px;
+            width: 100%;
+            min-width: 0;
         }
 
         .form-group.full-width {
@@ -97,14 +103,16 @@
         }
 
         input, textarea, select {
-            background: rgba(12, 8, 20, 0.8);
+            width: 100%;
+            background: rgba(12, 8, 20, 0.85);
             border: 1px solid var(--border-glass);
             color: #fff;
-            padding: 12px 16px;
+            padding: 12px 14px;
             border-radius: 12px;
             font-size: 14px;
             outline: none;
             transition: border-color 0.3s;
+            box-sizing: border-box;
         }
 
         input:focus, textarea:focus, select:focus {
@@ -113,7 +121,7 @@
 
         textarea {
             resize: vertical;
-            min-height: 100px;
+            min-height: 90px;
         }
 
         .generate-btn {
@@ -132,6 +140,7 @@
             gap: 10px;
             box-shadow: 0 8px 25px rgba(255, 77, 109, 0.4);
             transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
         }
 
         .generate-btn:hover {
@@ -139,121 +148,70 @@
             box-shadow: 0 12px 30px rgba(255, 77, 109, 0.6);
         }
 
-        .generate-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* FOTOĞRAF YÜKLEME GRID */
-        .photo-upload-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 14px;
-            margin-bottom: 20px;
-        }
-
-        .photo-card {
-            background: rgba(15, 9, 25, 0.7);
-            border: 1px solid rgba(255, 182, 193, 0.2);
-            border-radius: 14px;
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .photo-upload-box {
-            background: rgba(20, 12, 35, 0.9);
-            border: 2px dashed rgba(255, 182, 193, 0.3);
-            border-radius: 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            aspect-ratio: 1 / 1;
+        /* FOTOĞRAF ALANI */
+        .photo-helper-box {
+            background: rgba(255, 77, 109, 0.1);
+            border: 1px dashed rgba(255, 77, 109, 0.35);
+            border-radius: 12px;
+            padding: 12px 16px;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 12px;
         }
 
-        .photo-upload-box:hover {
-            border-color: var(--primary);
-            background: rgba(35, 18, 55, 0.9);
-        }
-
-        .photo-upload-box.has-image {
-            border-style: solid;
-            border-color: #00f090;
-        }
-
-        .photo-preview-wrap {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            width: 100%;
-            height: 100%;
-            justify-content: center;
-            padding: 6px;
-        }
-
-        .photo-upload-box.has-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-
-        .photo-upload-box.has-image .upload-label,
-        .photo-upload-box.has-image .upload-icon,
-        .photo-upload-box.has-image .upload-sub {
-            display: none;
-        }
-
-        .upload-icon {
-            font-size: 20px;
-            color: var(--primary);
-        }
-
-        .upload-label {
-            font-size: 11px;
-            font-weight: 700;
-            color: #fff;
-        }
-
-        .upload-sub {
-            font-size: 10px;
+        .photo-helper-text {
+            font-size: 12px;
             color: var(--text-muted);
         }
 
-        .photo-url-input {
-            font-size: 11px;
-            padding: 6px 8px;
+        .catbox-link-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            padding: 6px 14px;
             border-radius: 8px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .success-badge {
-            position: absolute;
-            top: 4px;
-            right: 4px;
-            background: #00f090;
-            color: #062818;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: flex;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            font-weight: 800;
+            gap: 6px;
+            transition: background 0.2s;
         }
 
-        @media(max-width: 700px) {
-            .photo-upload-grid { grid-template-columns: repeat(2, 1fr); }
+        .catbox-link-btn:hover {
+            background: var(--primary);
+        }
+
+        .photo-inputs-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .photo-input-card {
+            background: rgba(15, 9, 25, 0.7);
+            border: 1px solid rgba(255, 182, 193, 0.15);
+            border-radius: 12px;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .photo-input-card span {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--primary-hover);
+        }
+
+        .photo-input-card input {
+            padding: 8px 10px;
+            font-size: 12px;
+            background: rgba(0, 0, 0, 0.4);
         }
 
         /* SONUÇ KUTUSU */
@@ -268,60 +226,12 @@
             display: block;
         }
 
-        .result-link-wrap {
-            display: flex;
-            gap: 10px;
-            margin: 20px 0 15px 0;
-        }
-
-        .result-link-input {
-            flex: 1;
-            background: #110b1c;
-            border: 1px solid #332147;
-            padding: 14px;
-            border-radius: 12px;
-            color: #00f090;
-            font-weight: 600;
-            font-size: 13px;
-        }
-
-        .copy-btn, .test-btn {
-            padding: 14px 24px;
-            border-radius: 12px;
-            border: none;
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-            transition: transform 0.2s;
-        }
-
-        .copy-btn:hover, .test-btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .copy-btn {
-            background: #00f090;
-            color: #062818;
-        }
-
-        .test-btn {
-            background: linear-gradient(135deg, var(--primary), #c9184a);
-            color: white;
-            box-shadow: 0 4px 15px rgba(255, 77, 109, 0.4);
-        }
-
         .open-big-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
             width: 100%;
-            max-width: 400px;
-            margin: 10px auto 20px auto;
             padding: 16px;
             background: linear-gradient(135deg, #00f090 0%, #00b368 100%);
             color: #052617;
@@ -331,10 +241,40 @@
             text-decoration: none;
             box-shadow: 0 8px 25px rgba(0, 240, 144, 0.3);
             transition: transform 0.2s;
+            margin: 15px 0;
         }
 
         .open-big-btn:hover {
-            transform: scale(1.03);
+            transform: scale(1.02);
+        }
+
+        .result-link-wrap {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .result-link-input {
+            flex: 1;
+            background: #110b1c;
+            border: 1px solid #332147;
+            padding: 12px;
+            border-radius: 10px;
+            color: #00f090;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .copy-btn {
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            background: #00f090;
+            color: #062818;
+            white-space: nowrap;
         }
 
         .qr-container {
@@ -351,9 +291,11 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        @media(max-width: 650px) {
+        @media(max-width: 600px) {
             .form-grid { grid-template-columns: 1fr; }
             .form-group.full-width { grid-column: span 1; }
+            .photo-inputs-grid { grid-template-columns: 1fr; }
+            .photo-helper-box { flex-direction: column; text-align: center; }
             .result-link-wrap { flex-direction: column; }
         }
     </style>
@@ -371,7 +313,7 @@
             <div class="form-grid">
                 
                 <div class="form-group">
-                    <label><i class="fa-solid fa-heart"></i> Çift Başlığı (Örn: Ferhat & Şirin)</label>
+                    <label><i class="fa-solid fa-heart"></i> Çift Başlığı</label>
                     <input type="text" id="coupleTitle" value="Ferhat & Şirin" required>
                 </div>
 
@@ -425,67 +367,38 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
                 </div>
 
                 <div class="form-group full-width" id="customMusicGroup" style="display: none;">
-                    <label><i class="fa-solid fa-link"></i> Özel MP3 / Ses Dosyası Linki</label>
+                    <label><i class="fa-solid fa-link"></i> Özel MP3 Linki</label>
                     <input type="url" id="customMusicUrl" placeholder="https://site.com/sarki.mp3">
-                    <small style="color: var(--text-muted); font-size: 11px; margin-top: 4px;">İstediğin şarkının doğrudan .mp3 linkini buraya yapıştırabilirsin.</small>
                 </div>
 
-                <div class="form-group full-width" style="margin-top: 15px;">
-                    <label><i class="fa-solid fa-camera-retro"></i> Polaroid Fotoğrafları (Dosya Seç veya Link Yapıştır)</label>
-                    <p style="color: var(--text-muted); font-size: 12px; margin-top: 2px;">Cihazından fotoğraf seçebilirsin veya alttaki kutuya link yapıştırabilirsin. Boş bırakırsan romantik varsayılan fotoğraflar kullanılır.</p>
-                </div>
-
-                <div class="photo-upload-grid full-width">
-                    <!-- 1. Fotoğraf -->
-                    <div class="photo-card">
-                        <div class="photo-upload-box" onclick="document.getElementById('fileInput1').click()">
-                            <input type="file" id="fileInput1" accept="image/*" style="display:none" onchange="handleFileSelect(1, event)">
-                            <div class="photo-preview-wrap" id="previewWrap1">
-                                <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
-                                <span class="upload-label">1. Fotoğraf</span>
-                                <small class="upload-sub">İlk Buluşma</small>
-                            </div>
-                        </div>
-                        <input type="url" id="photoUrl1" class="photo-url-input" placeholder="veya link yapıştır...">
+                <!-- FOTOĞRAF ALANI -->
+                <div class="form-group full-width" style="margin-top: 10px;">
+                    <label><i class="fa-solid fa-camera-retro"></i> Polaroid Fotoğrafları (4 Adet Resim Linki)</label>
+                    
+                    <div class="photo-helper-box">
+                        <span class="photo-helper-text">💡 Fotoğrafları ücretsiz yükleyip link almak için:</span>
+                        <a href="https://catbox.moe" target="_blank" class="catbox-link-btn">
+                            <i class="fa-solid fa-arrow-up-from-bracket"></i> Catbox'ta Fotoğraf Yükle
+                        </a>
                     </div>
 
-                    <!-- 2. Fotoğraf -->
-                    <div class="photo-card">
-                        <div class="photo-upload-box" onclick="document.getElementById('fileInput2').click()">
-                            <input type="file" id="fileInput2" accept="image/*" style="display:none" onchange="handleFileSelect(2, event)">
-                            <div class="photo-preview-wrap" id="previewWrap2">
-                                <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
-                                <span class="upload-label">2. Fotoğraf</span>
-                                <small class="upload-sub">İlk Kahve</small>
-                            </div>
+                    <div class="photo-inputs-grid">
+                        <div class="photo-input-card">
+                            <span>1. Fotoğraf (İlk Buluşma)</span>
+                            <input type="url" id="photoUrl1" placeholder="Boş bırakırsan hazır aşk resmi kullanılır">
                         </div>
-                        <input type="url" id="photoUrl2" class="photo-url-input" placeholder="veya link yapıştır...">
-                    </div>
-
-                    <!-- 3. Fotoğraf -->
-                    <div class="photo-card">
-                        <div class="photo-upload-box" onclick="document.getElementById('fileInput3').click()">
-                            <input type="file" id="fileInput3" accept="image/*" style="display:none" onchange="handleFileSelect(3, event)">
-                            <div class="photo-preview-wrap" id="previewWrap3">
-                                <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
-                                <span class="upload-label">3. Fotoğraf</span>
-                                <small class="upload-sub">Gün Batımı</small>
-                            </div>
+                        <div class="photo-input-card">
+                            <span>2. Fotoğraf (İlk Kahve)</span>
+                            <input type="url" id="photoUrl2" placeholder="Boş bırakırsan hazır aşk resmi kullanılır">
                         </div>
-                        <input type="url" id="photoUrl3" class="photo-url-input" placeholder="veya link yapıştır...">
-                    </div>
-
-                    <!-- 4. Fotoğraf -->
-                    <div class="photo-card">
-                        <div class="photo-upload-box" onclick="document.getElementById('fileInput4').click()">
-                            <input type="file" id="fileInput4" accept="image/*" style="display:none" onchange="handleFileSelect(4, event)">
-                            <div class="photo-preview-wrap" id="previewWrap4">
-                                <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
-                                <span class="upload-label">4. Fotoğraf</span>
-                                <small class="upload-sub">Gülüşümüz</small>
-                            </div>
+                        <div class="photo-input-card">
+                            <span>3. Fotoğraf (Gün Batımı)</span>
+                            <input type="url" id="photoUrl3" placeholder="Boş bırakırsan hazır aşk resmi kullanılır">
                         </div>
-                        <input type="url" id="photoUrl4" class="photo-url-input" placeholder="veya link yapıştır...">
+                        <div class="photo-input-card">
+                            <span>4. Fotoğraf (Gülüşümüz)</span>
+                            <input type="url" id="photoUrl4" placeholder="Boş bırakırsan hazır aşk resmi kullanılır">
+                        </div>
                     </div>
                 </div>
 
@@ -501,12 +414,12 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
     <!-- SONUÇ ALANI -->
     <div class="card result-box" id="resultCard">
         <h2>🎉 Müşteriye Özel Sayfa Hazır!</h2>
-        <p style="color: var(--text-muted); font-size: 14px; margin-top: 4px;">
-            Aşağıdaki linki kopyalayıp müşterine gönderebilir veya büyük butona basarak açabilirsin:
+        <p style="color: var(--text-muted); font-size: 13px; margin-top: 4px;">
+            Aşağıdaki yeşil butona basarak hazırladığın sayfayı yeni sekmede açabilirsin:
         </p>
 
         <a href="#" target="_blank" class="open-big-btn" id="bigOpenBtn">
-            <i class="fa-solid fa-rocket"></i> Sayfayı Yeni Sekmede Aç
+            <i class="fa-solid fa-rocket"></i> Hazırlanan Sayfayı Aç (Önizle)
         </a>
 
         <div class="result-link-wrap">
@@ -515,7 +428,7 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
         </div>
 
         <div class="qr-section">
-            <h4 style="color: #fff; margin-bottom: 8px;">📱 Özel QR Kod (Müşteriye Gönderebilirsin):</h4>
+            <h4 style="color: #fff; margin-bottom: 8px;">📱 Özel QR Kod:</h4>
             <div id="qrcode" class="qr-container"></div>
             <br>
             <button class="copy-btn" id="downloadQrBtn" style="margin-top: 10px;">
@@ -544,80 +457,8 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
         }
     }
 
-    const selectedFiles = { 1: null, 2: null, 3: null, 4: null };
-
-    // Fotoğraf Seçildiğinde Canlı Önizleme Göster
-    function handleFileSelect(index, event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        selectedFiles[index] = file;
-        const previewWrap = document.getElementById("previewWrap" + index);
-        const box = previewWrap.parentElement;
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            previewWrap.innerHTML = `
-                <img src="${e.target.result}" alt="Önizleme">
-                <div class="success-badge"><i class="fa-solid fa-check"></i></div>
-            `;
-            box.classList.add("has-image");
-        };
-        reader.readAsDataURL(file);
-    }
-
-    // TmpFiles.org & Catbox ile Doğrudan Hızlı Resim Yükleme (CORS Destekli & Ücretsiz)
-    async function uploadSingleImage(file, manualUrl) {
-        if (manualUrl && manualUrl.trim().startsWith("http")) {
-            return manualUrl.trim();
-        }
-        if (!file) return null;
-
-        // 1. Tmpfiles.org Denemesi
-        try {
-            const formData = new FormData();
-            formData.append("file", file);
-
-            const res = await fetch("https://tmpfiles.org/api/v1/upload", {
-                method: "POST",
-                body: formData
-            });
-
-            const data = await res.json();
-            if (data && data.data && data.data.url) {
-                return data.data.url.replace("tmpfiles.org/", "tmpfiles.org/dl/");
-            }
-        } catch (e) {
-            console.warn("Tmpfiles yükleme hatası, fallback deneniyor:", e);
-        }
-
-        // 2. Catbox Denemesi
-        try {
-            const formData = new FormData();
-            formData.append("reqtype", "fileupload");
-            formData.append("fileToUpload", file);
-
-            const res = await fetch("https://catbox.moe/user/api.php", {
-                method: "POST",
-                body: formData
-            });
-
-            const text = await res.text();
-            if (text && text.startsWith("http")) {
-                return text.trim();
-            }
-        } catch (e) {
-            console.warn("Catbox yükleme hatası:", e);
-        }
-
-        return null;
-    }
-
-    form.addEventListener("submit", async (e) => {
+    form.addEventListener("submit", (e) => {
         e.preventDefault();
-
-        const generateBtn = document.getElementById("generateBtn");
-        const originalBtnHtml = generateBtn.innerHTML;
 
         // Müzik URL'ini belirle
         let musicUrl = document.getElementById("musicPreset").value;
@@ -629,11 +470,7 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
             }
         }
 
-        // Butonu yükleniyor moduna al
-        generateBtn.disabled = true;
-        generateBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Fotoğraflar Yükleniyor ve Link Hazırlanıyor...';
-
-        // 1. Seçilen Fotoğrafları Arka Planda Yükle
+        // 1. Fotoğrafları Al (Boşsa garantili estetik fotoğrafları koy)
         const defaultImages = [
             "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600&auto=format&fit=crop&q=80",
             "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=600&auto=format&fit=crop&q=80",
@@ -641,22 +478,10 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
             "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?w=600&auto=format&fit=crop&q=80"
         ];
 
-        const manualUrl1 = document.getElementById("photoUrl1").value;
-        const manualUrl2 = document.getElementById("photoUrl2").value;
-        const manualUrl3 = document.getElementById("photoUrl3").value;
-        const manualUrl4 = document.getElementById("photoUrl4").value;
-
-        const uploadedUrls = await Promise.all([
-            uploadSingleImage(selectedFiles[1], manualUrl1),
-            uploadSingleImage(selectedFiles[2], manualUrl2),
-            uploadSingleImage(selectedFiles[3], manualUrl3),
-            uploadSingleImage(selectedFiles[4], manualUrl4)
-        ]);
-
-        const finalPhoto1 = uploadedUrls[0] || defaultImages[0];
-        const finalPhoto2 = uploadedUrls[1] || defaultImages[1];
-        const finalPhoto3 = uploadedUrls[2] || defaultImages[2];
-        const finalPhoto4 = uploadedUrls[3] || defaultImages[3];
+        const photo1 = document.getElementById("photoUrl1").value.trim() || defaultImages[0];
+        const photo2 = document.getElementById("photoUrl2").value.trim() || defaultImages[1];
+        const photo3 = document.getElementById("photoUrl3").value.trim() || defaultImages[2];
+        const photo4 = document.getElementById("photoUrl4").value.trim() || defaultImages[3];
 
         // 2. Bilgileri topla
         const partnerNameVal = document.getElementById("partnerName").value.trim();
@@ -680,22 +505,22 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
             },
             memories: [
                 {
-                    image: finalPhoto1,
+                    image: photo1,
                     date: "İlk Buluştuğumuz Gün",
                     caption: "Gözlerine ilk baktığım o an, kalbimin yerinden çıkacağını sanmıştım..."
                 },
                 {
-                    image: finalPhoto2,
+                    image: photo2,
                     date: "Birlikte İlk Kahvemiz",
                     caption: "Saatlerce konuşup zamanın nasıl geçtiğini hiç anlamamıştık."
                 },
                 {
-                    image: finalPhoto3,
+                    image: photo3,
                     date: "Unutulmaz Gün Batımı",
                     caption: "Gökyüzü ne kadar güzelse, senin yanındaki huzur bin kat daha fazlaydı."
                 },
                 {
-                    image: finalPhoto4,
+                    image: photo4,
                     date: "Her Anımızda Gülümseme",
                     caption: "Birlikte saçmalamayı, çocuk gibi gülmeyi sadece seninle seviyorum."
                 }
@@ -709,10 +534,6 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
         // 4. Mevcut site URL'ini oluştur
         const baseUrl = window.location.origin + window.location.pathname.replace("olustur.html", "");
         const finalUrl = `${baseUrl}?data=${encodedData}`;
-
-        // Butonu eski haline getir
-        generateBtn.disabled = false;
-        generateBtn.innerHTML = originalBtnHtml;
 
         // 5. Ekrana bas
         generatedUrlInput.value = finalUrl;
