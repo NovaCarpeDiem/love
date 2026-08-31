@@ -2,10 +2,14 @@
 // 💖 İNTERAKTİF MOTOR / ROMANTIC INTERACTIVE ENGINE (script.js)
 // ==============================================================================
 
-document.addEventListener("DOMContentLoaded", () => {
-    
+function initApp() {
     // 1. URL PARAMETRELERİ İLE DİNAMİK ÖZELLEŞTİRME (Opsiyonel Kolaylık)
     // Örn: site.com/?cift=Ali%20%26%20Ayse&tarih=2023-10-14
+    if (typeof CONFIG === "undefined") {
+        console.error("CONFIG nesnesi bulunamadı!");
+        return;
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has("cift")) CONFIG.coupleTitle = urlParams.get("cift");
     if (urlParams.has("tarih")) CONFIG.startDate = urlParams.get("tarih");
@@ -38,7 +42,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 10. UÇUŞAN KALPLER ARKA PLANI
     startFloatingHearts();
-});
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initApp);
+} else {
+    initApp();
+}
 
 // ==============================================================================
 // METİNLERİ DOLDURMA
