@@ -256,9 +256,30 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
 İyi ki varsın, iyi ki hayatımdasın. Seni her şeyden çok seviyorum! ❤️</textarea>
                 </div>
 
+                <div class="form-group">
+                    <label><i class="fa-solid fa-music"></i> Şarkı Adı</label>
+                    <input type="text" id="musicTitle" value="Bizim Şarkımız" placeholder="Örn: Melekler Korusun">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fa-solid fa-microphone"></i> Sanatçı / Şarkıcı Adı</label>
+                    <input type="text" id="musicArtist" value="Sana Özel" placeholder="Örn: Pinhani">
+                </div>
+
                 <div class="form-group full-width">
-                    <label><i class="fa-solid fa-music"></i> Müzik Şarkı Adı</label>
-                    <input type="text" id="musicTitle" value="Bizim Şarkımız">
+                    <label><i class="fa-solid fa-headphones"></i> Müzik Seçimi / Ses Dosyası</label>
+                    <select id="musicPreset" onchange="handleMusicPresetChange()">
+                        <option value="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=romantic-love-112199.mp3">🎵 Romantik Aşk Melodisi (Önerilen)</option>
+                        <option value="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73249.mp3?filename=sweet-love-110594.mp3">🎹 Duygusal Piyano Melodisi</option>
+                        <option value="https://cdn.pixabay.com/download/audio/2022/11/06/audio_c35f992a7e.mp3?filename=acoustic-love-125016.mp3">🎸 Sıcak Akustik Gitar Melodisi</option>
+                        <option value="custom">🔗 Kendi Özel MP3 Linkimi Gireceğim...</option>
+                    </select>
+                </div>
+
+                <div class="form-group full-width" id="customMusicGroup" style="display: none;">
+                    <label><i class="fa-solid fa-link"></i> Özel MP3 / Ses Dosyası Linki</label>
+                    <input type="url" id="customMusicUrl" placeholder="https://site.com/sarki.mp3">
+                    <small style="color: var(--text-muted); font-size: 11px; margin-top: 4px;">İstediğin şarkının doğrudan .mp3 linkini buraya yapıştırabilirsin.</small>
                 </div>
 
             </div>
@@ -303,10 +324,28 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
     const qrcodeDiv = document.getElementById("qrcode");
     const downloadQrBtn = document.getElementById("downloadQrBtn");
 
-    let qrcodeObj = null;
+    function handleMusicPresetChange() {
+        const preset = document.getElementById("musicPreset").value;
+        const customGroup = document.getElementById("customMusicGroup");
+        if (preset === "custom") {
+            customGroup.style.display = "flex";
+        } else {
+            customGroup.style.display = "none";
+        }
+    }
 
     form.addEventListener("submit", (e) => {
         e.preventDefault();
+
+        // Müzik URL'ini belirle
+        let musicUrl = document.getElementById("musicPreset").value;
+        if (musicUrl === "custom") {
+            musicUrl = document.getElementById("customMusicUrl").value.trim();
+            if (!musicUrl) {
+                alert("Lütfen özel MP3 linkinizi girin veya listeden bir müzik seçin.");
+                return;
+            }
+        }
 
         // 1. Bilgileri topla
         const payload = {
@@ -320,9 +359,9 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
                 body: document.getElementById("letterBody").value.trim()
             },
             music: {
-                title: document.getElementById("musicTitle").value.trim(),
-                artist: "Sana Özel",
-                url: "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=romantic-love-112199.mp3"
+                title: document.getElementById("musicTitle").value.trim() || "Bizim Şarkımız",
+                artist: document.getElementById("musicArtist").value.trim() || "Sana Özel",
+                url: musicUrl
             }
         };
 
