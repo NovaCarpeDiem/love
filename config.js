@@ -5,14 +5,14 @@
 
 const CONFIG = {
     // 👫 İsimler ve Başlıklar
-    partnerName: "Merve'm",
+    partnerName: "Ayşe'm",
     senderName: "Ali",
-    coupleTitle: "Ali & Merve",
+    coupleTitle: "Ali & Ayşe",
     subTitle: "Seninle geçen her saniye hayatımın en güzel anı...",
     
     // 📅 Tanışma / İlişki Başlangıç Tarihi (Yıl, Ay-1, Gün, Saat, Dakika)
     // Örnek: Yıl: 2023, Ay: 10 (Ekim için 9 yazılır çünkü aylar 0'dan başlar), Gün: 14, Saat: 20, Dakika: 0
-    startDate: "2025-02-17T20:00:00",
+    startDate: "2023-10-14T20:00:00",
 
     // 🎵 Bizim Şarkımız (Müzik Ayarları)
     // MP3 linki veya hazır telifsiz romantik müzik
@@ -47,22 +47,22 @@ Bazen ufak tefek anlaşmazlıklar olsa da, bil ki kalbim her zaman sadece senin 
     // 📸 Polaroid Anı Fotoğrafları (İstediğin kadar ekleyebilirsin)
     memories: [
         {
-            image: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600&auto=format&fit=crop&q=80",
+            image: "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600&auto=format&fit=crop&q=80",
             date: "İlk Buluştuğumuz Gün",
             caption: "Gözlerine ilk baktığım o an, kalbimin yerinden çıkacağını sanmıştım..."
         },
         {
-            image: "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600&auto=format&fit=crop&q=80",
+            image: "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=600&auto=format&fit=crop&q=80",
             date: "Birlikte İlk Kahvemiz",
             caption: "Saatlerce konuşup zamanın nasıl geçtiğini hiç anlamamıştık."
         },
         {
-            image: "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?w=600&auto=format&fit=crop&q=80",
+            image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&auto=format&fit=crop&q=80",
             date: "Unutulmaz Gün Batımı",
             caption: "Gökyüzü ne kadar güzelse, senin yanındaki huzur bin kat daha fazlaydı."
         },
         {
-            image: "https://images.unsplash.com/photo-1494774157365-9e04c6720e47?w=600&auto=format&fit=crop&q=80",
+            image: "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?w=600&auto=format&fit=crop&q=80",
             date: "Her Anımızda Gülümseme",
             caption: "Birlikte saçmalamayı, çocuk gibi gülmeyi sadece seninle seviyorum."
         }
