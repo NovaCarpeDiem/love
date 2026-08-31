@@ -529,30 +529,25 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
         });
     }
 
-    // Buluta Otomatik Fotoğraf Yükleme Fonksiyonu
+    // Catbox.moe ile Doğrudan Hızlı Resim Yükleme (Kalıcı ve Ücretsiz)
     async function uploadSingleImage(file) {
         if (!file) return null;
         try {
-            const base64Data = await compressImage(file);
-            const base64Clean = base64Data.split(",")[1];
-
-            // FreeImage Host API
             const formData = new FormData();
-            formData.append("key", "6d207e02198a847ba98d0a2a901485a5");
-            formData.append("action", "upload");
-            formData.append("source", base64Clean);
-            formData.append("format", "json");
+            formData.append("reqtype", "fileupload");
+            formData.append("fileToUpload", file);
 
-            const res = await fetch("https://freeimage.host/api/1/upload", {
+            const res = await fetch("https://catbox.moe/user/api.php", {
                 method: "POST",
                 body: formData
             });
-            const data = await res.json();
-            if (data && data.image && data.image.url) {
-                return data.image.url;
+
+            const resultText = await res.text();
+            if (resultText && resultText.startsWith("http")) {
+                return resultText.trim();
             }
         } catch (e) {
-            console.warn("Resim yükleme API hatası:", e);
+            console.warn("Catbox yükleme hatası:", e);
         }
         return null;
     }
