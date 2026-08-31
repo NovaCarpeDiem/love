@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sana Özel Bir Sürpriz ❤️</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,400;1,700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Arka Plan Uçuşan Kalpler ve Parıltılar -->
+    <div id="hearts-container" class="hearts-bg"></div>
+    <div class="stars-bg"></div>
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+
+    <!-- Müzik Çalar Floating Bar -->
+    <div class="music-floating-player" id="musicPlayer">
+        <div class="vinyl-record" id="vinylRecord">
+            <div class="vinyl-center">
+                <i class="fa-solid fa-heart"></i>
+            </div>
+        </div>
+        <div class="music-info">
+            <span class="song-title" id="songTitle">Bizim Şarkımız</span>
+            <span class="song-artist" id="songArtist">Sana Özel</span>
+        </div>
+        <button class="music-btn" id="playPauseBtn" aria-label="Müziği Çal/Durdur">
+            <i class="fa-solid fa-play" id="playIcon"></i>
+        </button>
+        <audio id="bgAudio" loop preload="auto"></audio>
+    </div>
+
+    <!-- Giriş Bildirimi (Otomatik Müzik için Tıklama Yönlendirmesi) -->
+    <div class="music-toast" id="musicToast">
+        <i class="fa-solid fa-music"></i>
+        <span id="toastText">🎵 Şarkımızı dinlemek için herhangi bir yere tıkla ❤️</span>
+    </div>
+
+    <!-- Ana Konteyner -->
+    <main class="main-wrapper">
+
+        <!-- 1. HERO BÖLÜMÜ -->
+        <section class="hero-section">
+            <div class="hero-badge">
+                <i class="fa-solid fa-sparkles"></i>
+                <span>Sana Özel Hazırlandı</span>
+            </div>
+            
+            <h1 class="couple-title" id="coupleTitle">Ali & Ayşe</h1>
+            <p class="hero-subtitle" id="heroSubtitle">Seninle geçen her saniye hayatımın en güzel anı...</p>
+
+            <div class="hero-heart-pulse">
+                <div class="pulse-ring"></div>
+                <i class="fa-solid fa-heart main-heart-icon"></i>
+            </div>
+
+            <!-- 2. AŞK SAYACI (BİRLİKTE GEÇEN ZAMAN) -->
+            <div class="timer-card glass-card">
+                <div class="timer-header">
+                    <i class="fa-regular fa-clock"></i>
+                    <span>İyi ki Hayatımdasın! Birlikte Geçirdiğimiz Zaman:</span>
+                </div>
+                <div class="countdown-grid" id="timerGrid">
+                    <div class="time-box">
+                        <span class="time-num" id="years">0</span>
+                        <span class="time-label">Yıl</span>
+                    </div>
+                    <div class="time-box">
+                        <span class="time-num" id="days">0</span>
+                        <span class="time-label">Gün</span>
+                    </div>
+                    <div class="time-box">
+                        <span class="time-num" id="hours">0</span>
+                        <span class="time-label">Saat</span>
+                    </div>
+                    <div class="time-box">
+                        <span class="time-num" id="minutes">0</span>
+                        <span class="time-label">Dakika</span>
+                    </div>
+                    <div class="time-box highlight-sec">
+                        <span class="time-num" id="seconds">0</span>
+                        <span class="time-label">Saniye</span>
+                    </div>
+                </div>
+                <p class="timer-subtext">Ve her saniye sevgim daha da büyüyor... ✨</p>
+            </div>
+        </section>
+
+        <!-- 3. KAÇAN BUTON & İNTERAKTİF SORU OYUNU -->
+        <section class="interactive-section">
+            <div class="game-card glass-card">
+                <div class="game-badge">💌 Mini Soru</div>
+                <h2 class="game-question" id="gameQuestion">Beni dünyalar kadar seviyor musun? (Ve beni affettin mi?)</h2>
+                
+                <div class="game-buttons-area" id="btnContainer">
+                    <button class="action-btn yes-btn" id="yesBtn">
+                        <i class="fa-solid fa-heart"></i>
+                        <span id="yesBtnText">Evet, Sonsuza Dek! ❤️</span>
+                    </button>
+                    <button class="action-btn no-btn" id="noBtn">
+                        <span id="noBtnText">Hayır 😜</span>
+                    </button>
+                </div>
+                <p class="game-hint"><i class="fa-solid fa-wand-magic-sparkles"></i> İpucu: Bazı butonlar tıklanmaktan biraz kaçabilir!</p>
+            </div>
+        </section>
+
+        <!-- 4. POLAROID ANI GALERİSİ -->
+        <section class="gallery-section">
+            <div class="section-title-wrap">
+                <span class="sub-heading">En Değerli Anlarımız</span>
+                <h2 class="section-title">Anı Tünelimiz 📸</h2>
+            </div>
+
+            <div class="polaroid-grid" id="polaroidGallery">
+                <!-- JavaScript ile doldurulacak -->
+            </div>
+        </section>
+
+        <!-- 5. DAKTİLO MEKTUP BÖLÜMÜ -->
+        <section class="letter-section">
+            <div class="section-title-wrap">
+                <span class="sub-heading">Kalbimden Dökülenler</span>
+                <h2 class="section-title">Sana Bir Mektubum Var 💌</h2>
+            </div>
+
+            <div class="letter-envelope glass-card">
+                <div class="letter-seal">
+                    <i class="fa-solid fa-heart"></i>
+                </div>
+                <div class="letter-content">
+                    <h3 class="letter-heading" id="letterHeading">Benim Güzel Sevgilim,</h3>
+                    <div class="typewriter-text" id="typewriterText"></div>
+                    <div class="letter-signature" id="letterSignature">
+                        <span>Sonsuz Sevgilerimle,</span>
+                        <strong id="senderNameDisplay">Ali</strong>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. SENİ SEVMEMİN NEDENLERİ -->
+        <section class="reasons-section">
+            <div class="section-title-wrap">
+                <span class="sub-heading">Neden Sen?</span>
+                <h2 class="section-title">Seni Sevmemin Sayısız Nedeninden Birkaçı ✨</h2>
+            </div>
+
+            <div class="reasons-list" id="reasonsContainer">
+                <!-- JavaScript ile doldurulacak -->
+            </div>
+        </section>
+
+        <!-- 7. SEVGİ & ŞIMARTMA KUPONLARI -->
+        <section class="coupons-section">
+            <div class="section-title-wrap">
+                <span class="sub-heading">Sana Özel Hediyeler</span>
+                <h2 class="section-title">Aşk Kuponların 🎟️</h2>
+                <p class="coupons-subtext">İstediğin zaman kuponun üstüne tıklayıp bana bozdurabilirsin!</p>
+            </div>
+
+            <div class="coupons-grid" id="couponsGrid">
+                <!-- JavaScript ile doldurulacak -->
+            </div>
+        </section>
+
+        <!-- 8. FOOTER -->
+        <footer class="site-footer">
+            <div class="footer-heart">
+                <i class="fa-solid fa-heart"></i>
+            </div>
+            <p id="footerText">Seninle her şey çok daha güzel.</p>
+            <span class="footer-copy">Sonsuza kadar seninle... ❤️</span>
+        </footer>
+
+    </main>
+
+    <!-- KUTLAMA / TEBRİK MODAL POPUP -->
+    <div class="modal-overlay" id="successModal">
+        <div class="modal-card glass-card">
+            <div class="modal-emoji" id="modalEmoji">🥰🎉💍</div>
+            <h3 class="modal-title" id="modalTitle">Biliyordum! Seni Çok Seviyorum!</h3>
+            <p class="modal-message" id="modalMessage">Dünyanın en tatlı, en harika sevgilisi sensin. Artık kaçışın yok, hep benimlesin! ❤️✨</p>
+            <button class="modal-close-btn" id="modalCloseBtn">
+                <i class="fa-solid fa-heart"></i> Harika!
+            </button>
+        </div>
+    </div>
+
+    <!-- FOTOĞRAF BÜYÜTME MODAL -->
+    <div class="image-modal-overlay" id="imageModal">
+        <div class="image-modal-content">
+            <button class="image-modal-close" id="imageModalClose">&times;</button>
+            <img src="" alt="Büyük Anı Fotoğrafı" id="modalImagePreview">
+            <div class="image-modal-caption">
+                <strong id="modalImageDate"></strong>
+                <p id="modalImageText"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yapılandırma ve Ana Script -->
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
