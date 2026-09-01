@@ -76,13 +76,36 @@ function initTextContents() {
     document.getElementById("songTitle").textContent = CONFIG.music.title;
     document.getElementById("songArtist").textContent = CONFIG.music.artist;
     
-    // Spotify Butonu
+    // Spotify Entegrasyonu (Hem Buton Hem Doğrudan Çalar)
     const spotifyBtn = document.getElementById("spotifyBtn");
-    if (CONFIG.music.spotifyUrl && CONFIG.music.spotifyUrl.trim()) {
-        spotifyBtn.href = CONFIG.music.spotifyUrl.trim();
-        spotifyBtn.style.display = "flex";
+    const spotifyCard = document.getElementById("spotifyEmbedCard");
+    const spotifyIframeWrap = document.getElementById("spotifyIframeWrap");
+
+    if (CONFIG.music && CONFIG.music.spotifyUrl && CONFIG.music.spotifyUrl.trim()) {
+        const spotUrl = CONFIG.music.spotifyUrl.trim();
+        if (spotifyBtn) {
+            spotifyBtn.href = spotUrl;
+            spotifyBtn.style.display = "flex";
+        }
+
+        // Spotify URL'inden track/playlist/album ID'sini çıkar
+        const match = spotUrl.match(/spotify\.com\/(?:intl-[a-z]+\/)?(track|playlist|album|artist)\/([a-zA-Z0-9]+)/);
+        if (match && spotifyCard && spotifyIframeWrap) {
+            const type = match[1];
+            const id = match[2];
+            const embedUrl = `https://open.spotify.com/embed/${type}/${id}?utm_source=generator&theme=0`;
+            const iframeHeight = type === 'track' ? 80 : 152;
+
+            spotifyIframeWrap.innerHTML = `
+                <iframe style="border-radius:12px;" src="${embedUrl}" width="100%" height="${iframeHeight}" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            `;
+            spotifyCard.style.display = "block";
+        } else if (spotifyCard) {
+            spotifyCard.style.display = "none";
+        }
     } else {
-        spotifyBtn.style.display = "none";
+        if (spotifyBtn) spotifyBtn.style.display = "none";
+        if (spotifyCard) spotifyCard.style.display = "none";
     }
 
     // Kazı Kazan Metinleri

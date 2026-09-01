@@ -18,7 +18,7 @@ const CONFIG = {
         title: "Bizim Şarkımız",
         artist: "Sana Özel",
         url: "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=romantic-love-112199.mp3",
-        spotifyUrl: "https://open.spotify.com", // İsteğe bağlı Spotify linki
+        spotifyUrl: "https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT", // Örnek Romantik Spotify Şarkısı
         autoPlayPrompt: "🎵 Şarkımızı dinlemek için ekrana tıkla ❤️"
     },
 

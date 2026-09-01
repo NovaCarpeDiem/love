@@ -524,6 +524,42 @@ body {
 }
 
 /* ==============================================================================
+   SPOTIFY EMBED ÇALAR KARTI
+   ============================================================================== */
+.spotify-embed-card {
+    width: 100%;
+    max-width: 680px;
+    margin: 24px auto 0 auto;
+    padding: 18px;
+    border-radius: var(--radius-card);
+    border: 1px solid rgba(29, 185, 84, 0.35);
+    background: rgba(16, 10, 28, 0.9);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(29, 185, 84, 0.2);
+}
+
+.spotify-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1ed760;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+}
+
+.spotify-header-icon {
+    font-size: 18px;
+}
+
+.spotify-iframe-wrap iframe {
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    display: block;
+}
+
+/* ==============================================================================
    3. KAÇAN BUTON & İNTERAKTİF SORU
    ============================================================================== */
 
