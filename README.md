@@ -11,6 +11,3 @@ Bu proje, çiftler veya barışmak/özür dilemek isteyenler için hazırlanmı�
 - 🎟️ **Tıklamalı Sevgi Kuponları:** Tıklandığında "Kullanıldı" damgası vuran eğlenceli kuponlar.
 - ⚙️ **Kolay Özelleştirme:** `config.js` dosyası üzerinden 1 dakikada isimler, tarihler ve şarkı değiştirilebilir.
 
-## 🚀 Canlı Önizleme (GitHub Pages)
-GitHub Pages aktif edildiğinde siteniz şu adreste yayınlanır:
-`https://novacarpediem.github.io/love/`
