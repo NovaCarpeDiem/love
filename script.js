@@ -5,10 +5,21 @@
 function initApp() {
     // 1. URL DATA DECODE (Sonsuz Farklı Müşteri İçin Otomatik Yükleme)
     const urlParams = new URLSearchParams(window.location.search);
-    
+    let rawParam = "";
+
     if (urlParams.has("data")) {
+        rawParam = urlParams.get("data");
+    } else if (window.location.hash) {
+        const hash = window.location.hash.substring(1);
+        if (hash.startsWith("data=")) {
+            rawParam = hash.replace("data=", "");
+        } else {
+            rawParam = hash;
+        }
+    }
+
+    if (rawParam) {
         try {
-            const rawParam = urlParams.get("data");
             const cleanStr = decodeURIComponent(rawParam).replace(/ /g, "+");
             const rawJson = decodeURIComponent(escape(atob(cleanStr)));
             const p = JSON.parse(rawJson);

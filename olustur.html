@@ -548,8 +548,8 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
         const jsonStr = JSON.stringify(payload);
         const encodedData = encodeURIComponent(btoa(unescape(encodeURIComponent(jsonStr))));
 
-        // 4. Mevcut site URL'ini oluştur
-        const baseUrl = window.location.origin + window.location.pathname.replace("olustur.html", "");
+        // 4. Mevcut site URL'ini oluştur (index.html'i açıkça belirterek yönlendirme kırılmalarını önle)
+        const baseUrl = window.location.origin + window.location.pathname.replace("olustur.html", "index.html");
         const finalUrl = `${baseUrl}?data=${encodedData}`;
 
         // 5. Ekrana bas
