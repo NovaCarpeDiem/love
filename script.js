@@ -3,90 +3,61 @@
 // ==============================================================================
 
 function initApp() {
-    // 1. URL DATA DECODE (Tüm Telefonlar, Mobil Tarayıcılar ve WebViews İçin %100 Uyumlu)
-    let rawParam = "";
-
-    // Doğrudan window.location.href üzerinden Regex ile ara (WhatsApp/Safari/Android için en garantili yöntem)
-    const href = window.location.href;
-    const match = href.match(/[?&#]data=([^&#]+)/);
-    if (match && match[1]) {
-        rawParam = match[1];
-    } else {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has("data")) rawParam = urlParams.get("data");
-    }
-
-    if (rawParam) {
+    // 1. URL DATA DECODE (Sonsuz Farklı Müşteri İçin Otomatik Yükleme)
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    if (urlParams.has("data")) {
         try {
+            const rawParam = urlParams.get("data");
             const cleanStr = decodeURIComponent(rawParam).replace(/ /g, "+");
             let rawJson = "";
             try {
+                rawJson = decodeURIComponent(escape(atob(cleanStr)));
+            } catch (e1) {
                 const binary = atob(cleanStr);
                 const bytes = new Uint8Array(binary.length);
                 for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
                 rawJson = new TextDecoder('utf-8').decode(bytes);
-            } catch (e1) {
-                rawJson = decodeURIComponent(escape(atob(cleanStr)));
             }
-            const p = JSON.parse(rawJson);
+            const parsedData = JSON.parse(rawJson);
             
-            // 1. İsimler ve Başlıklar
-            if (p.c || p.coupleTitle) CONFIG.coupleTitle = p.c || p.coupleTitle;
-            if (p.p || p.partnerName) CONFIG.partnerName = p.p || p.partnerName;
-            if (p.s || p.senderName) CONFIG.senderName = p.s || p.senderName;
-            if (p.d || p.startDate) CONFIG.startDate = p.d || p.startDate;
-            if (p.st || p.subTitle) CONFIG.subTitle = p.st || p.subTitle;
+            // CONFIG'i gelen verilerle güncelle
+            Object.assign(CONFIG, parsedData);
+            if (parsedData.c) CONFIG.coupleTitle = parsedData.c;
+            if (parsedData.p) CONFIG.partnerName = parsedData.p;
+            if (parsedData.s) CONFIG.senderName = parsedData.s;
+            if (parsedData.d) CONFIG.startDate = parsedData.d;
+            if (parsedData.st) CONFIG.subTitle = parsedData.st;
 
-            // 2. Mektup
-            if (p.l) {
-                CONFIG.letter.body = p.l;
-            } else if (p.letter) {
-                if (typeof p.letter === "string") CONFIG.letter.body = p.letter;
-                else Object.assign(CONFIG.letter, p.letter);
+            if (parsedData.l) {
+                if (!CONFIG.letter) CONFIG.letter = {};
+                CONFIG.letter.body = parsedData.l;
+            } else if (parsedData.letter) {
+                if (typeof parsedData.letter === "string") CONFIG.letter.body = parsedData.letter;
+                else Object.assign(CONFIG.letter, parsedData.letter);
             }
 
-            // 3. Spotify
-            if (p.sp) {
+            if (parsedData.sp) {
                 if (!CONFIG.music) CONFIG.music = {};
-                if (!p.sp.startsWith("http")) {
-                    CONFIG.music.spotifyUrl = "https://open.spotify.com/track/" + p.sp;
-                } else {
-                    CONFIG.music.spotifyUrl = p.sp;
-                }
-            } else if (p.music && p.music.spotifyUrl) {
-                CONFIG.music.spotifyUrl = p.music.spotifyUrl;
-            } else {
-                if (CONFIG.music) CONFIG.music.spotifyUrl = "";
+                CONFIG.music.spotifyUrl = parsedData.sp.startsWith("http") ? parsedData.sp : "https://open.spotify.com/track/" + parsedData.sp;
+            } else if (parsedData.music) {
+                Object.assign(CONFIG.music, parsedData.music);
             }
 
-            if (p.mu) {
-                if (!CONFIG.music) CONFIG.music = {};
-                CONFIG.music.url = p.mu;
-            } else if (p.music && p.music.url) {
-                CONFIG.music.url = p.music.url;
-            }
-
-            // 4. Kazı Kazan
-            if (p.sc) {
+            if (parsedData.scratchCard) Object.assign(CONFIG.scratchCard, parsedData.scratchCard);
+            if (parsedData.sc) {
                 if (!CONFIG.scratchCard) CONFIG.scratchCard = {};
-                CONFIG.scratchCard.message = p.sc;
-            } else if (p.scratchCard) {
-                Object.assign(CONFIG.scratchCard, p.scratchCard);
+                CONFIG.scratchCard.message = parsedData.sc;
             }
 
-            // 5. Fotoğraflar (Catbox Kısaltmaları veya Tam URL'ler)
-            if (p.imgs && Array.isArray(p.imgs)) {
-                p.imgs.forEach((imgUrl, i) => {
-                    if (imgUrl && CONFIG.memories[i]) {
-                        if (!imgUrl.startsWith("http")) {
-                            CONFIG.memories[i].image = "https://files.catbox.moe/" + imgUrl;
-                        } else {
-                            CONFIG.memories[i].image = imgUrl;
-                        }
+            if (parsedData.memories) {
+                CONFIG.memories = parsedData.memories;
+            } else if (parsedData.imgs && Array.isArray(parsedData.imgs)) {
+                parsedData.imgs.forEach((img, i) => {
+                    if (img && CONFIG.memories[i]) {
+                        CONFIG.memories[i].image = img.startsWith("http") ? img : "https://files.catbox.moe/" + img;
                     }
                 });
-            } else if (p.memories) {
-                CONFIG.memories = p.memories;
             }
         } catch (e) {
             console.error("Özel veri çözümlenirken hata oluştu:", e);
@@ -141,17 +112,17 @@ if (document.readyState === "loading") {
 function initTextContents() {
     document.title = `${CONFIG.coupleTitle} ❤️`;
     
-    const coupleTitleEl = document.getElementById("coupleTitle");
-    if (coupleTitleEl) coupleTitleEl.textContent = CONFIG.coupleTitle;
+    const cTitle = document.getElementById("coupleTitle");
+    if (cTitle) cTitle.textContent = CONFIG.coupleTitle;
 
-    const heroSubEl = document.getElementById("heroSubtitle");
-    if (heroSubEl) heroSubEl.textContent = CONFIG.subTitle;
+    const hSub = document.getElementById("heroSubtitle");
+    if (hSub) hSub.textContent = CONFIG.subTitle;
 
-    const songTitleEl = document.getElementById("songTitle");
-    if (songTitleEl) songTitleEl.textContent = (CONFIG.music && CONFIG.music.title) || "Bizim Şarkımız";
+    const sTitle = document.getElementById("songTitle");
+    if (sTitle) sTitle.textContent = (CONFIG.music && CONFIG.music.title) || "Bizim Şarkımız";
 
-    const songArtistEl = document.getElementById("songArtist");
-    if (songArtistEl) songArtistEl.textContent = (CONFIG.music && CONFIG.music.artist) || "Sana Özel";
+    const sArtist = document.getElementById("songArtist");
+    if (sArtist) sArtist.textContent = (CONFIG.music && CONFIG.music.artist) || "Sana Özel";
     
     // Spotify Entegrasyonu (Sadece Spotify Linki Varsa Açılır)
     const spotifyBtn = document.getElementById("spotifyBtn");
@@ -193,39 +164,53 @@ function initTextContents() {
         if (sMsg) sMsg.textContent = CONFIG.scratchCard.message || "Sen benim bu hayatta başıma gelen en güzel şeysin... ❤️✨";
     }
 
-    const letterHeadingEl = document.getElementById("letterHeading");
-    if (letterHeadingEl) {
-        letterHeadingEl.textContent = (CONFIG.letter && CONFIG.letter.heading) ? CONFIG.letter.heading : `Benim Güzel ${CONFIG.partnerName},`;
-    }
+    const lHead = document.getElementById("letterHeading");
+    if (lHead) lHead.textContent = (CONFIG.letter && CONFIG.letter.heading) ? CONFIG.letter.heading : `Benim Güzel ${CONFIG.partnerName},`;
+    
+    const sName = document.getElementById("senderNameDisplay");
+    if (sName) sName.textContent = CONFIG.senderName;
 
-    const senderDisplayEl = document.getElementById("senderNameDisplay");
-    if (senderDisplayEl) senderDisplayEl.textContent = CONFIG.senderName;
+    const gQ = document.getElementById("gameQuestion");
+    if (gQ && CONFIG.interactiveQuestion) gQ.textContent = CONFIG.interactiveQuestion.question;
 
-    const gameQuestionEl = document.getElementById("gameQuestion");
-    if (gameQuestionEl && CONFIG.interactiveQuestion) gameQuestionEl.textContent = CONFIG.interactiveQuestion.question;
+    const yBtn = document.getElementById("yesBtnText");
+    if (yBtn && CONFIG.interactiveQuestion) yBtn.textContent = CONFIG.interactiveQuestion.yesBtn;
 
-    const yesBtnEl = document.getElementById("yesBtnText");
-    if (yesBtnEl && CONFIG.interactiveQuestion) yesBtnEl.textContent = CONFIG.interactiveQuestion.yesBtn;
+    const nBtn = document.getElementById("noBtnText");
+    if (nBtn && CONFIG.interactiveQuestion) nBtn.textContent = CONFIG.interactiveQuestion.noBtn;
 
-    const noBtnEl = document.getElementById("noBtnText");
-    if (noBtnEl && CONFIG.interactiveQuestion) noBtnEl.textContent = CONFIG.interactiveQuestion.noBtn;
+    const mEmo = document.getElementById("modalEmoji");
+    if (mEmo && CONFIG.interactiveQuestion) mEmo.textContent = CONFIG.interactiveQuestion.successEmoji;
 
-    const footerTextEl = document.getElementById("footerText");
-    if (footerTextEl) footerTextEl.textContent = `${CONFIG.partnerName}, seninle her şey çok daha güzel.`;
+    const mTit = document.getElementById("modalTitle");
+    if (mTit && CONFIG.interactiveQuestion) mTit.textContent = CONFIG.interactiveQuestion.successTitle;
+
+    const mMsg = document.getElementById("modalMessage");
+    if (mMsg && CONFIG.interactiveQuestion) mMsg.textContent = CONFIG.interactiveQuestion.successMessage;
+
+    const fText = document.getElementById("footerText");
+    if (fText) fText.textContent = `${CONFIG.partnerName}, seninle her şey çok daha güzel.`;
 }
 
 // ==============================================================================
 // ⏳ CANLI AŞK SAYACI (İLİŞKİ SÜRESİ)
 // ==============================================================================
 function initLoveTimer() {
-    const startDate = new Date(CONFIG.startDate).getTime();
+    function parseSafeDate(dStr) {
+        if (!dStr) return new Date("2023-10-14T20:00:00").getTime();
+        let formatted = dStr.toString().replace(/ /g, "T");
+        if (formatted.length === 10) formatted += "T00:00:00";
+        const parsed = new Date(formatted).getTime();
+        return isNaN(parsed) ? new Date("2023-10-14T20:00:00").getTime() : parsed;
+    }
+
+    const startDate = parseSafeDate(CONFIG.startDate);
 
     function updateTimer() {
         const now = new Date().getTime();
         const difference = now - startDate;
 
-        if (difference < 0) {
-            // Gelecek bir tarih girilmişse
+        if (isNaN(difference) || difference < 0) {
             document.getElementById("years").textContent = "0";
             document.getElementById("days").textContent = "0";
             document.getElementById("hours").textContent = "0";
@@ -589,8 +574,6 @@ function startFloatingHearts() {
         heart.style.animationDuration = `${Math.random() * 6 + 6}s`;
         heart.style.opacity = Math.random() * 0.5 + 0.3;
 
-        container.appendChild(heart);
-
         setTimeout(() => {
             heart.remove();
         }, 12000);
@@ -617,7 +600,6 @@ function initScratchCard() {
     }
 
     function drawCover() {
-        // Rose-gold metalik parlak kaplama
         const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
         grad.addColorStop(0, "#d4af37");
         grad.addColorStop(0.3, "#f3e5ab");
@@ -628,7 +610,6 @@ function initScratchCard() {
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Yıldız parıltıları
         ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
         for (let i = 0; i < 24; i++) {
             const x = (Math.sin(i * 99) * 0.5 + 0.5) * canvas.width;
@@ -639,7 +620,6 @@ function initScratchCard() {
             ctx.fill();
         }
 
-        // Kapak Yazısı
         ctx.fillStyle = "#ffffff";
         ctx.font = "bold 17px 'Plus Jakarta Sans', sans-serif";
         ctx.textAlign = "center";
@@ -723,3 +703,4 @@ function initScratchCard() {
     setTimeout(resizeCanvas, 100);
     window.addEventListener("resize", resizeCanvas);
 }
+
