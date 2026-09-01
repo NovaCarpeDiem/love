@@ -3,18 +3,18 @@
 // ==============================================================================
 
 function initApp() {
-    // 1. URL DATA DECODE (Sonsuz Farklı Müşteri İçin Otomatik Yükleme)
-    const urlParams = new URLSearchParams(window.location.search);
+    // 1. URL DATA DECODE (Tüm Telefonlar, Mobil Tarayıcılar ve WebViews İçin %100 Uyumlu)
     let rawParam = "";
 
-    if (urlParams.has("data")) {
-        rawParam = urlParams.get("data");
-    } else if (window.location.hash) {
-        const hash = window.location.hash.substring(1);
-        if (hash.startsWith("data=")) {
-            rawParam = hash.replace("data=", "");
-        } else {
-            rawParam = hash;
+    // Doğrudan window.location.href üzerinden Regex ile ara (WhatsApp/Safari/Android için en garantili yöntem)
+    const href = window.location.href;
+    const match = href.match(/[?&#]data=([^&#]+)/);
+    if (match && match[1]) {
+        rawParam = match[1];
+    } else {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has("data")) {
+            rawParam = urlParams.get("data");
         }
     }
 
@@ -23,33 +23,39 @@ function initApp() {
             const cleanStr = decodeURIComponent(rawParam).replace(/ /g, "+");
             let rawJson = "";
             try {
-                rawJson = decodeURIComponent(escape(atob(cleanStr)));
-            } catch (e1) {
                 const binary = atob(cleanStr);
                 const bytes = new Uint8Array(binary.length);
                 for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
                 rawJson = new TextDecoder('utf-8').decode(bytes);
+            } catch (e1) {
+                rawJson = decodeURIComponent(escape(atob(cleanStr)));
             }
+            
             const p = JSON.parse(rawJson);
             
-            // Hem Tam Anahtarları (coupleTitle vs) Hem Kompakt Anahtarları (c, p, s vs) Destekle
-            if (p.coupleTitle || p.c) CONFIG.coupleTitle = p.coupleTitle || p.c;
-            if (p.partnerName || p.p) CONFIG.partnerName = p.partnerName || p.p;
-            if (p.senderName || p.s) CONFIG.senderName = p.senderName || p.s;
-            if (p.startDate || p.d) CONFIG.startDate = p.startDate || p.d;
-            if (p.subTitle || p.st) CONFIG.subTitle = p.subTitle || p.st;
+            // Verileri ata (Kompakt ve Tam Anahtarlar)
+            if (p.c || p.coupleTitle) CONFIG.coupleTitle = p.c || p.coupleTitle;
+            if (p.p || p.partnerName) CONFIG.partnerName = p.p || p.partnerName;
+            if (p.s || p.senderName) CONFIG.senderName = p.s || p.senderName;
+            if (p.d || p.startDate) CONFIG.startDate = p.d || p.startDate;
+            if (p.st || p.subTitle) CONFIG.subTitle = p.st || p.subTitle;
             
-            if (p.letter) {
-                if (typeof p.letter === "string") CONFIG.letter.body = p.letter;
-                else Object.assign(CONFIG.letter, p.letter);
-            } else if (p.l) {
-                CONFIG.letter.body = p.l;
+            if (p.l || p.letter) {
+                if (typeof (p.l || p.letter) === "string") {
+                    CONFIG.letter.body = p.l || p.letter;
+                } else if (p.letter && p.letter.body) {
+                    CONFIG.letter.body = p.letter.body;
+                }
             }
 
-            // Spotify sadece linkte varsa açılsın
+            // Spotify
             if (p.sp) {
                 if (!CONFIG.music) CONFIG.music = {};
-                CONFIG.music.spotifyUrl = p.sp;
+                if (!p.sp.startsWith("http")) {
+                    CONFIG.music.spotifyUrl = "https://open.spotify.com/track/" + p.sp;
+                } else {
+                    CONFIG.music.spotifyUrl = p.sp;
+                }
             } else if (p.music && p.music.spotifyUrl) {
                 CONFIG.music.spotifyUrl = p.music.spotifyUrl;
             } else {
@@ -61,20 +67,27 @@ function initApp() {
                 CONFIG.music.url = p.mu;
             }
 
-            if (p.scratchCard) Object.assign(CONFIG.scratchCard, p.scratchCard);
-            else if (p.sc) {
+            // Kazı Kazan
+            if (p.sc) {
                 if (!CONFIG.scratchCard) CONFIG.scratchCard = {};
                 CONFIG.scratchCard.message = p.sc;
+            } else if (p.scratchCard) {
+                Object.assign(CONFIG.scratchCard, p.scratchCard);
             }
 
-            if (p.memories) {
-                CONFIG.memories = p.memories;
-            } else if (p.imgs && Array.isArray(p.imgs)) {
+            // Fotoğraflar (Catbox Kısaltmaları veya Tam URL'ler)
+            if (p.imgs && Array.isArray(p.imgs)) {
                 p.imgs.forEach((imgUrl, i) => {
                     if (imgUrl && CONFIG.memories[i]) {
-                        CONFIG.memories[i].image = imgUrl;
+                        if (!imgUrl.startsWith("http")) {
+                            CONFIG.memories[i].image = "https://files.catbox.moe/" + imgUrl;
+                        } else {
+                            CONFIG.memories[i].image = imgUrl;
+                        }
                     }
                 });
+            } else if (p.memories) {
+                CONFIG.memories = p.memories;
             }
         } catch (e) {
             console.error("Özel veri çözümlenirken hata oluştu:", e);

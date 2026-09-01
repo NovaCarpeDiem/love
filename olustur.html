@@ -507,42 +507,36 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
         const spotifyUrlVal = document.getElementById("spotifyUrl").value.trim();
         const scratchMessageVal = document.getElementById("scratchMessage").value.trim();
 
-        const customPhotos = [photo1, photo2, photo3, photo4].filter(p => p.length > 0);
+        // Spotify linkini optimize et
+        if (spotifyUrlVal) {
+            const spotMatch = spotifyUrlVal.match(/track\/([a-zA-Z0-9]+)/);
+            if (spotMatch) spotifyUrlVal = spotMatch[1];
+        }
+
+        // Catbox resim linklerini optimize et
+        function cleanCatbox(url) {
+            if (!url) return "";
+            return url.replace("https://files.catbox.moe/", "").trim();
+        }
+
+        const customImgs = [photo1, photo2, photo3, photo4].map(cleanCatbox);
+        const hasCustomImgs = customImgs.some(img => img.length > 0);
 
         const payload = {
-            coupleTitle: coupleTitleVal,
             c: coupleTitleVal,
-            partnerName: partnerNameVal,
             p: partnerNameVal,
-            senderName: senderNameVal,
             s: senderNameVal,
-            startDate: document.getElementById("startDate").value || "2023-10-14T20:00",
             d: document.getElementById("startDate").value || "2023-10-14T20:00",
-            subTitle: document.getElementById("subTitle").value.trim(),
             st: document.getElementById("subTitle").value.trim(),
-            letter: {
-                heading: "Benim Güzel " + partnerNameVal + ",",
-                body: document.getElementById("letterBody").value.trim()
-            },
             l: document.getElementById("letterBody").value.trim()
         };
 
-        if (spotifyUrlVal) {
-            payload.sp = spotifyUrlVal;
-            payload.music = { spotifyUrl: spotifyUrlVal };
-        }
+        if (spotifyUrlVal) payload.sp = spotifyUrlVal;
         if (musicUrl && musicUrl !== "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=romantic-love-112199.mp3") {
             payload.mu = musicUrl;
-            if (!payload.music) payload.music = {};
-            payload.music.url = musicUrl;
         }
-        if (scratchMessageVal) {
-            payload.sc = scratchMessageVal;
-            payload.scratchCard = { heading: "🎉 Gizli Aşk Mesajın:", message: scratchMessageVal };
-        }
-        if (customPhotos.length > 0) {
-            payload.imgs = [photo1 || "", photo2 || "", photo3 || "", photo4 || ""];
-        }
+        if (scratchMessageVal) payload.sc = scratchMessageVal;
+        if (hasCustomImgs) payload.imgs = customImgs;
 
         // 3. Base64 UTF-8 URL-Safe Encode
         const jsonStr = JSON.stringify(payload);
