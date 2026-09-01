@@ -371,6 +371,17 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
                     <input type="url" id="customMusicUrl" placeholder="https://site.com/sarki.mp3">
                 </div>
 
+                <div class="form-group full-width" style="background: rgba(29, 185, 84, 0.1); border: 1px solid rgba(29, 185, 84, 0.3); padding: 14px; border-radius: 12px;">
+                    <label style="color: #1db954;"><i class="fa-brands fa-spotify"></i> Spotify Şarkı Linki (İsteğe Bağlı)</label>
+                    <input type="url" id="spotifyUrl" placeholder="https://open.spotify.com/track/... (Boş bırakırsan normal romantik müzik çalar)">
+                </div>
+
+                <!-- KAZI KAZAN GİZLİ MESAJ -->
+                <div class="form-group full-width" style="background: rgba(255, 209, 102, 0.1); border: 1px solid rgba(255, 209, 102, 0.3); padding: 14px; border-radius: 12px;">
+                    <label style="color: #ffd166;"><i class="fa-solid fa-coins"></i> 🪙 Aşk Kazı Kazanı - Gizli Sürpriz Mesajı</label>
+                    <textarea id="scratchMessage" style="min-height: 70px;" placeholder="Sevgilinin kazıyarak göreceği gizli aşk mesajı...">Sen benim bu hayatta başıma gelen en güzel şeysin... Seni çok seviyorum! ❤️✨</textarea>
+                </div>
+
                 <!-- FOTOĞRAF ALANI -->
                 <div class="form-group full-width" style="margin-top: 10px;">
                     <label><i class="fa-solid fa-camera-retro"></i> Polaroid Fotoğrafları (4 Adet Resim Linki)</label>
@@ -427,8 +438,14 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
             <button class="copy-btn" id="copyBtn"><i class="fa-regular fa-copy"></i> Kopyala</button>
         </div>
 
-        <div class="qr-section">
-            <h4 style="color: #fff; margin-bottom: 8px;">📱 Özel QR Kod:</h4>
+        <div class="share-buttons-row" style="display: flex; gap: 10px; margin-top: 10px;">
+            <a href="#" id="whatsappShareBtn" target="_blank" class="share-btn whatsapp-btn" style="flex: 1; padding: 12px; border-radius: 12px; background: #25d366; color: #fff; text-decoration: none; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <i class="fa-brands fa-whatsapp" style="font-size: 18px;"></i> WhatsApp'tan Gönder
+            </a>
+        </div>
+
+        <div class="qr-section" style="margin-top: 20px;">
+            <h4 style="color: #fff; margin-bottom: 8px;">📱 Büyük Pikselli Kolay Okunan QR Kod:</h4>
             <div id="qrcode" class="qr-container"></div>
             <br>
             <button class="copy-btn" id="downloadQrBtn" style="margin-top: 10px;">
@@ -470,111 +487,158 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
             }
         }
 
-        // 1. Fotoğrafları Al (Boşsa garantili estetik fotoğrafları koy)
-        const defaultImages = [
-            "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600&auto=format&fit=crop&q=80",
-            "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=600&auto=format&fit=crop&q=80",
-            "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&auto=format&fit=crop&q=80",
-            "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?w=600&auto=format&fit=crop&q=80"
-        ];
+        // 1. Fotoğrafları Al ve Kısalt
+        function cleanCatbox(url) {
+            if (!url) return "";
+            return url.replace("https://files.catbox.moe/", "").trim();
+        }
 
-        const photo1 = document.getElementById("photoUrl1").value.trim() || defaultImages[0];
-        const photo2 = document.getElementById("photoUrl2").value.trim() || defaultImages[1];
-        const photo3 = document.getElementById("photoUrl3").value.trim() || defaultImages[2];
-        const photo4 = document.getElementById("photoUrl4").value.trim() || defaultImages[3];
+        const photo1 = cleanCatbox(document.getElementById("photoUrl1").value.trim());
+        const photo2 = cleanCatbox(document.getElementById("photoUrl2").value.trim());
+        const photo3 = cleanCatbox(document.getElementById("photoUrl3").value.trim());
+        const photo4 = cleanCatbox(document.getElementById("photoUrl4").value.trim());
+        const customPhotos = [photo1, photo2, photo3, photo4].filter(p => p.length > 0);
 
         // 2. Bilgileri topla
-        const partnerNameVal = document.getElementById("partnerName").value.trim();
-        const coupleTitleVal = document.getElementById("coupleTitle").value.trim();
-        const senderNameVal = document.getElementById("senderName").value.trim();
+        const partnerNameVal = document.getElementById("partnerName").value.trim() || "Şirin'im";
+        const coupleTitleVal = document.getElementById("coupleTitle").value.trim() || "Ferhat & Şirin";
+        const senderNameVal = document.getElementById("senderName").value.trim() || "Ferhat";
+        let spotifyUrlVal = document.getElementById("spotifyUrl").value.trim();
+        const scratchMessageVal = document.getElementById("scratchMessage").value.trim();
+        const letterBodyVal = document.getElementById("letterBody").value.trim();
+
+        // Spotify linkini sadece ID'ye kısalt
+        if (spotifyUrlVal) {
+            const spotMatch = spotifyUrlVal.match(/track\/([a-zA-Z0-9]+)/);
+            if (spotMatch) spotifyUrlVal = spotMatch[1];
+        }
 
         const payload = {
             coupleTitle: coupleTitleVal,
+            c: coupleTitleVal,
             partnerName: partnerNameVal,
+            p: partnerNameVal,
             senderName: senderNameVal,
-            startDate: document.getElementById("startDate").value,
+            s: senderNameVal,
+            startDate: document.getElementById("startDate").value || "2023-10-14T20:00",
+            d: document.getElementById("startDate").value || "2023-10-14T20:00",
             subTitle: document.getElementById("subTitle").value.trim(),
+            st: document.getElementById("subTitle").value.trim(),
             letter: {
                 heading: "Benim Güzel " + partnerNameVal + ",",
-                body: document.getElementById("letterBody").value.trim()
+                body: letterBodyVal
             },
-            music: {
-                title: document.getElementById("musicTitle").value.trim() || "Bizim Şarkımız",
-                artist: document.getElementById("musicArtist").value.trim() || "Sana Özel",
-                url: musicUrl
-            },
-            memories: [
-                {
-                    image: photo1,
-                    date: "İlk Buluştuğumuz Gün",
-                    caption: "Gözlerine ilk baktığım o an, kalbimin yerinden çıkacağını sanmıştım..."
-                },
-                {
-                    image: photo2,
-                    date: "Birlikte İlk Kahvemiz",
-                    caption: "Saatlerce konuşup zamanın nasıl geçtiğini hiç anlamamıştık."
-                },
-                {
-                    image: photo3,
-                    date: "Unutulmaz Gün Batımı",
-                    caption: "Gökyüzü ne kadar güzelse, senin yanındaki huzur bin kat daha fazlaydı."
-                },
-                {
-                    image: photo4,
-                    date: "Her Anımızda Gülümseme",
-                    caption: "Birlikte saçmalamayı, çocuk gibi gülmeyi sadece seninle seviyorum."
-                }
-            ]
+            l: letterBodyVal
         };
 
-        // 3. Base64 UTF-8 URL-Safe Encode
+        if (spotifyUrlVal) {
+            payload.sp = spotifyUrlVal;
+            payload.music = {
+                title: document.getElementById("musicTitle").value.trim() || "Bizim Şarkımız",
+                artist: document.getElementById("musicArtist").value.trim() || "Sana Özel",
+                url: musicUrl,
+                spotifyUrl: spotifyUrlVal.startsWith("http") ? spotifyUrlVal : "https://open.spotify.com/track/" + spotifyUrlVal
+            };
+        } else if (musicUrl && musicUrl !== "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=romantic-love-112199.mp3") {
+            payload.mu = musicUrl;
+            payload.music = { url: musicUrl };
+        }
+
+        if (scratchMessageVal) {
+            payload.sc = scratchMessageVal;
+            payload.scratchCard = { heading: "🎉 Gizli Aşk Mesajın:", message: scratchMessageVal };
+        }
+
+        if (customPhotos.length > 0) {
+            payload.imgs = [photo1, photo2, photo3, photo4];
+            payload.memories = [
+                { image: photo1.startsWith("http") ? photo1 : "https://files.catbox.moe/" + photo1, date: "İlk Buluştuğumuz Gün", caption: "Gözlerine ilk baktığım o an, kalbimin yerinden çıkacağını sanmıştım..." },
+                { image: photo2.startsWith("http") ? photo2 : "https://files.catbox.moe/" + photo2, date: "Birlikte İlk Kahvemiz", caption: "Saatlerce konuşup zamanın nasıl geçtiğini hiç anlamamıştık." },
+                { image: photo3.startsWith("http") ? photo3 : "https://files.catbox.moe/" + photo3, date: "Unutulmaz Gün Batımı", caption: "Gökyüzü ne kadar güzelse, senin yanındaki huzur bin kat daha fazlaydı." },
+                { image: photo4.startsWith("http") ? photo4 : "https://files.catbox.moe/" + photo4, date: "Her Anımızda Gülümseme", caption: "Birlikte saçmalamayı, çocuk gibi gülmeyi sadece seninle seviyorum." }
+            ];
+        }
+
+        // 3. Ultra-Kompakt JSON ve Base64 UTF-8 Encode
         const jsonStr = JSON.stringify(payload);
         const encodedData = encodeURIComponent(btoa(unescape(encodeURIComponent(jsonStr))));
 
         // 4. Mevcut site URL'ini oluştur
-        const baseUrl = window.location.origin + window.location.pathname.replace("olustur.html", "");
+        const baseUrl = window.location.origin + window.location.pathname.replace("olustur.html", "index.html");
         const finalUrl = `${baseUrl}?data=${encodedData}`;
 
         // 5. Ekrana bas
         generatedUrlInput.value = finalUrl;
         bigOpenBtn.href = finalUrl;
+        
+        const whatsappBtn = document.getElementById("whatsappShareBtn");
+        if (whatsappBtn) {
+            whatsappBtn.href = `https://api.whatsapp.com/send?text=${encodeURIComponent("Sana özel bir sürprizim var ❤️:\n" + finalUrl)}`;
+        }
+
         resultCard.classList.add("show");
 
-        // 6. QR Kod oluştur
-        qrcodeDiv.innerHTML = "";
-        qrcodeObj = new QRCode(qrcodeDiv, {
-            text: finalUrl,
-            width: 180,
-            height: 180,
-            colorDark: "#10091d",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.M
-        });
+        // 6. HD BÜYÜK PİKSELLİ ANINDA OKUNAN QR KOD (ecc=L & qzone=1)
+        const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(finalUrl)}&color=000000&bgcolor=ffffff&qzone=1&ecc=L`;
+        qrcodeDiv.innerHTML = `<img id="qrImg" src="${qrApiUrl}" alt="Özel QR Kod" style="width:200px;height:200px;display:block;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,0.15);">`;
+
+        // QR Kod İndirme
+        downloadQrBtn.onclick = async () => {
+            try {
+                const res = await fetch(qrApiUrl);
+                const blob = await res.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = blobUrl;
+                a.download = `${coupleTitleVal || 'hediye'}-qr-kod.png`;
+                a.click();
+                URL.revokeObjectURL(blobUrl);
+            } catch (e) {
+                window.open(qrApiUrl, "_blank");
+            }
+        };
 
         // Sayfayı aşağı kaydır
         resultCard.scrollIntoView({ behavior: "smooth" });
     });
 
-    // Kopyalama
+    // Mobilde ve Masaüstünde Güvenilir Kopyalama
+    function copyLinkToClipboard(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            return navigator.clipboard.writeText(text);
+        }
+        return new Promise((resolve, reject) => {
+            const tempInput = document.createElement("textarea");
+            tempInput.value = text;
+            tempInput.style.position = "fixed";
+            tempInput.style.left = "-999999px";
+            tempInput.style.top = "-999999px";
+            document.body.appendChild(tempInput);
+            tempInput.focus();
+            tempInput.select();
+            try {
+                document.execCommand('copy');
+                resolve();
+            } catch (err) {
+                reject(err);
+            } finally {
+                tempInput.remove();
+            }
+        });
+    }
+
     copyBtn.addEventListener("click", () => {
-        generatedUrlInput.select();
-        navigator.clipboard.writeText(generatedUrlInput.value).then(() => {
+        const textToCopy = generatedUrlInput.value;
+        copyLinkToClipboard(textToCopy).then(() => {
             copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> Kopyalandı!';
             setTimeout(() => {
                 copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> Kopyala';
-            }, 2000);
+            }, 2500);
+        }).catch(() => {
+            generatedUrlInput.focus();
+            generatedUrlInput.select();
+            copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> Seçildi (Kopyala)';
         });
-    });
-
-    // QR Kod İndir
-    downloadQrBtn.addEventListener("click", () => {
-        const img = qrcodeDiv.querySelector("img");
-        if (img) {
-            const link = document.createElement("a");
-            link.download = "ozel-hediye-qr-kod.png";
-            link.href = img.src;
-            link.click();
-        }
     });
 </script>
 

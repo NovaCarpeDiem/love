@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <link rel="stylesheet" href="style.css?v=2.0">
+    <link rel="stylesheet" href="style.css?v=7.0">
 </head>
 <body>
 
@@ -97,6 +97,17 @@
                 </div>
                 <p class="timer-subtext">Ve her saniye sevgim daha da büyüyor... ✨</p>
             </div>
+
+            <!-- SPOTIFY ÇALAR KARTI (SADECE SPOTIFY LİNKİ VARSA AÇILIR) -->
+            <div class="spotify-embed-container" id="spotifyEmbedCard" style="display: none;">
+                <div class="spotify-embed-card">
+                    <div class="spotify-card-header">
+                        <i class="fa-brands fa-spotify" style="font-size: 20px;"></i>
+                        <span>Bizim Şarkımız (Spotify)</span>
+                    </div>
+                    <div id="spotifyIframeWrap"></div>
+                </div>
+            </div>
         </section>
 
         <!-- 3. KAÇAN BUTON & İNTERAKTİF SORU OYUNU -->
@@ -115,6 +126,21 @@
                     </button>
                 </div>
                 <p class="game-hint"><i class="fa-solid fa-wand-magic-sparkles"></i> İpucu: Bazı butonlar tıklanmaktan biraz kaçabilir!</p>
+            </div>
+        </section>
+
+        <!-- 3.5 🪙 AŞK KAZI KAZANI (SÜRPRİZ GİZLİ MESAJ) -->
+        <section class="scratch-card-section" id="scratchSection">
+            <div class="section-title-wrap">
+                <span class="sub-heading">Sana Özel Küçük Bir Sürpriz</span>
+                <h2 class="section-title">Aşk Kazı Kazanı 🪙</h2>
+            </div>
+            <div class="scratch-card-box">
+                <div class="scratch-secret-content">
+                    <h3 id="scratchHeading">🎉 Gizli Aşk Mesajın:</h3>
+                    <p id="scratchMessage">Sen benim bu hayatta başıma gelen en güzel şeysin... ❤️✨</p>
+                </div>
+                <canvas id="scratchCanvas"></canvas>
             </div>
         </section>
 
@@ -213,7 +239,7 @@
     </div>
 
     <!-- Yapılandırma ve Ana Script -->
-    <script src="config.js"></script>
-    <script src="script.js"></script>
+    <script src="config.js?v=7.0"></script>
+    <script src="script.js?v=7.0"></script>
 </body>
 </html>
