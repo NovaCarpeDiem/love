@@ -109,10 +109,18 @@ if (document.readyState === "loading") {
 // ==============================================================================
 function initTextContents() {
     document.title = `${CONFIG.coupleTitle} ❤️`;
-    document.getElementById("coupleTitle").textContent = CONFIG.coupleTitle;
-    document.getElementById("heroSubtitle").textContent = CONFIG.subTitle;
-    document.getElementById("songTitle").textContent = CONFIG.music.title;
-    document.getElementById("songArtist").textContent = CONFIG.music.artist;
+    
+    const coupleTitleEl = document.getElementById("coupleTitle");
+    if (coupleTitleEl) coupleTitleEl.textContent = CONFIG.coupleTitle;
+
+    const heroSubEl = document.getElementById("heroSubtitle");
+    if (heroSubEl) heroSubEl.textContent = CONFIG.subTitle;
+
+    const songTitleEl = document.getElementById("songTitle");
+    if (songTitleEl) songTitleEl.textContent = (CONFIG.music && CONFIG.music.title) || "Bizim Şarkımız";
+
+    const songArtistEl = document.getElementById("songArtist");
+    if (songArtistEl) songArtistEl.textContent = (CONFIG.music && CONFIG.music.artist) || "Sana Özel";
     
     // Spotify Entegrasyonu (Hem Buton Hem Doğrudan Çalar)
     const spotifyBtn = document.getElementById("spotifyBtn");
@@ -148,23 +156,42 @@ function initTextContents() {
 
     // Kazı Kazan Metinleri
     if (CONFIG.scratchCard) {
-        if (document.getElementById("scratchHeading")) {
-            document.getElementById("scratchHeading").textContent = CONFIG.scratchCard.heading || "🎉 Gizli Aşk Mesajın:";
-        }
-        if (document.getElementById("scratchMessage")) {
-            document.getElementById("scratchMessage").textContent = CONFIG.scratchCard.message || "Sen benim bu hayatta başıma gelen en güzel şeysin... ❤️✨";
-        }
+        const sHead = document.getElementById("scratchHeading");
+        if (sHead) sHead.textContent = CONFIG.scratchCard.heading || "🎉 Gizli Aşk Mesajın:";
+
+        const sMsg = document.getElementById("scratchMessage");
+        if (sMsg) sMsg.textContent = CONFIG.scratchCard.message || "Sen benim bu hayatta başıma gelen en güzel şeysin... ❤️✨";
     }
 
-    document.getElementById("letterHeading").textContent = `Benim Güzel ${CONFIG.partnerName},`;
-    document.getElementById("senderNameDisplay").textContent = CONFIG.senderName;
-    document.getElementById("gameQuestion").textContent = CONFIG.interactiveQuestion.question;
-    document.getElementById("yesBtnText").textContent = CONFIG.interactiveQuestion.yesBtn;
-    document.getElementById("noBtnText").textContent = CONFIG.interactiveQuestion.noBtn;
-    document.getElementById("modalEmoji").textContent = CONFIG.interactiveQuestion.successEmoji;
-    document.getElementById("modalTitle").textContent = CONFIG.interactiveQuestion.successTitle;
-    document.getElementById("modalMessage").textContent = CONFIG.interactiveQuestion.successMessage;
-    document.getElementById("footerText").textContent = `${CONFIG.partnerName}, seninle her şey çok daha güzel.`;
+    const letterHeadingEl = document.getElementById("letterHeading");
+    if (letterHeadingEl) {
+        letterHeadingEl.textContent = `Benim Güzel ${CONFIG.partnerName},`;
+    }
+
+    const senderDisplayEl = document.getElementById("senderNameDisplay");
+    if (senderDisplayEl) {
+        senderDisplayEl.textContent = CONFIG.senderName;
+    }
+
+    const gameQuestionEl = document.getElementById("gameQuestion");
+    if (gameQuestionEl && CONFIG.interactiveQuestion) {
+        gameQuestionEl.textContent = CONFIG.interactiveQuestion.question;
+    }
+
+    const yesBtnEl = document.getElementById("yesBtnText");
+    if (yesBtnEl && CONFIG.interactiveQuestion) {
+        yesBtnEl.textContent = CONFIG.interactiveQuestion.yesBtn;
+    }
+
+    const noBtnEl = document.getElementById("noBtnText");
+    if (noBtnEl && CONFIG.interactiveQuestion) {
+        noBtnEl.textContent = CONFIG.interactiveQuestion.noBtn;
+    }
+
+    const footerTextEl = document.getElementById("footerText");
+    if (footerTextEl) {
+        footerTextEl.textContent = `${CONFIG.partnerName}, seninle her şey çok daha güzel.`;
+    }
 }
 
 // ==============================================================================
