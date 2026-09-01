@@ -27,11 +27,16 @@ function initApp() {
                 CONFIG.letter.body = p.l;
             }
 
-            if (p.music) Object.assign(CONFIG.music, p.music);
+            // Spotify sadece linkte varsa açılsın
             if (p.sp) {
                 if (!CONFIG.music) CONFIG.music = {};
                 CONFIG.music.spotifyUrl = p.sp;
+            } else if (p.music && p.music.spotifyUrl) {
+                CONFIG.music.spotifyUrl = p.music.spotifyUrl;
+            } else {
+                if (CONFIG.music) CONFIG.music.spotifyUrl = "";
             }
+
             if (p.mu) {
                 if (!CONFIG.music) CONFIG.music = {};
                 CONFIG.music.url = p.mu;
@@ -151,7 +156,7 @@ function initTextContents() {
         }
     }
 
-    document.getElementById("letterHeading").textContent = CONFIG.letter.heading;
+    document.getElementById("letterHeading").textContent = `Benim Güzel ${CONFIG.partnerName},`;
     document.getElementById("senderNameDisplay").textContent = CONFIG.senderName;
     document.getElementById("gameQuestion").textContent = CONFIG.interactiveQuestion.question;
     document.getElementById("yesBtnText").textContent = CONFIG.interactiveQuestion.yesBtn;
