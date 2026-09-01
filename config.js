@@ -18,7 +18,14 @@ const CONFIG = {
         title: "Bizim Şarkımız",
         artist: "Sana Özel",
         url: "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=romantic-love-112199.mp3",
+        spotifyUrl: "https://open.spotify.com", // İsteğe bağlı Spotify linki
         autoPlayPrompt: "🎵 Şarkımızı dinlemek için ekrana tıkla ❤️"
+    },
+
+    // 🪙 Kazı Kazan Sürpriz Kartı
+    scratchCard: {
+        heading: "🎉 Gizli Aşk Mesajın:",
+        message: "Sen benim bu hayatta başıma gelen en güzel şeysin. Dünyanın en şanslı insanıyım çünkü yanımda SEN varsın! Seni sonsuza dek seveceğim ❤️✨"
     },
 
     // 💌 Aşk / Özür Mektubu (Daktilo ile yazılacak yazı)

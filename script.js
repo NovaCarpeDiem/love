@@ -8,10 +8,17 @@ function initApp() {
     
     if (urlParams.has("data")) {
         try {
-            // UTF-8 uyumlu Base64 çözümleme
-            const rawJson = decodeURIComponent(escape(atob(urlParams.get("data"))));
+            const rawParam = urlParams.get("data");
+            const cleanStr = decodeURIComponent(rawParam).replace(/ /g, "+");
+            const rawJson = decodeURIComponent(escape(atob(cleanStr)));
             const parsedData = JSON.parse(rawJson);
+            
+            // CONFIG'i gelen verilerle güncelle
             Object.assign(CONFIG, parsedData);
+            if (parsedData.letter) Object.assign(CONFIG.letter, parsedData.letter);
+            if (parsedData.music) Object.assign(CONFIG.music, parsedData.music);
+            if (parsedData.scratchCard) Object.assign(CONFIG.scratchCard, parsedData.scratchCard);
+            if (parsedData.memories) CONFIG.memories = parsedData.memories;
         } catch (e) {
             console.error("Özel veri çözümlenirken hata oluştu:", e);
         }
@@ -33,6 +40,9 @@ function initApp() {
 
     // 5. KAÇAN BUTON & İNTERAKTİF AF/SEVGİ OYUNU
     initInteractiveGame();
+
+    // 5.5 KAZI KAZAN SÜRPRİZ KARTI
+    initScratchCard();
 
     // 6. POLAROID GALERİSİ
     initPolaroidGallery();
@@ -65,6 +75,26 @@ function initTextContents() {
     document.getElementById("heroSubtitle").textContent = CONFIG.subTitle;
     document.getElementById("songTitle").textContent = CONFIG.music.title;
     document.getElementById("songArtist").textContent = CONFIG.music.artist;
+    
+    // Spotify Butonu
+    const spotifyBtn = document.getElementById("spotifyBtn");
+    if (CONFIG.music.spotifyUrl && CONFIG.music.spotifyUrl.trim()) {
+        spotifyBtn.href = CONFIG.music.spotifyUrl.trim();
+        spotifyBtn.style.display = "flex";
+    } else {
+        spotifyBtn.style.display = "none";
+    }
+
+    // Kazı Kazan Metinleri
+    if (CONFIG.scratchCard) {
+        if (document.getElementById("scratchHeading")) {
+            document.getElementById("scratchHeading").textContent = CONFIG.scratchCard.heading || "🎉 Gizli Aşk Mesajın:";
+        }
+        if (document.getElementById("scratchMessage")) {
+            document.getElementById("scratchMessage").textContent = CONFIG.scratchCard.message || "Sen benim bu hayatta başıma gelen en güzel şeysin... ❤️✨";
+        }
+    }
+
     document.getElementById("letterHeading").textContent = CONFIG.letter.heading;
     document.getElementById("senderNameDisplay").textContent = CONFIG.senderName;
     document.getElementById("gameQuestion").textContent = CONFIG.interactiveQuestion.question;
@@ -284,6 +314,117 @@ function triggerConfettiCelebration() {
 }
 
 // ==============================================================================
+// 🪙 KAZI KAZAN İNTERAKTİF SÜRPRİZ KARTI
+// ==============================================================================
+function initScratchCard() {
+    const canvas = document.getElementById("scratchCanvas");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    const wrapper = canvas.parentElement;
+
+    let isDrawing = false;
+    let isCleared = false;
+
+    function resizeCanvas() {
+        if (!wrapper || isCleared) return;
+        canvas.width = wrapper.offsetWidth;
+        canvas.height = wrapper.offsetHeight;
+        drawCover();
+    }
+
+    function drawCover() {
+        if (!ctx || isCleared) return;
+
+        // Rose-Gold & Gold Parıltılı Metalik Gradyan
+        const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        grad.addColorStop(0, '#c79081');
+        grad.addColorStop(0.25, '#dfa579');
+        grad.addColorStop(0.5, '#fce4a6');
+        grad.addColorStop(0.75, '#dfa579');
+        grad.addColorStop(1, '#c79081');
+
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Minik Parıltı Noktaları
+        ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
+        for (let i = 0; i < 35; i++) {
+            ctx.beginPath();
+            ctx.arc((i * 37) % canvas.width, (i * 29) % canvas.height, (i % 3) + 1.5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Kazıma Yönlendirme Metni
+        ctx.fillStyle = "#2d131f";
+        ctx.font = "bold 15px 'Plus Jakarta Sans', sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("🪙 PARMAĞINLA KAZI & GÖR ✨", canvas.width / 2, canvas.height / 2);
+    }
+
+    setTimeout(resizeCanvas, 150);
+    window.addEventListener("resize", () => {
+        if (!isCleared) resizeCanvas();
+    });
+
+    function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+            x: (clientX - rect.left) * (canvas.width / rect.width),
+            y: (clientY - rect.top) * (canvas.height / rect.height)
+        };
+    }
+
+    function scratch(e) {
+        if (!isDrawing || isCleared) return;
+        if (e.cancelable && e.type.startsWith("touch")) e.preventDefault();
+
+        const pos = getPos(e);
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 24, 0, Math.PI * 2);
+        ctx.fill();
+
+        checkCleared();
+    }
+
+    function checkCleared() {
+        if (isCleared) return;
+        try {
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const pixels = imgData.data;
+            let transparentCount = 0;
+            const step = 32;
+            const totalSampled = pixels.length / (4 * step);
+
+            for (let i = 3; i < pixels.length; i += 4 * step) {
+                if (pixels[i] === 0) transparentCount++;
+            }
+
+            const percent = (transparentCount / totalSampled) * 100;
+            if (percent > 38) {
+                isCleared = true;
+                canvas.classList.add("cleared");
+                triggerConfettiCelebration();
+                if (navigator.vibrate) navigator.vibrate([60, 40, 100]);
+            }
+        } catch (err) {
+            // CORS/canvas read safety
+        }
+    }
+
+    canvas.addEventListener("mousedown", (e) => { isDrawing = true; scratch(e); });
+    window.addEventListener("mousemove", scratch);
+    window.addEventListener("mouseup", () => { isDrawing = false; });
+
+    canvas.addEventListener("touchstart", (e) => { isDrawing = true; scratch(e); }, { passive: false });
+    window.addEventListener("touchmove", scratch, { passive: false });
+    window.addEventListener("touchend", () => { isDrawing = false; });
+}
+
+// ==============================================================================
 // 📸 POLAROID ANI GALERİSİ & RESİM BÜYÜTME
 // ==============================================================================
 function initPolaroidGallery() {
@@ -296,13 +437,21 @@ function initPolaroidGallery() {
 
     gallery.innerHTML = "";
 
+    const backupPhotos = [
+        "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=600&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?w=600&auto=format&fit=crop&q=80"
+    ];
+
     CONFIG.memories.forEach((mem, index) => {
+        const fallbackImg = backupPhotos[index % backupPhotos.length];
         const card = document.createElement("div");
         card.className = "polaroid-card";
         card.innerHTML = `
             <div class="polaroid-pin"></div>
             <div class="polaroid-img-box">
-                <img src="${mem.image}" alt="${mem.title || 'Anı'}" loading="lazy">
+                <img src="${mem.image || fallbackImg}" onerror="this.onerror=null; this.src='${fallbackImg}';" alt="${mem.title || 'Anı'}" loading="lazy">
             </div>
             <div class="polaroid-info">
                 <span class="polaroid-date">${mem.date}</span>
@@ -311,7 +460,7 @@ function initPolaroidGallery() {
         `;
 
         card.addEventListener("click", () => {
-            modalImagePreview.src = mem.image;
+            modalImagePreview.src = mem.image || fallbackImg;
             modalImageDate.textContent = mem.date;
             modalImageText.textContent = mem.caption;
             imageModal.classList.add("active");

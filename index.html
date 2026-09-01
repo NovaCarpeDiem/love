@@ -37,6 +37,9 @@
             <span class="song-title" id="songTitle">Bizim Şarkımız</span>
             <span class="song-artist" id="songArtist">Sana Özel</span>
         </div>
+        <a href="#" target="_blank" class="spotify-btn" id="spotifyBtn" title="Spotify'da Dinle" style="display: none;">
+            <i class="fa-brands fa-spotify"></i>
+        </a>
         <button class="music-btn" id="playPauseBtn" aria-label="Müziği Çal/Durdur">
             <i class="fa-solid fa-play" id="playIcon"></i>
         </button>
@@ -116,6 +119,24 @@
                 </div>
                 <p class="game-hint"><i class="fa-solid fa-wand-magic-sparkles"></i> İpucu: Bazı butonlar tıklanmaktan biraz kaçabilir!</p>
             </div>
+        </section>
+
+        <!-- 3.5. KAZI KAZAN SÜRPRİZ KARTI -->
+        <section class="scratch-section">
+            <div class="section-title-wrap">
+                <span class="sub-heading">Sürpriz Zamanı</span>
+                <h2 class="section-title">Kazı Kazan Kartın 🪙</h2>
+            </div>
+            
+            <div class="scratch-card-wrapper glass-card">
+                <div class="scratch-hidden-content" id="scratchHiddenContent">
+                    <div class="scratch-emoji">🥰✨💖</div>
+                    <h3 class="scratch-heading" id="scratchHeading">Gizli Aşk Mesajın:</h3>
+                    <p class="scratch-message" id="scratchMessage">Sen benim bu hayatta başıma gelen en güzel şeysin...</p>
+                </div>
+                <canvas id="scratchCanvas" class="scratch-canvas"></canvas>
+            </div>
+            <p class="scratch-hint"><i class="fa-solid fa-hand-pointer"></i> Gizli sürprizini görmek için parmağınla veya farenle altın alanı kazı!</p>
         </section>
 
         <!-- 4. POLAROID ANI GALERİSİ -->
