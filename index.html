@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <link rel="stylesheet" href="style.css?v=6.0">
+    <link rel="stylesheet" href="style.css?v=2.0">
 </head>
 <body>
 
@@ -97,17 +97,6 @@
                 </div>
                 <p class="timer-subtext">Ve her saniye sevgim daha da büyüyor... ✨</p>
             </div>
-
-            <!-- Spotify Doğrudan Çalar Kartı (Sadece Spotify Linki Girildiyse Görünür) -->
-            <div class="spotify-embed-container" id="spotifyEmbedCard" style="display: none; margin-top: 24px;">
-                <div class="spotify-embed-box glass-card">
-                    <div class="spotify-embed-header">
-                        <i class="fa-brands fa-spotify" style="color: #1ed760; font-size: 18px;"></i>
-                        <span>Şarkımızı Spotify'da Dinle</span>
-                    </div>
-                    <div id="spotifyIframeWrap"></div>
-                </div>
-            </div>
         </section>
 
         <!-- 3. KAÇAN BUTON & İNTERAKTİF SORU OYUNU -->
@@ -126,24 +115,6 @@
                     </button>
                 </div>
                 <p class="game-hint"><i class="fa-solid fa-wand-magic-sparkles"></i> İpucu: Bazı butonlar tıklanmaktan biraz kaçabilir!</p>
-            </div>
-        </section>
-
-        <!-- 3.5 🪙 KAZI KAZAN SÜRPRİZ KARTI -->
-        <section class="scratch-card-section" id="scratchSection">
-            <div class="section-title-wrap">
-                <span class="sub-heading">🎁 SANA ÖZEL SÜRPRİZ</span>
-                <h2 class="section-title">Aşk Kazı Kazanı 🪙</h2>
-                <p style="color: var(--text-muted); font-size: 14px; margin-top: 4px;">Altındaki gizli mesajı görmek için parmağınla veya farenle alanı kazı!</p>
-            </div>
-            <div class="scratch-card-wrapper">
-                <div class="scratch-card-box glass-card">
-                    <div class="scratch-hidden-content" id="scratchHiddenContent">
-                        <div class="scratch-secret-badge" id="scratchHeading">🎉 Gizli Aşk Mesajın:</div>
-                        <p class="scratch-secret-text" id="scratchMessage">Sen benim bu hayatta başıma gelen en güzel şeysin. Dünyanın en şanslı insanıyım çünkü yanımda SEN varsın! Seni sonsuza dek seveceğim ❤️✨</p>
-                    </div>
-                    <canvas id="scratchCanvas" width="340" height="180"></canvas>
-                </div>
             </div>
         </section>
 
@@ -241,8 +212,8 @@
         </div>
     </div>
 
-    <!-- Yapılandırma ve Ana Script (Önbellek Baypaslı Versiyon) -->
-    <script src="config.js?v=6.0"></script>
-    <script src="script.js?v=6.0"></script>
+    <!-- Yapılandırma ve Ana Script -->
+    <script src="config.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
