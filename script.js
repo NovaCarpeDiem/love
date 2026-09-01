@@ -3,30 +3,92 @@
 // ==============================================================================
 
 function initApp() {
-    // 1. URL DATA DECODE (Sonsuz Farklı Müşteri İçin Otomatik Yükleme)
+    // 1. URL DATA DECODE (Tüm Telefonlar, Mobil Tarayıcılar ve WebViews İçin %100 Uyumlu)
     const urlParams = new URLSearchParams(window.location.search);
-    
-    if (urlParams.has("data")) {
+    let parsedData = {};
+
+    let rawParam = urlParams.get("data");
+    if (!rawParam) {
+        const match = window.location.href.match(/[?&#]data=([^&#]+)/);
+        if (match && match[1]) rawParam = match[1];
+    }
+
+    if (rawParam) {
         try {
-            const rawParam = urlParams.get("data");
             const cleanStr = decodeURIComponent(rawParam).replace(/ /g, "+");
-            const rawJson = decodeURIComponent(escape(atob(cleanStr)));
-            const parsedData = JSON.parse(rawJson);
-            
-            // CONFIG'i gelen verilerle güncelle
-            Object.assign(CONFIG, parsedData);
-            if (parsedData.letter) Object.assign(CONFIG.letter, parsedData.letter);
-            if (parsedData.music) Object.assign(CONFIG.music, parsedData.music);
-            if (parsedData.memories) CONFIG.memories = parsedData.memories;
+            let rawJson = "";
+            try {
+                const binary = atob(cleanStr);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                rawJson = new TextDecoder('utf-8').decode(bytes);
+            } catch (e1) {
+                rawJson = decodeURIComponent(escape(atob(cleanStr)));
+            }
+            parsedData = JSON.parse(rawJson);
         } catch (e) {
             console.error("Özel veri çözümlenirken hata oluştu:", e);
         }
     }
 
-    if (urlParams.has("cift")) CONFIG.coupleTitle = urlParams.get("cift");
-    if (urlParams.has("tarih")) CONFIG.startDate = urlParams.get("tarih");
-    if (urlParams.has("partner")) CONFIG.partnerName = urlParams.get("partner");
-    if (urlParams.has("gonderen")) CONFIG.senderName = urlParams.get("gonderen");
+    // Doğrudan URL Parametreleri (Örn: ?c=Merve&p=Orkide&s=Ali&d=2025-02-17...)
+    if (urlParams.has("c")) parsedData.c = urlParams.get("c");
+    if (urlParams.has("p")) parsedData.p = urlParams.get("p");
+    if (urlParams.has("s")) parsedData.s = urlParams.get("s");
+    if (urlParams.has("d")) parsedData.d = urlParams.get("d");
+    if (urlParams.has("st")) parsedData.st = urlParams.get("st");
+    if (urlParams.has("sp")) parsedData.sp = urlParams.get("sp");
+    if (urlParams.has("sc")) parsedData.sc = urlParams.get("sc");
+    if (urlParams.has("l")) parsedData.l = urlParams.get("l");
+
+    if (urlParams.has("cift")) parsedData.c = urlParams.get("cift");
+    if (urlParams.has("tarih")) parsedData.d = urlParams.get("tarih");
+    if (urlParams.has("partner")) parsedData.p = urlParams.get("partner");
+    if (urlParams.has("gonderen")) parsedData.s = urlParams.get("gonderen");
+
+    // CONFIG'i gelen verilerle güncelle
+    if (parsedData.c || parsedData.coupleTitle) CONFIG.coupleTitle = parsedData.c || parsedData.coupleTitle;
+    if (parsedData.p || parsedData.partnerName) CONFIG.partnerName = parsedData.p || parsedData.partnerName;
+    if (parsedData.s || parsedData.senderName) CONFIG.senderName = parsedData.s || parsedData.senderName;
+    if (parsedData.d || parsedData.startDate) CONFIG.startDate = parsedData.d || parsedData.startDate;
+    if (parsedData.st || parsedData.subTitle) CONFIG.subTitle = parsedData.st || parsedData.subTitle;
+
+    if (parsedData.l) {
+        if (!CONFIG.letter) CONFIG.letter = {};
+        CONFIG.letter.body = parsedData.l;
+    } else if (parsedData.letter) {
+        if (typeof parsedData.letter === "string") CONFIG.letter.body = parsedData.letter;
+        else Object.assign(CONFIG.letter, parsedData.letter);
+    }
+
+    if (parsedData.sp) {
+        if (!CONFIG.music) CONFIG.music = {};
+        CONFIG.music.spotifyUrl = parsedData.sp.startsWith("http") ? parsedData.sp : "https://open.spotify.com/track/" + parsedData.sp;
+    } else if (parsedData.music && parsedData.music.spotifyUrl) {
+        CONFIG.music.spotifyUrl = parsedData.music.spotifyUrl;
+    }
+
+    if (parsedData.mu) {
+        if (!CONFIG.music) CONFIG.music = {};
+        CONFIG.music.url = parsedData.mu;
+    }
+
+    if (parsedData.sc) {
+        if (!CONFIG.scratchCard) CONFIG.scratchCard = {};
+        CONFIG.scratchCard.message = parsedData.sc;
+    } else if (parsedData.scratchCard) {
+        Object.assign(CONFIG.scratchCard, parsedData.scratchCard);
+    }
+
+    if (parsedData.imgs && Array.isArray(parsedData.imgs)) {
+        parsedData.imgs.forEach((imgUrl, i) => {
+            if (imgUrl && CONFIG.memories[i]) {
+                CONFIG.memories[i].image = imgUrl.startsWith("http") ? imgUrl : "https://files.catbox.moe/" + imgUrl;
+            }
+        });
+    } else if (parsedData.memories) {
+        CONFIG.memories = parsedData.memories;
+    }
 
     // 2. METİNLERİ VE BİLGİLERİ DOLDURMA
     initTextContents();
@@ -39,6 +101,9 @@ function initApp() {
 
     // 5. KAÇAN BUTON & İNTERAKTİF AF/SEVGİ OYUNU
     initInteractiveGame();
+
+    // 5.5 🪙 KAZI KAZAN SÜRPRİZ KARTI
+    initScratchCard();
 
     // 6. POLAROID GALERİSİ
     initPolaroidGallery();
@@ -67,38 +132,116 @@ if (document.readyState === "loading") {
 // ==============================================================================
 function initTextContents() {
     document.title = `${CONFIG.coupleTitle} ❤️`;
-    document.getElementById("coupleTitle").textContent = CONFIG.coupleTitle;
-    document.getElementById("heroSubtitle").textContent = CONFIG.subTitle;
-    document.getElementById("songTitle").textContent = CONFIG.music.title;
-    document.getElementById("songArtist").textContent = CONFIG.music.artist;
-    document.getElementById("letterHeading").textContent = CONFIG.letter.heading;
-    document.getElementById("senderNameDisplay").textContent = CONFIG.senderName;
-    document.getElementById("gameQuestion").textContent = CONFIG.interactiveQuestion.question;
-    document.getElementById("yesBtnText").textContent = CONFIG.interactiveQuestion.yesBtn;
-    document.getElementById("noBtnText").textContent = CONFIG.interactiveQuestion.noBtn;
-    document.getElementById("modalEmoji").textContent = CONFIG.interactiveQuestion.successEmoji;
-    document.getElementById("modalTitle").textContent = CONFIG.interactiveQuestion.successTitle;
-    document.getElementById("modalMessage").textContent = CONFIG.interactiveQuestion.successMessage;
-    document.getElementById("footerText").textContent = `${CONFIG.partnerName}, seninle her şey çok daha güzel.`;
+    
+    const cTitle = document.getElementById("coupleTitle");
+    if (cTitle) cTitle.textContent = CONFIG.coupleTitle;
+
+    const hSub = document.getElementById("heroSubtitle");
+    if (hSub) hSub.textContent = CONFIG.subTitle;
+
+    const sTitle = document.getElementById("songTitle");
+    if (sTitle) sTitle.textContent = (CONFIG.music && CONFIG.music.title) || "Bizim Şarkımız";
+
+    const sArtist = document.getElementById("songArtist");
+    if (sArtist) sArtist.textContent = (CONFIG.music && CONFIG.music.artist) || "Sana Özel";
+    
+    // Spotify Entegrasyonu (Sadece Spotify Linki Varsa Açılır)
+    const spotifyBtn = document.getElementById("spotifyBtn");
+    const spotifyCard = document.getElementById("spotifyEmbedCard");
+    const spotifyIframeWrap = document.getElementById("spotifyIframeWrap");
+
+    if (CONFIG.music && CONFIG.music.spotifyUrl && CONFIG.music.spotifyUrl.trim()) {
+        const spotUrl = CONFIG.music.spotifyUrl.trim();
+        if (spotifyBtn) {
+            spotifyBtn.href = spotUrl;
+            spotifyBtn.style.display = "flex";
+        }
+
+        const match = spotUrl.match(/spotify\.com\/(?:intl-[a-z]+\/)?(track|playlist|album|artist)\/([a-zA-Z0-9]+)/);
+        if (match && spotifyCard && spotifyIframeWrap) {
+            const type = match[1];
+            const id = match[2];
+            const embedUrl = `https://open.spotify.com/embed/${type}/${id}?utm_source=generator&theme=0`;
+            const iframeHeight = type === 'track' ? 80 : 152;
+
+            spotifyIframeWrap.innerHTML = `
+                <iframe style="border-radius:12px;" src="${embedUrl}" width="100%" height="${iframeHeight}" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            `;
+            spotifyCard.style.display = "block";
+        } else if (spotifyCard) {
+            spotifyCard.style.display = "none";
+        }
+    } else {
+        if (spotifyBtn) spotifyBtn.style.display = "none";
+        if (spotifyCard) spotifyCard.style.display = "none";
+    }
+
+    // Kazı Kazan Metinleri
+    if (CONFIG.scratchCard) {
+        const sHead = document.getElementById("scratchHeading");
+        if (sHead) sHead.textContent = CONFIG.scratchCard.heading || "🎉 Gizli Aşk Mesajın:";
+
+        const sMsg = document.getElementById("scratchMessage");
+        if (sMsg) sMsg.textContent = CONFIG.scratchCard.message || "Sen benim bu hayatta başıma gelen en güzel şeysin... ❤️✨";
+    }
+
+    const lHead = document.getElementById("letterHeading");
+    if (lHead) lHead.textContent = (CONFIG.letter && CONFIG.letter.heading) ? CONFIG.letter.heading : `Benim Güzel ${CONFIG.partnerName},`;
+    
+    const sName = document.getElementById("senderNameDisplay");
+    if (sName) sName.textContent = CONFIG.senderName;
+
+    const gQ = document.getElementById("gameQuestion");
+    if (gQ && CONFIG.interactiveQuestion) gQ.textContent = CONFIG.interactiveQuestion.question;
+
+    const yBtn = document.getElementById("yesBtnText");
+    if (yBtn && CONFIG.interactiveQuestion) yBtn.textContent = CONFIG.interactiveQuestion.yesBtn;
+
+    const nBtn = document.getElementById("noBtnText");
+    if (nBtn && CONFIG.interactiveQuestion) nBtn.textContent = CONFIG.interactiveQuestion.noBtn;
+
+    const mEmo = document.getElementById("modalEmoji");
+    if (mEmo && CONFIG.interactiveQuestion) mEmo.textContent = CONFIG.interactiveQuestion.successEmoji;
+
+    const mTit = document.getElementById("modalTitle");
+    if (mTit && CONFIG.interactiveQuestion) mTit.textContent = CONFIG.interactiveQuestion.successTitle;
+
+    const mMsg = document.getElementById("modalMessage");
+    if (mMsg && CONFIG.interactiveQuestion) mMsg.textContent = CONFIG.interactiveQuestion.successMessage;
+
+    const fText = document.getElementById("footerText");
+    if (fText) fText.textContent = `${CONFIG.partnerName}, seninle her şey çok daha güzel.`;
 }
 
 // ==============================================================================
 // ⏳ CANLI AŞK SAYACI (İLİŞKİ SÜRESİ)
 // ==============================================================================
 function initLoveTimer() {
-    const startDate = new Date(CONFIG.startDate).getTime();
+    function parseSafeDate(dStr) {
+        if (!dStr) return new Date("2023-10-14T20:00:00").getTime();
+        let formatted = dStr.toString().replace(/ /g, "T");
+        if (formatted.length === 10) formatted += "T00:00:00";
+        const parsed = new Date(formatted).getTime();
+        return isNaN(parsed) ? new Date("2023-10-14T20:00:00").getTime() : parsed;
+    }
+
+    const startDate = parseSafeDate(CONFIG.startDate);
 
     function updateTimer() {
         const now = new Date().getTime();
         const difference = now - startDate;
 
-        if (difference < 0) {
-            // Gelecek bir tarih girilmişse
-            document.getElementById("years").textContent = "0";
-            document.getElementById("days").textContent = "0";
-            document.getElementById("hours").textContent = "0";
-            document.getElementById("minutes").textContent = "0";
-            document.getElementById("seconds").textContent = "0";
+        if (isNaN(difference) || difference < 0) {
+            const y = document.getElementById("years");
+            const d = document.getElementById("days");
+            const h = document.getElementById("hours");
+            const m = document.getElementById("minutes");
+            const s = document.getElementById("seconds");
+            if (y) y.textContent = "0";
+            if (d) d.textContent = "0";
+            if (h) h.textContent = "0";
+            if (m) m.textContent = "0";
+            if (s) s.textContent = "0";
             return;
         }
 
@@ -111,11 +254,20 @@ function initLoveTimer() {
         const years = Math.floor(totalDays / 365.25);
         const days = Math.floor(totalDays % 365.25);
 
-        document.getElementById("years").textContent = years;
-        document.getElementById("days").textContent = days;
-        document.getElementById("hours").textContent = hours < 10 ? '0' + hours : hours;
-        document.getElementById("minutes").textContent = minutes < 10 ? '0' + minutes : minutes;
-        document.getElementById("seconds").textContent = seconds < 10 ? '0' + seconds : seconds;
+        const yEl = document.getElementById("years");
+        if (yEl) yEl.textContent = years;
+
+        const dEl = document.getElementById("days");
+        if (dEl) dEl.textContent = days;
+
+        const hEl = document.getElementById("hours");
+        if (hEl) hEl.textContent = hours < 10 ? '0' + hours : hours;
+
+        const mEl = document.getElementById("minutes");
+        if (mEl) mEl.textContent = minutes < 10 ? '0' + minutes : minutes;
+
+        const sEl = document.getElementById("seconds");
+        if (sEl) sEl.textContent = seconds < 10 ? '0' + seconds : seconds;
     }
 
     updateTimer();
@@ -463,4 +615,128 @@ function startFloatingHearts() {
             heart.remove();
         }, 12000);
     }, 450);
+}
+
+// ==============================================================================
+// 🪙 KAZI KAZAN SÜRPRİZ KART MOTORU (HTML5 CANVAS)
+// ==============================================================================
+function initScratchCard() {
+    const canvas = document.getElementById("scratchCanvas");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return;
+
+    let isDrawing = false;
+    let isRevealed = false;
+
+    function resizeCanvas() {
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width || 340;
+        canvas.height = rect.height || 180;
+        drawCover();
+    }
+
+    function drawCover() {
+        const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        grad.addColorStop(0, "#d4af37");
+        grad.addColorStop(0.3, "#f3e5ab");
+        grad.addColorStop(0.5, "#ff758c");
+        grad.addColorStop(0.7, "#e8c39e");
+        grad.addColorStop(1, "#b38728");
+
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+        for (let i = 0; i < 24; i++) {
+            const x = (Math.sin(i * 99) * 0.5 + 0.5) * canvas.width;
+            const y = (Math.cos(i * 33) * 0.5 + 0.5) * canvas.height;
+            const r = (i % 3) + 1.5;
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 17px 'Plus Jakarta Sans', sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.shadowColor = "rgba(0, 0, 0, 0.4)";
+        ctx.shadowBlur = 6;
+        ctx.fillText("✨ Sürprizini Görmek İçin Kazı! ✨", canvas.width / 2, canvas.height / 2 - 10);
+
+        ctx.font = "13px 'Plus Jakarta Sans', sans-serif";
+        ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+        ctx.fillText("🪙 (Parmağınla veya farenle sürükle)", canvas.width / 2, canvas.height / 2 + 18);
+        ctx.shadowBlur = 0;
+    }
+
+    function getPosition(e) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+            x: (clientX - rect.left) * (canvas.width / rect.width),
+            y: (clientY - rect.top) * (canvas.height / rect.height)
+        };
+    }
+
+    function scratch(e) {
+        if (!isDrawing || isRevealed) return;
+        if (e.cancelable) e.preventDefault();
+
+        const pos = getPosition(e);
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 22, 0, Math.PI * 2);
+        ctx.fill();
+
+        checkScratchedPercentage();
+    }
+
+    function checkScratchedPercentage() {
+        if (isRevealed) return;
+        try {
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const pixels = imgData.data;
+            let transparentCount = 0;
+            const sampleRate = 32;
+
+            for (let i = 3; i < pixels.length; i += sampleRate * 4) {
+                if (pixels[i] === 0) transparentCount++;
+            }
+
+            const totalSampled = pixels.length / (sampleRate * 4);
+            const percent = (transparentCount / totalSampled) * 100;
+
+            if (percent > 40) {
+                isRevealed = true;
+                canvas.style.transition = "opacity 0.6s ease";
+                canvas.style.opacity = "0";
+                setTimeout(() => {
+                    canvas.style.display = "none";
+                }, 600);
+
+                if (typeof confetti === "function") {
+                    confetti({
+                        particleCount: 70,
+                        spread: 70,
+                        origin: { y: 0.6 }
+                    });
+                }
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            }
+        } catch (err) {}
+    }
+
+    canvas.addEventListener("mousedown", (e) => { isDrawing = true; scratch(e); });
+    window.addEventListener("mousemove", (e) => { if (isDrawing) scratch(e); });
+    window.addEventListener("mouseup", () => { isDrawing = false; });
+
+    canvas.addEventListener("touchstart", (e) => { isDrawing = true; scratch(e); }, { passive: false });
+    window.addEventListener("touchmove", (e) => { if (isDrawing) scratch(e); }, { passive: false });
+    window.addEventListener("touchend", () => { isDrawing = false; });
+
+    setTimeout(resizeCanvas, 100);
+    window.addEventListener("resize", resizeCanvas);
 }
