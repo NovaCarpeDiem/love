@@ -238,8 +238,702 @@
         </div>
     </div>
 
-    <!-- Yapılandırma ve Ana Script -->
-    <script src="config.js?v=7.0"></script>
-    <script src="script.js?v=7.0"></script>
+    <!-- Yapılandırma ve Ana Script (Tamamen Kendi Kendine Yeten Entegre Motor) -->
+    <script>
+// ==============================================================================
+// 💖 İNTERAKTİF MOTOR / ROMANTIC INTERACTIVE ENGINE (index.html)
+// ==============================================================================
+
+window.CONFIG = {
+    partnerName: "Şirin'im",
+    senderName: "Ferhat",
+    coupleTitle: "Ferhat & Şirin",
+    subTitle: "Seninle geçen her saniye hayatımın en güzel anı...",
+    startDate: "2023-10-14T20:00:00",
+    music: {
+        title: "Bizim Şarkımız",
+        artist: "Sana Özel",
+        url: "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=romantic-love-112199.mp3",
+        spotifyUrl: ""
+    },
+    scratchCard: {
+        heading: "🎉 Gizli Aşk Mesajın:",
+        message: "Sen benim bu hayatta başıma gelen en güzel şeysin... ❤️✨"
+    },
+    letter: {
+        heading: "Benim Güzel Şirin'im,",
+        body: "Hayatıma girdiğin andan itibaren her şey o kadar güzelleşti ki, bazen seni hak edecek ne yaptım diye düşünüyorum.\nGülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.\n\nİyi ki varsın, iyi ki hayatımdasın. Seni her şeyden çok seviyorum! ❤️"
+    },
+    interactiveQuestion: {
+        question: "Beni dünyalar kadar seviyor musun? (Ve beni affettin mi?)",
+        yesBtn: "Evet, Sonsuza Dek! ❤️",
+        noBtn: "Hayır 😜",
+        successEmoji: "🥰🎉💍",
+        successTitle: "Biliyordum! Seni Çok Seviyorum!",
+        successMessage: "Dünyanın en tatlı, en harika sevgilisi sensin. Artık kaçışın yok, hep benimlesin! ❤️✨"
+    },
+    memories: [
+        { image: "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600&auto=format&fit=crop&q=80", date: "İlk Buluştuğumuz Gün", caption: "Gözlerine ilk baktığım o an, kalbimin yerinden çıkacağını sanmıştım..." },
+        { image: "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=600&auto=format&fit=crop&q=80", date: "Birlikte İlk Kahvemiz", caption: "Saatlerce konuşup zamanın nasıl geçtiğini hiç anlamamıştık." },
+        { image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&auto=format&fit=crop&q=80", date: "Unutulmaz Gün Batımı", caption: "Gökyüzü ne kadar güzelse, senin yanındaki huzur bin kat daha fazlaydı." },
+        { image: "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?w=600&auto=format&fit=crop&q=80", date: "Her Anımızda Gülümseme", caption: "Birlikte saçmalamayı, çocuk gibi gülmeyi sadece seninle seviyorum." }
+    ],
+    loveReasons: [
+        "Gözlerinin içindeki o benzersiz sıcaklık ve ışık ✨",
+        "Ne zaman canım sıkılsa bir gülüşünle beni neşelendirmen 😊",
+        "Bana hissettirdiğin o eşsiz güven ve huzur duygusu 🏡",
+        "En saçma şakalarıma bile benimle birlikte kahkaha atman 😂",
+        "Beni her halimle kabul edip her gün daha iyi biri olmamı sağlaman 💖",
+        "Birlikte kurduğumuz o güzel gelecek hayalleri ✈️"
+    ],
+    coupons: [
+        { icon: "🫂", title: "Sınırsız Sarılma Kuponu", desc: "İstediğin an ve yerde geçerli, 7/24 koşulsuz sıcacık bir sarılma." },
+        { icon: "☕", title: "Kahve & Tatlı Ismarlama", desc: "En sevdiğin kafede istediğin tatlı ve kahve benden!" },
+        { icon: "🎬", title: "Film & Dizi Gecesi", desc: "Filmi, diziyi ve tüm atıştırmalıkları tamamen sen seçiyorsun." },
+        { icon: "🕊️", title: "1 Günlük Trip Muafiyeti", desc: "Bu kupon sunulduğunda tüm anlaşmazlıklar anında tatlıya bağlanır :)" },
+        { icon: "💆‍♀️", title: "Ayak & Omuz Masajı", desc: "Yorucu bir günün ardından 30 dakikalık özel rahatlama seansı." },
+        { icon: "🍕", title: "Gece Yarısı Kaçamağı", desc: "Saat kaç olursa olsun en sevdiğin yemeği söyleme hakkı!" }
+    ]
+};
+
+function initApp() {
+    const urlParams = new URLSearchParams(window.location.search);
+    let parsedData = {};
+
+    let rawParam = urlParams.get("data");
+    if (!rawParam) {
+        const match = window.location.href.match(/[?&#]data=([^&#]+)/);
+        if (match && match[1]) rawParam = match[1];
+    }
+
+    if (rawParam) {
+        try {
+            const cleanStr = decodeURIComponent(rawParam).replace(/ /g, "+");
+            let rawJson = "";
+            try {
+                const binary = atob(cleanStr);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                rawJson = new TextDecoder('utf-8').decode(bytes);
+            } catch (e1) {
+                rawJson = decodeURIComponent(escape(atob(cleanStr)));
+            }
+            parsedData = JSON.parse(rawJson);
+        } catch (e) {
+            console.error("Özel veri çözümlenirken hata:", e);
+        }
+    }
+
+    // Doğrudan URL Parametreleri (Örn: ?c=Merve&p=Orkide&s=Ali&d=2025-02-17...)
+    if (urlParams.has("c")) parsedData.c = urlParams.get("c");
+    if (urlParams.has("p")) parsedData.p = urlParams.get("p");
+    if (urlParams.has("s")) parsedData.s = urlParams.get("s");
+    if (urlParams.has("d")) parsedData.d = urlParams.get("d");
+    if (urlParams.has("st")) parsedData.st = urlParams.get("st");
+    if (urlParams.has("sp")) parsedData.sp = urlParams.get("sp");
+    if (urlParams.has("sc")) parsedData.sc = urlParams.get("sc");
+    if (urlParams.has("l")) parsedData.l = urlParams.get("l");
+
+    // CONFIG güncelleme
+    if (parsedData.c || parsedData.coupleTitle) CONFIG.coupleTitle = parsedData.c || parsedData.coupleTitle;
+    if (parsedData.p || parsedData.partnerName) CONFIG.partnerName = parsedData.p || parsedData.partnerName;
+    if (parsedData.s || parsedData.senderName) CONFIG.senderName = parsedData.s || parsedData.senderName;
+    if (parsedData.d || parsedData.startDate) CONFIG.startDate = parsedData.d || parsedData.startDate;
+    if (parsedData.st || parsedData.subTitle) CONFIG.subTitle = parsedData.st || parsedData.subTitle;
+
+    if (parsedData.l) {
+        if (!CONFIG.letter) CONFIG.letter = {};
+        CONFIG.letter.body = parsedData.l;
+    } else if (parsedData.letter) {
+        if (typeof parsedData.letter === "string") CONFIG.letter.body = parsedData.letter;
+        else Object.assign(CONFIG.letter, parsedData.letter);
+    }
+
+    if (parsedData.sp) {
+        if (!CONFIG.music) CONFIG.music = {};
+        CONFIG.music.spotifyUrl = parsedData.sp.startsWith("http") ? parsedData.sp : "https://open.spotify.com/track/" + parsedData.sp;
+    } else if (parsedData.music && parsedData.music.spotifyUrl) {
+        CONFIG.music.spotifyUrl = parsedData.music.spotifyUrl;
+    }
+
+    if (parsedData.mu) {
+        if (!CONFIG.music) CONFIG.music = {};
+        CONFIG.music.url = parsedData.mu;
+    }
+
+    if (parsedData.sc) {
+        if (!CONFIG.scratchCard) CONFIG.scratchCard = {};
+        CONFIG.scratchCard.message = parsedData.sc;
+    } else if (parsedData.scratchCard) {
+        Object.assign(CONFIG.scratchCard, parsedData.scratchCard);
+    }
+
+    if (parsedData.imgs && Array.isArray(parsedData.imgs)) {
+        parsedData.imgs.forEach((imgUrl, i) => {
+            if (imgUrl && CONFIG.memories[i]) {
+                CONFIG.memories[i].image = imgUrl.startsWith("http") ? imgUrl : "https://files.catbox.moe/" + imgUrl;
+            }
+        });
+    } else if (parsedData.memories) {
+        CONFIG.memories = parsedData.memories;
+    }
+
+    initTextContents();
+    initLoveTimer();
+    initMusicPlayer();
+    initInteractiveGame();
+    initScratchCard();
+    initPolaroidGallery();
+    initTypewriterLetter();
+    initLoveReasons();
+    initCoupons();
+    startFloatingHearts();
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initApp);
+} else {
+    initApp();
+}
+
+function initTextContents() {
+    document.title = `${CONFIG.coupleTitle} ❤️`;
+    
+    const cTitle = document.getElementById("coupleTitle");
+    if (cTitle) cTitle.textContent = CONFIG.coupleTitle;
+
+    const hSub = document.getElementById("heroSubtitle");
+    if (hSub) hSub.textContent = CONFIG.subTitle;
+
+    const sTitle = document.getElementById("songTitle");
+    if (sTitle) sTitle.textContent = (CONFIG.music && CONFIG.music.title) || "Bizim Şarkımız";
+
+    const sArtist = document.getElementById("songArtist");
+    if (sArtist) sArtist.textContent = (CONFIG.music && CONFIG.music.artist) || "Sana Özel";
+    
+    // Spotify Entegrasyonu
+    const spotifyCard = document.getElementById("spotifyEmbedCard");
+    const spotifyIframeWrap = document.getElementById("spotifyIframeWrap");
+
+    if (CONFIG.music && CONFIG.music.spotifyUrl && CONFIG.music.spotifyUrl.trim()) {
+        const spotUrl = CONFIG.music.spotifyUrl.trim();
+        const match = spotUrl.match(/spotify\.com\/(?:intl-[a-z]+\/)?(track|playlist|album|artist)\/([a-zA-Z0-9]+)/);
+        if (match && spotifyCard && spotifyIframeWrap) {
+            const type = match[1];
+            const id = match[2];
+            const embedUrl = `https://open.spotify.com/embed/${type}/${id}?utm_source=generator&theme=0`;
+            const iframeHeight = type === 'track' ? 80 : 152;
+            spotifyIframeWrap.innerHTML = `
+                <iframe style="border-radius:12px;" src="${embedUrl}" width="100%" height="${iframeHeight}" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            `;
+            spotifyCard.style.display = "block";
+        } else if (spotifyCard) {
+            spotifyCard.style.display = "none";
+        }
+    } else if (spotifyCard) {
+        spotifyCard.style.display = "none";
+    }
+
+    // Kazı Kazan Metinleri
+    if (CONFIG.scratchCard) {
+        const sHead = document.getElementById("scratchHeading");
+        if (sHead) sHead.textContent = CONFIG.scratchCard.heading || "🎉 Gizli Aşk Mesajın:";
+        const sMsg = document.getElementById("scratchMessage");
+        if (sMsg) sMsg.textContent = CONFIG.scratchCard.message || "Sen benim bu hayatta başıma gelen en güzel şeysin... ❤️✨";
+    }
+
+    const lHead = document.getElementById("letterHeading");
+    if (lHead) lHead.textContent = (CONFIG.letter && CONFIG.letter.heading) ? CONFIG.letter.heading : `Benim Güzel ${CONFIG.partnerName},`;
+    
+    const sName = document.getElementById("senderNameDisplay");
+    if (sName) sName.textContent = CONFIG.senderName;
+
+    const gQ = document.getElementById("gameQuestion");
+    if (gQ && CONFIG.interactiveQuestion) gQ.textContent = CONFIG.interactiveQuestion.question;
+
+    const yBtn = document.getElementById("yesBtnText");
+    if (yBtn && CONFIG.interactiveQuestion) yBtn.textContent = CONFIG.interactiveQuestion.yesBtn;
+
+    const nBtn = document.getElementById("noBtnText");
+    if (nBtn && CONFIG.interactiveQuestion) nBtn.textContent = CONFIG.interactiveQuestion.noBtn;
+
+    const mEmo = document.getElementById("modalEmoji");
+    if (mEmo && CONFIG.interactiveQuestion) mEmo.textContent = CONFIG.interactiveQuestion.successEmoji;
+
+    const mTit = document.getElementById("modalTitle");
+    if (mTit && CONFIG.interactiveQuestion) mTit.textContent = CONFIG.interactiveQuestion.successTitle;
+
+    const mMsg = document.getElementById("modalMessage");
+    if (mMsg && CONFIG.interactiveQuestion) mMsg.textContent = CONFIG.interactiveQuestion.successMessage;
+
+    const fText = document.getElementById("footerText");
+    if (fText) fText.textContent = `${CONFIG.partnerName}, seninle her şey çok daha güzel.`;
+}
+
+function initLoveTimer() {
+    function parseSafeDate(dStr) {
+        if (!dStr) return new Date("2023-10-14T20:00:00").getTime();
+        let formatted = dStr.toString().replace(/ /g, "T");
+        if (formatted.length === 10) formatted += "T00:00:00";
+        const parsed = new Date(formatted).getTime();
+        return isNaN(parsed) ? new Date("2023-10-14T20:00:00").getTime() : parsed;
+    }
+
+    const startDate = parseSafeDate(CONFIG.startDate);
+
+    function updateTimer() {
+        const now = new Date().getTime();
+        const difference = now - startDate;
+
+        if (isNaN(difference) || difference < 0) {
+            const y = document.getElementById("years");
+            const d = document.getElementById("days");
+            const h = document.getElementById("hours");
+            const m = document.getElementById("minutes");
+            const s = document.getElementById("seconds");
+            if (y) y.textContent = "0";
+            if (d) d.textContent = "0";
+            if (h) h.textContent = "0";
+            if (m) m.textContent = "0";
+            if (s) s.textContent = "0";
+            return;
+        }
+
+        const seconds = Math.floor((difference / 1000) % 60);
+        const minutes = Math.floor((difference / (1000 * 60)) % 60);
+        const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+        
+        const totalDays = Math.floor(difference / (1000 * 60 * 60 * 24));
+        const years = Math.floor(totalDays / 365.25);
+        const days = Math.floor(totalDays % 365.25);
+
+        const yEl = document.getElementById("years");
+        if (yEl) yEl.textContent = years;
+
+        const dEl = document.getElementById("days");
+        if (dEl) dEl.textContent = days;
+
+        const hEl = document.getElementById("hours");
+        if (hEl) hEl.textContent = hours < 10 ? '0' + hours : hours;
+
+        const mEl = document.getElementById("minutes");
+        if (mEl) mEl.textContent = minutes < 10 ? '0' + minutes : minutes;
+
+        const sEl = document.getElementById("seconds");
+        if (sEl) sEl.textContent = seconds < 10 ? '0' + seconds : seconds;
+    }
+
+    updateTimer();
+    setInterval(updateTimer, 1000);
+}
+
+function initMusicPlayer() {
+    const audio = document.getElementById("bgAudio");
+    const vinyl = document.getElementById("vinylRecord");
+    const playPauseBtn = document.getElementById("playPauseBtn");
+    const playIcon = document.getElementById("playIcon");
+    const musicPlayer = document.getElementById("musicPlayer");
+    const musicToast = document.getElementById("musicToast");
+
+    if (!audio || !CONFIG.music) return;
+    audio.src = CONFIG.music.url || "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=romantic-love-112199.mp3";
+    let isPlaying = false;
+    let hasInteracted = false;
+
+    setTimeout(() => {
+        if (!isPlaying && musicToast) {
+            musicToast.classList.add("show");
+            setTimeout(() => musicToast.classList.remove("show"), 6000);
+        }
+    }, 1500);
+
+    function togglePlay() {
+        if (isPlaying) {
+            audio.pause();
+            isPlaying = false;
+            if (vinyl) vinyl.classList.remove("spinning");
+            if (playIcon) playIcon.className = "fa-solid fa-play";
+            if (musicPlayer) musicPlayer.classList.remove("playing");
+        } else {
+            audio.play().then(() => {
+                isPlaying = true;
+                if (vinyl) vinyl.classList.add("spinning");
+                if (playIcon) playIcon.className = "fa-solid fa-pause";
+                if (musicPlayer) musicPlayer.classList.add("playing");
+                if (musicToast) musicToast.classList.remove("show");
+            }).catch(() => {});
+        }
+    }
+
+    if (playPauseBtn) playPauseBtn.addEventListener("click", togglePlay);
+    if (vinyl) vinyl.addEventListener("click", togglePlay);
+
+    const startAudioOnInteraction = () => {
+        if (!hasInteracted) {
+            hasInteracted = true;
+            if (!isPlaying) togglePlay();
+            document.removeEventListener("click", startAudioOnInteraction);
+            document.removeEventListener("touchstart", startAudioOnInteraction);
+            document.removeEventListener("scroll", startAudioOnInteraction);
+        }
+    };
+
+    document.addEventListener("click", startAudioOnInteraction);
+    document.addEventListener("touchstart", startAudioOnInteraction, { passive: true });
+    document.addEventListener("scroll", startAudioOnInteraction, { passive: true });
+}
+
+function initInteractiveGame() {
+    const noBtn = document.getElementById("noBtn");
+    const yesBtn = document.getElementById("yesBtn");
+    const successModal = document.getElementById("successModal");
+    const modalCloseBtn = document.getElementById("modalCloseBtn");
+    const btnContainer = document.getElementById("btnContainer");
+
+    if (!noBtn || !yesBtn || !successModal) return;
+
+    let escapeCount = 0;
+    const phrases = [
+        "Emin misin? 🥺",
+        "Bir daha düşün bence... 👀",
+        "Kaçamazsın ki! 🏃‍♀️",
+        "Ama ben seni çok seviyorum! 💖",
+        "Lütfen 'Evet' de artık! 🥰",
+        "Bak küserim ha! 😜",
+        "Son şansın! ✨",
+        "Tamam tamam, pes ettim... Şaka şaka yakalayamazsın! 🚀"
+    ];
+
+    function moveNoButton() {
+        const maxX = window.innerWidth < 600 ? 120 : 250;
+        const maxY = 100;
+        const randomX = (Math.random() - 0.5) * maxX * 2;
+        const randomY = (Math.random() - 0.5) * maxY * 2;
+
+        noBtn.style.transform = `translate(${randomX}px, ${randomY}px)`;
+        
+        const noText = document.getElementById("noBtnText");
+        if (noText && escapeCount < phrases.length) {
+            noText.textContent = phrases[escapeCount % phrases.length];
+        }
+
+        escapeCount++;
+        const currentScale = 1 + (escapeCount * 0.08);
+        yesBtn.style.transform = `scale(${Math.min(currentScale, 1.6)})`;
+    }
+
+    noBtn.addEventListener("mouseenter", moveNoButton);
+    noBtn.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        moveNoButton();
+    });
+
+    yesBtn.addEventListener("click", () => {
+        triggerConfettiCelebration();
+        successModal.classList.add("active");
+    });
+
+    if (modalCloseBtn) {
+        modalCloseBtn.addEventListener("click", () => {
+            successModal.classList.remove("active");
+        });
+    }
+
+    successModal.addEventListener("click", (e) => {
+        if (e.target === successModal) {
+            successModal.classList.remove("active");
+        }
+    });
+}
+
+function triggerConfettiCelebration() {
+    if (typeof confetti === "function") {
+        confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#ff4d6d', '#ff758f', '#ffffff', '#ffd166', '#c9184a']
+        });
+    }
+}
+
+function initPolaroidGallery() {
+    const gallery = document.getElementById("polaroidGallery");
+    const imageModal = document.getElementById("imageModal");
+    const modalImagePreview = document.getElementById("modalImagePreview");
+    const modalImageDate = document.getElementById("modalImageDate");
+    const modalImageText = document.getElementById("modalImageText");
+    const imageModalClose = document.getElementById("imageModalClose");
+
+    if (!gallery) return;
+    gallery.innerHTML = "";
+
+    const backupPhotos = [
+        "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=600&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?w=600&auto=format&fit=crop&q=80"
+    ];
+
+    CONFIG.memories.forEach((mem, index) => {
+        const fallbackImg = backupPhotos[index % backupPhotos.length];
+        const card = document.createElement("div");
+        card.className = "polaroid-card";
+        card.innerHTML = `
+            <div class="polaroid-pin"></div>
+            <div class="polaroid-img-box">
+                <img src="${mem.image || fallbackImg}" onerror="this.onerror=null; this.src='${fallbackImg}';" alt="${mem.title || 'Anı'}" loading="lazy">
+            </div>
+            <div class="polaroid-info">
+                <span class="polaroid-date">${mem.date}</span>
+                <p class="polaroid-caption">${mem.caption}</p>
+            </div>
+        `;
+
+        card.addEventListener("click", () => {
+            if (modalImagePreview) modalImagePreview.src = mem.image || fallbackImg;
+            if (modalImageDate) modalImageDate.textContent = mem.date;
+            if (modalImageText) modalImageText.textContent = mem.caption;
+            if (imageModal) imageModal.classList.add("active");
+        });
+
+        gallery.appendChild(card);
+    });
+
+    if (imageModalClose) {
+        imageModalClose.addEventListener("click", () => {
+            if (imageModal) imageModal.classList.remove("active");
+        });
+    }
+
+    if (imageModal) {
+        imageModal.addEventListener("click", (e) => {
+            if (e.target === imageModal) imageModal.classList.remove("active");
+        });
+    }
+}
+
+function initTypewriterLetter() {
+    const letterTextElem = document.getElementById("typewriterText");
+    const letterSection = document.querySelector(".letter-section");
+    if (!letterTextElem || !letterSection) return;
+
+    const fullText = (typeof CONFIG.letter === "object" && CONFIG.letter.body) ? CONFIG.letter.body : (typeof CONFIG.letter === "string" ? CONFIG.letter : "");
+    let isTyped = false;
+
+    function typeWriterEffect() {
+        if (isTyped) return;
+        isTyped = true;
+        
+        let index = 0;
+        letterTextElem.textContent = "";
+
+        const timer = setInterval(() => {
+            if (index < fullText.length) {
+                letterTextElem.textContent += fullText.charAt(index);
+                index++;
+            } else {
+                clearInterval(timer);
+            }
+        }, 28);
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                typeWriterEffect();
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.3 });
+
+    observer.observe(letterSection);
+}
+
+function initLoveReasons() {
+    const container = document.getElementById("reasonsContainer");
+    if (!container || !CONFIG.loveReasons) return;
+    container.innerHTML = "";
+
+    CONFIG.loveReasons.forEach((reason, idx) => {
+        const item = document.createElement("div");
+        item.className = "reason-item";
+        item.innerHTML = `
+            <div class="reason-number">#${idx + 1}</div>
+            <p class="reason-text">${reason}</p>
+        `;
+        container.appendChild(item);
+    });
+}
+
+function initCoupons() {
+    const grid = document.getElementById("couponsGrid");
+    if (!grid || !CONFIG.coupons) return;
+    grid.innerHTML = "";
+
+    CONFIG.coupons.forEach((coupon) => {
+        const card = document.createElement("div");
+        card.className = "coupon-card";
+        card.innerHTML = `
+            <div class="coupon-stamp">✅ KULLANILDI</div>
+            <div class="coupon-icon">${coupon.icon}</div>
+            <h4 class="coupon-title">${coupon.title}</h4>
+            <p class="coupon-desc">${coupon.desc}</p>
+        `;
+
+        card.addEventListener("click", () => {
+            card.classList.toggle("used");
+            if (card.classList.contains("used")) {
+                if (typeof confetti === "function") {
+                    confetti({ particleCount: 25, spread: 40, origin: { y: 0.8 } });
+                }
+                if (navigator.vibrate) navigator.vibrate(60);
+            }
+        });
+
+        grid.appendChild(card);
+    });
+}
+
+function startFloatingHearts() {
+    const container = document.getElementById("hearts-container");
+    if (!container) return;
+    const icons = ["fa-heart", "fa-heart", "fa-sparkles", "fa-star"];
+
+    setInterval(() => {
+        if (document.hidden) return;
+        const heart = document.createElement("i");
+        const randomIcon = icons[Math.floor(Math.random() * icons.length)];
+        heart.className = `fa-solid ${randomIcon} floating-heart`;
+        heart.style.left = `${Math.random() * 96}%`;
+        heart.style.fontSize = `${Math.random() * 16 + 12}px`;
+        heart.style.animationDuration = `${Math.random() * 6 + 6}s`;
+        heart.style.opacity = Math.random() * 0.5 + 0.3;
+        container.appendChild(heart);
+        setTimeout(() => { heart.remove(); }, 12000);
+    }, 450);
+}
+
+function initScratchCard() {
+    const canvas = document.getElementById("scratchCanvas");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return;
+
+    let isDrawing = false;
+    let isRevealed = false;
+
+    function resizeCanvas() {
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width || 340;
+        canvas.height = rect.height || 180;
+        drawCover();
+    }
+
+    function drawCover() {
+        const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        grad.addColorStop(0, "#d4af37");
+        grad.addColorStop(0.3, "#f3e5ab");
+        grad.addColorStop(0.5, "#ff758c");
+        grad.addColorStop(0.7, "#e8c39e");
+        grad.addColorStop(1, "#b38728");
+
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+        for (let i = 0; i < 24; i++) {
+            const x = (Math.sin(i * 99) * 0.5 + 0.5) * canvas.width;
+            const y = (Math.cos(i * 33) * 0.5 + 0.5) * canvas.height;
+            const r = (i % 3) + 1.5;
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 17px 'Plus Jakarta Sans', sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.shadowColor = "rgba(0, 0, 0, 0.4)";
+        ctx.shadowBlur = 6;
+        ctx.fillText("✨ Sürprizini Görmek İçin Kazı! ✨", canvas.width / 2, canvas.height / 2 - 10);
+
+        ctx.font = "13px 'Plus Jakarta Sans', sans-serif";
+        ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+        ctx.fillText("🪙 (Parmağınla veya farenle sürükle)", canvas.width / 2, canvas.height / 2 + 18);
+        ctx.shadowBlur = 0;
+    }
+
+    function getPosition(e) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+            x: (clientX - rect.left) * (canvas.width / rect.width),
+            y: (clientY - rect.top) * (canvas.height / rect.height)
+        };
+    }
+
+    function scratch(e) {
+        if (!isDrawing || isRevealed) return;
+        if (e.cancelable) e.preventDefault();
+
+        const pos = getPosition(e);
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 22, 0, Math.PI * 2);
+        ctx.fill();
+
+        checkScratchedPercentage();
+    }
+
+    function checkScratchedPercentage() {
+        if (isRevealed) return;
+        try {
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const pixels = imgData.data;
+            let transparentCount = 0;
+            const sampleRate = 32;
+
+            for (let i = 3; i < pixels.length; i += sampleRate * 4) {
+                if (pixels[i] === 0) transparentCount++;
+            }
+
+            const totalSampled = pixels.length / (sampleRate * 4);
+            const percent = (transparentCount / totalSampled) * 100;
+
+            if (percent > 40) {
+                isRevealed = true;
+                canvas.style.transition = "opacity 0.6s ease";
+                canvas.style.opacity = "0";
+                setTimeout(() => {
+                    canvas.style.display = "none";
+                }, 600);
+
+                if (typeof confetti === "function") {
+                    confetti({
+                        particleCount: 70,
+                        spread: 70,
+                        origin: { y: 0.6 }
+                    });
+                }
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            }
+        } catch (err) {}
+    }
+
+    canvas.addEventListener("mousedown", (e) => { isDrawing = true; scratch(e); });
+    window.addEventListener("mousemove", (e) => { if (isDrawing) scratch(e); });
+    window.addEventListener("mouseup", () => { isDrawing = false; });
+
+    canvas.addEventListener("touchstart", (e) => { isDrawing = true; scratch(e); }, { passive: false });
+    window.addEventListener("touchmove", (e) => { if (isDrawing) scratch(e); }, { passive: false });
+    window.addEventListener("touchend", () => { isDrawing = false; });
+
+    setTimeout(resizeCanvas, 100);
+    window.addEventListener("resize", resizeCanvas);
+}
+    </script>
 </body>
 </html>
