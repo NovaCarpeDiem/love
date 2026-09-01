@@ -558,16 +558,25 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
         bigOpenBtn.href = finalUrl;
         resultCard.classList.add("show");
 
-        // 6. QR Kod oluştur
-        qrcodeDiv.innerHTML = "";
-        qrcodeObj = new QRCode(qrcodeDiv, {
-            text: finalUrl,
-            width: 180,
-            height: 180,
-            colorDark: "#10091d",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.M
-        });
+        // 6. QR Kod oluştur (Uzun linkleri de %100 sorunsuz destekleyen HD QR Servisi)
+        const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(finalUrl)}&color=10-09-1d&bgcolor=ffffff&qzone=1`;
+        qrcodeDiv.innerHTML = `<img id="qrImg" src="${qrApiUrl}" alt="Özel QR Kod" style="width:180px;height:180px;display:block;border-radius:8px;">`;
+
+        // QR Kod İndirme Butonunu Güncelle
+        downloadQrBtn.onclick = async () => {
+            try {
+                const res = await fetch(qrApiUrl);
+                const blob = await res.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = blobUrl;
+                a.download = `${coupleTitleVal || 'hediye'}-qr-kod.png`;
+                a.click();
+                URL.revokeObjectURL(blobUrl);
+            } catch (e) {
+                window.open(qrApiUrl, "_blank");
+            }
+        };
 
         // Sayfayı aşağı kaydır
         resultCard.scrollIntoView({ behavior: "smooth" });
@@ -582,17 +591,6 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
                 copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> Kopyala';
             }, 2000);
         });
-    });
-
-    // QR Kod İndir
-    downloadQrBtn.addEventListener("click", () => {
-        const img = qrcodeDiv.querySelector("img");
-        if (img) {
-            const link = document.createElement("a");
-            link.download = "ozel-hediye-qr-kod.png";
-            link.href = img.src;
-            link.click();
-        }
     });
 </script>
 
