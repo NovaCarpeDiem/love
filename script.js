@@ -3,23 +3,12 @@
 // ==============================================================================
 
 function initApp() {
-    // 1. URL DATA DECODE (Tüm Telefonlar, Mobil Tarayıcılar ve WebViews İçin %100 Uyumlu)
-    let rawParam = "";
-
-    // Doğrudan window.location.href üzerinden Regex ile ara (WhatsApp/Safari/Android için en garantili yöntem)
-    const href = window.location.href;
-    const match = href.match(/[?&#]data=([^&#]+)/);
-    if (match && match[1]) {
-        rawParam = match[1];
-    } else {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has("data")) {
-            rawParam = urlParams.get("data");
-        }
-    }
-
-    if (rawParam) {
+    // 1. URL DATA DECODE (Sonsuz Farklı Müşteri İçin Otomatik Yükleme)
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    if (urlParams.has("data")) {
         try {
+            const rawParam = urlParams.get("data");
             const cleanStr = decodeURIComponent(rawParam).replace(/ /g, "+");
             let rawJson = "";
             try {
@@ -30,65 +19,14 @@ function initApp() {
             } catch (e1) {
                 rawJson = decodeURIComponent(escape(atob(cleanStr)));
             }
+            const parsedData = JSON.parse(rawJson);
             
-            const p = JSON.parse(rawJson);
-            
-            // Verileri ata (Kompakt ve Tam Anahtarlar)
-            if (p.c || p.coupleTitle) CONFIG.coupleTitle = p.c || p.coupleTitle;
-            if (p.p || p.partnerName) CONFIG.partnerName = p.p || p.partnerName;
-            if (p.s || p.senderName) CONFIG.senderName = p.s || p.senderName;
-            if (p.d || p.startDate) CONFIG.startDate = p.d || p.startDate;
-            if (p.st || p.subTitle) CONFIG.subTitle = p.st || p.subTitle;
-            
-            if (p.l || p.letter) {
-                if (typeof (p.l || p.letter) === "string") {
-                    CONFIG.letter.body = p.l || p.letter;
-                } else if (p.letter && p.letter.body) {
-                    CONFIG.letter.body = p.letter.body;
-                }
-            }
-
-            // Spotify
-            if (p.sp) {
-                if (!CONFIG.music) CONFIG.music = {};
-                if (!p.sp.startsWith("http")) {
-                    CONFIG.music.spotifyUrl = "https://open.spotify.com/track/" + p.sp;
-                } else {
-                    CONFIG.music.spotifyUrl = p.sp;
-                }
-            } else if (p.music && p.music.spotifyUrl) {
-                CONFIG.music.spotifyUrl = p.music.spotifyUrl;
-            } else {
-                if (CONFIG.music) CONFIG.music.spotifyUrl = "";
-            }
-
-            if (p.mu) {
-                if (!CONFIG.music) CONFIG.music = {};
-                CONFIG.music.url = p.mu;
-            }
-
-            // Kazı Kazan
-            if (p.sc) {
-                if (!CONFIG.scratchCard) CONFIG.scratchCard = {};
-                CONFIG.scratchCard.message = p.sc;
-            } else if (p.scratchCard) {
-                Object.assign(CONFIG.scratchCard, p.scratchCard);
-            }
-
-            // Fotoğraflar (Catbox Kısaltmaları veya Tam URL'ler)
-            if (p.imgs && Array.isArray(p.imgs)) {
-                p.imgs.forEach((imgUrl, i) => {
-                    if (imgUrl && CONFIG.memories[i]) {
-                        if (!imgUrl.startsWith("http")) {
-                            CONFIG.memories[i].image = "https://files.catbox.moe/" + imgUrl;
-                        } else {
-                            CONFIG.memories[i].image = imgUrl;
-                        }
-                    }
-                });
-            } else if (p.memories) {
-                CONFIG.memories = p.memories;
-            }
+            // CONFIG'i gelen verilerle güncelle
+            Object.assign(CONFIG, parsedData);
+            if (parsedData.letter) Object.assign(CONFIG.letter, parsedData.letter);
+            if (parsedData.music) Object.assign(CONFIG.music, parsedData.music);
+            if (parsedData.scratchCard) Object.assign(CONFIG.scratchCard, parsedData.scratchCard);
+            if (parsedData.memories) CONFIG.memories = parsedData.memories;
         } catch (e) {
             console.error("Özel veri çözümlenirken hata oluştu:", e);
         }
@@ -111,7 +49,7 @@ function initApp() {
     // 5. KAÇAN BUTON & İNTERAKTİF AF/SEVGİ OYUNU
     initInteractiveGame();
 
-    // 5.5 KAZI KAZAN SÜRPRİZ KARTI
+    // 5.5 🪙 KAZI KAZAN SÜRPRİZ KARTI
     initScratchCard();
 
     // 6. POLAROID GALERİSİ
@@ -154,7 +92,7 @@ function initTextContents() {
     const songArtistEl = document.getElementById("songArtist");
     if (songArtistEl) songArtistEl.textContent = (CONFIG.music && CONFIG.music.artist) || "Sana Özel";
     
-    // Spotify Entegrasyonu (Hem Buton Hem Doğrudan Çalar)
+    // Spotify Entegrasyonu (Sadece Spotify Linki Varsa Açılır)
     const spotifyBtn = document.getElementById("spotifyBtn");
     const spotifyCard = document.getElementById("spotifyEmbedCard");
     const spotifyIframeWrap = document.getElementById("spotifyIframeWrap");
@@ -166,7 +104,6 @@ function initTextContents() {
             spotifyBtn.style.display = "flex";
         }
 
-        // Spotify URL'inden track/playlist/album ID'sini çıkar
         const match = spotUrl.match(/spotify\.com\/(?:intl-[a-z]+\/)?(track|playlist|album|artist)\/([a-zA-Z0-9]+)/);
         if (match && spotifyCard && spotifyIframeWrap) {
             const type = match[1];
@@ -197,56 +134,43 @@ function initTextContents() {
 
     const letterHeadingEl = document.getElementById("letterHeading");
     if (letterHeadingEl) {
-        letterHeadingEl.textContent = `Benim Güzel ${CONFIG.partnerName},`;
+        letterHeadingEl.textContent = (CONFIG.letter && CONFIG.letter.heading) ? CONFIG.letter.heading : `Benim Güzel ${CONFIG.partnerName},`;
     }
 
     const senderDisplayEl = document.getElementById("senderNameDisplay");
-    if (senderDisplayEl) {
-        senderDisplayEl.textContent = CONFIG.senderName;
-    }
+    if (senderDisplayEl) senderDisplayEl.textContent = CONFIG.senderName;
 
     const gameQuestionEl = document.getElementById("gameQuestion");
-    if (gameQuestionEl && CONFIG.interactiveQuestion) {
-        gameQuestionEl.textContent = CONFIG.interactiveQuestion.question;
-    }
+    if (gameQuestionEl && CONFIG.interactiveQuestion) gameQuestionEl.textContent = CONFIG.interactiveQuestion.question;
 
     const yesBtnEl = document.getElementById("yesBtnText");
-    if (yesBtnEl && CONFIG.interactiveQuestion) {
-        yesBtnEl.textContent = CONFIG.interactiveQuestion.yesBtn;
-    }
+    if (yesBtnEl && CONFIG.interactiveQuestion) yesBtnEl.textContent = CONFIG.interactiveQuestion.yesBtn;
 
     const noBtnEl = document.getElementById("noBtnText");
-    if (noBtnEl && CONFIG.interactiveQuestion) {
-        noBtnEl.textContent = CONFIG.interactiveQuestion.noBtn;
-    }
+    if (noBtnEl && CONFIG.interactiveQuestion) noBtnEl.textContent = CONFIG.interactiveQuestion.noBtn;
 
     const footerTextEl = document.getElementById("footerText");
-    if (footerTextEl) {
-        footerTextEl.textContent = `${CONFIG.partnerName}, seninle her şey çok daha güzel.`;
-    }
+    if (footerTextEl) footerTextEl.textContent = `${CONFIG.partnerName}, seninle her şey çok daha güzel.`;
 }
 
 // ==============================================================================
 // ⏳ CANLI AŞK SAYACI (İLİŞKİ SÜRESİ)
 // ==============================================================================
 function initLoveTimer() {
-    function parseSafeDate(dStr) {
-        if (!dStr) return new Date("2023-10-14T20:00:00").getTime();
-        let formatted = dStr.toString().replace(/ /g, "T");
-        if (formatted.length === 10) formatted += "T00:00:00";
-        const parsed = new Date(formatted).getTime();
-        return isNaN(parsed) ? new Date("2023-10-14T20:00:00").getTime() : parsed;
-    }
-
-    const startDate = parseSafeDate(CONFIG.startDate);
+    const startDate = new Date(CONFIG.startDate).getTime();
 
     function updateTimer() {
         const now = new Date().getTime();
-        let difference = now - startDate;
+        const difference = now - startDate;
 
-        if (isNaN(difference) || difference < 0) {
-            // Gelecek bir tarihse veya bugünse en azından 1 saniye göster
-            difference = Math.abs(difference);
+        if (difference < 0) {
+            // Gelecek bir tarih girilmişse
+            document.getElementById("years").textContent = "0";
+            document.getElementById("days").textContent = "0";
+            document.getElementById("hours").textContent = "0";
+            document.getElementById("minutes").textContent = "0";
+            document.getElementById("seconds").textContent = "0";
+            return;
         }
 
         const seconds = Math.floor((difference / 1000) % 60);
@@ -258,20 +182,11 @@ function initLoveTimer() {
         const years = Math.floor(totalDays / 365.25);
         const days = Math.floor(totalDays % 365.25);
 
-        const yEl = document.getElementById("years");
-        if (yEl) yEl.textContent = years;
-
-        const dEl = document.getElementById("days");
-        if (dEl) dEl.textContent = days;
-
-        const hEl = document.getElementById("hours");
-        if (hEl) hEl.textContent = hours < 10 ? '0' + hours : hours;
-
-        const mEl = document.getElementById("minutes");
-        if (mEl) mEl.textContent = minutes < 10 ? '0' + minutes : minutes;
-
-        const sEl = document.getElementById("seconds");
-        if (sEl) sEl.textContent = seconds < 10 ? '0' + seconds : seconds;
+        document.getElementById("years").textContent = years;
+        document.getElementById("days").textContent = days;
+        document.getElementById("hours").textContent = hours < 10 ? '0' + hours : hours;
+        document.getElementById("minutes").textContent = minutes < 10 ? '0' + minutes : minutes;
+        document.getElementById("seconds").textContent = seconds < 10 ? '0' + seconds : seconds;
     }
 
     updateTimer();
@@ -443,117 +358,6 @@ function triggerConfettiCelebration() {
             });
         }, 250);
     }
-}
-
-// ==============================================================================
-// 🪙 KAZI KAZAN İNTERAKTİF SÜRPRİZ KARTI
-// ==============================================================================
-function initScratchCard() {
-    const canvas = document.getElementById("scratchCanvas");
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    const wrapper = canvas.parentElement;
-
-    let isDrawing = false;
-    let isCleared = false;
-
-    function resizeCanvas() {
-        if (!wrapper || isCleared) return;
-        canvas.width = wrapper.offsetWidth;
-        canvas.height = wrapper.offsetHeight;
-        drawCover();
-    }
-
-    function drawCover() {
-        if (!ctx || isCleared) return;
-
-        // Rose-Gold & Gold Parıltılı Metalik Gradyan
-        const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-        grad.addColorStop(0, '#c79081');
-        grad.addColorStop(0.25, '#dfa579');
-        grad.addColorStop(0.5, '#fce4a6');
-        grad.addColorStop(0.75, '#dfa579');
-        grad.addColorStop(1, '#c79081');
-
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Minik Parıltı Noktaları
-        ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
-        for (let i = 0; i < 35; i++) {
-            ctx.beginPath();
-            ctx.arc((i * 37) % canvas.width, (i * 29) % canvas.height, (i % 3) + 1.5, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        // Kazıma Yönlendirme Metni
-        ctx.fillStyle = "#2d131f";
-        ctx.font = "bold 15px 'Plus Jakarta Sans', sans-serif";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText("🪙 PARMAĞINLA KAZI & GÖR ✨", canvas.width / 2, canvas.height / 2);
-    }
-
-    setTimeout(resizeCanvas, 150);
-    window.addEventListener("resize", () => {
-        if (!isCleared) resizeCanvas();
-    });
-
-    function getPos(e) {
-        const rect = canvas.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        return {
-            x: (clientX - rect.left) * (canvas.width / rect.width),
-            y: (clientY - rect.top) * (canvas.height / rect.height)
-        };
-    }
-
-    function scratch(e) {
-        if (!isDrawing || isCleared) return;
-        if (e.cancelable && e.type.startsWith("touch")) e.preventDefault();
-
-        const pos = getPos(e);
-        ctx.globalCompositeOperation = "destination-out";
-        ctx.beginPath();
-        ctx.arc(pos.x, pos.y, 24, 0, Math.PI * 2);
-        ctx.fill();
-
-        checkCleared();
-    }
-
-    function checkCleared() {
-        if (isCleared) return;
-        try {
-            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const pixels = imgData.data;
-            let transparentCount = 0;
-            const step = 32;
-            const totalSampled = pixels.length / (4 * step);
-
-            for (let i = 3; i < pixels.length; i += 4 * step) {
-                if (pixels[i] === 0) transparentCount++;
-            }
-
-            const percent = (transparentCount / totalSampled) * 100;
-            if (percent > 38) {
-                isCleared = true;
-                canvas.classList.add("cleared");
-                triggerConfettiCelebration();
-                if (navigator.vibrate) navigator.vibrate([60, 40, 100]);
-            }
-        } catch (err) {
-            // CORS/canvas read safety
-        }
-    }
-
-    canvas.addEventListener("mousedown", (e) => { isDrawing = true; scratch(e); });
-    window.addEventListener("mousemove", scratch);
-    window.addEventListener("mouseup", () => { isDrawing = false; });
-
-    canvas.addEventListener("touchstart", (e) => { isDrawing = true; scratch(e); }, { passive: false });
-    window.addEventListener("touchmove", scratch, { passive: false });
-    window.addEventListener("touchend", () => { isDrawing = false; });
 }
 
 // ==============================================================================
@@ -730,4 +534,131 @@ function startFloatingHearts() {
             heart.remove();
         }, 12000);
     }, 450);
+}
+
+// ==============================================================================
+// 🪙 KAZI KAZAN SÜRPRİZ KART MOTORU (HTML5 CANVAS)
+// ==============================================================================
+function initScratchCard() {
+    const canvas = document.getElementById("scratchCanvas");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return;
+
+    let isDrawing = false;
+    let isRevealed = false;
+
+    function resizeCanvas() {
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width || 340;
+        canvas.height = rect.height || 180;
+        drawCover();
+    }
+
+    function drawCover() {
+        // Rose-gold metalik parlak kaplama
+        const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        grad.addColorStop(0, "#d4af37");
+        grad.addColorStop(0.3, "#f3e5ab");
+        grad.addColorStop(0.5, "#ff758c");
+        grad.addColorStop(0.7, "#e8c39e");
+        grad.addColorStop(1, "#b38728");
+
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Yıldız parıltıları
+        ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+        for (let i = 0; i < 24; i++) {
+            const x = (Math.sin(i * 99) * 0.5 + 0.5) * canvas.width;
+            const y = (Math.cos(i * 33) * 0.5 + 0.5) * canvas.height;
+            const r = (i % 3) + 1.5;
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Kapak Yazısı
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 17px 'Plus Jakarta Sans', sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.shadowColor = "rgba(0, 0, 0, 0.4)";
+        ctx.shadowBlur = 6;
+        ctx.fillText("✨ Sürprizini Görmek İçin Kazı! ✨", canvas.width / 2, canvas.height / 2 - 10);
+
+        ctx.font = "13px 'Plus Jakarta Sans', sans-serif";
+        ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+        ctx.fillText("🪙 (Parmağınla veya farenle sürükle)", canvas.width / 2, canvas.height / 2 + 18);
+        ctx.shadowBlur = 0;
+    }
+
+    function getPosition(e) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+            x: (clientX - rect.left) * (canvas.width / rect.width),
+            y: (clientY - rect.top) * (canvas.height / rect.height)
+        };
+    }
+
+    function scratch(e) {
+        if (!isDrawing || isRevealed) return;
+        if (e.cancelable) e.preventDefault();
+
+        const pos = getPosition(e);
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 22, 0, Math.PI * 2);
+        ctx.fill();
+
+        checkScratchedPercentage();
+    }
+
+    function checkScratchedPercentage() {
+        if (isRevealed) return;
+        try {
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const pixels = imgData.data;
+            let transparentCount = 0;
+            const sampleRate = 32;
+
+            for (let i = 3; i < pixels.length; i += sampleRate * 4) {
+                if (pixels[i] === 0) transparentCount++;
+            }
+
+            const totalSampled = pixels.length / (sampleRate * 4);
+            const percent = (transparentCount / totalSampled) * 100;
+
+            if (percent > 40) {
+                isRevealed = true;
+                canvas.style.transition = "opacity 0.6s ease";
+                canvas.style.opacity = "0";
+                setTimeout(() => {
+                    canvas.style.display = "none";
+                }, 600);
+
+                if (typeof confetti === "function") {
+                    confetti({
+                        particleCount: 70,
+                        spread: 70,
+                        origin: { y: 0.6 }
+                    });
+                }
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            }
+        } catch (err) {}
+    }
+
+    canvas.addEventListener("mousedown", (e) => { isDrawing = true; scratch(e); });
+    window.addEventListener("mousemove", (e) => { if (isDrawing) scratch(e); });
+    window.addEventListener("mouseup", () => { isDrawing = false; });
+
+    canvas.addEventListener("touchstart", (e) => { isDrawing = true; scratch(e); }, { passive: false });
+    window.addEventListener("touchmove", (e) => { if (isDrawing) scratch(e); }, { passive: false });
+    window.addEventListener("touchend", () => { isDrawing = false; });
+
+    setTimeout(resizeCanvas, 100);
+    window.addEventListener("resize", resizeCanvas);
 }

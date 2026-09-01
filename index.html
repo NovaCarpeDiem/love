@@ -37,9 +37,6 @@
             <span class="song-title" id="songTitle">Bizim Şarkımız</span>
             <span class="song-artist" id="songArtist">Sana Özel</span>
         </div>
-        <a href="#" target="_blank" class="spotify-btn" id="spotifyBtn" title="Spotify'da Dinle" style="display: none;">
-            <i class="fa-brands fa-spotify"></i>
-        </a>
         <button class="music-btn" id="playPauseBtn" aria-label="Müziği Çal/Durdur">
             <i class="fa-solid fa-play" id="playIcon"></i>
         </button>
@@ -101,13 +98,15 @@
                 <p class="timer-subtext">Ve her saniye sevgim daha da büyüyor... ✨</p>
             </div>
 
-            <!-- SPOTIFY RESMİ ÇALARI (Spotify linki girilince aktifleşir) -->
-            <div class="spotify-embed-card glass-card" id="spotifyEmbedCard" style="display: none;">
-                <div class="spotify-header">
-                    <i class="fa-brands fa-spotify spotify-header-icon"></i>
-                    <span>Bizim Şarkımız (Spotify)</span>
+            <!-- Spotify Doğrudan Çalar Kartı (Sadece Spotify Linki Girildiyse Görünür) -->
+            <div class="spotify-embed-container" id="spotifyEmbedCard" style="display: none; margin-top: 24px;">
+                <div class="spotify-embed-box glass-card">
+                    <div class="spotify-embed-header">
+                        <i class="fa-brands fa-spotify" style="color: #1ed760; font-size: 18px;"></i>
+                        <span>Şarkımızı Spotify'da Dinle</span>
+                    </div>
+                    <div id="spotifyIframeWrap"></div>
                 </div>
-                <div class="spotify-iframe-wrap" id="spotifyIframeWrap"></div>
             </div>
         </section>
 
@@ -130,22 +129,22 @@
             </div>
         </section>
 
-        <!-- 3.5. KAZI KAZAN SÜRPRİZ KARTI -->
-        <section class="scratch-section">
+        <!-- 3.5 🪙 KAZI KAZAN SÜRPRİZ KARTI -->
+        <section class="scratch-card-section" id="scratchSection">
             <div class="section-title-wrap">
-                <span class="sub-heading">Sürpriz Zamanı</span>
-                <h2 class="section-title">Kazı Kazan Kartın 🪙</h2>
+                <span class="sub-heading">🎁 SANA ÖZEL SÜRPRİZ</span>
+                <h2 class="section-title">Aşk Kazı Kazanı 🪙</h2>
+                <p style="color: var(--text-muted); font-size: 14px; margin-top: 4px;">Altındaki gizli mesajı görmek için parmağınla veya farenle alanı kazı!</p>
             </div>
-            
-            <div class="scratch-card-wrapper glass-card">
-                <div class="scratch-hidden-content" id="scratchHiddenContent">
-                    <div class="scratch-emoji">🥰✨💖</div>
-                    <h3 class="scratch-heading" id="scratchHeading">Gizli Aşk Mesajın:</h3>
-                    <p class="scratch-message" id="scratchMessage">Sen benim bu hayatta başıma gelen en güzel şeysin...</p>
+            <div class="scratch-card-wrapper">
+                <div class="scratch-card-box glass-card">
+                    <div class="scratch-hidden-content" id="scratchHiddenContent">
+                        <div class="scratch-secret-badge" id="scratchHeading">🎉 Gizli Aşk Mesajın:</div>
+                        <p class="scratch-secret-text" id="scratchMessage">Sen benim bu hayatta başıma gelen en güzel şeysin. Dünyanın en şanslı insanıyım çünkü yanımda SEN varsın! Seni sonsuza dek seveceğim ❤️✨</p>
+                    </div>
+                    <canvas id="scratchCanvas" width="340" height="180"></canvas>
                 </div>
-                <canvas id="scratchCanvas" class="scratch-canvas"></canvas>
             </div>
-            <p class="scratch-hint"><i class="fa-solid fa-hand-pointer"></i> Gizli sürprizini görmek için parmağınla veya farenle altın alanı kazı!</p>
         </section>
 
         <!-- 4. POLAROID ANI GALERİSİ -->
@@ -242,8 +241,8 @@
         </div>
     </div>
 
-    <!-- Yapılandırma ve Ana Script (Önbellek Baypaslı Versiyon) -->
-    <script src="config.js?v=4.0"></script>
-    <script src="script.js?v=4.0"></script>
+    <!-- Yapılandırma ve Ana Script -->
+    <script src="config.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
