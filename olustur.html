@@ -437,6 +437,15 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
             <button class="copy-btn" id="copyBtn"><i class="fa-regular fa-copy"></i> Kopyala</button>
         </div>
 
+        <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap;">
+            <a href="#" target="_blank" id="whatsappShareBtn" class="copy-btn" style="background: #25D366; color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                <i class="fa-brands fa-whatsapp" style="font-size: 18px;"></i> WhatsApp'tan Gönder
+            </a>
+            <button class="copy-btn" id="nativeShareBtn" style="background: #7928ca; color: white; display: none;">
+                <i class="fa-solid fa-share-nodes"></i> Paylaş
+            </button>
+        </div>
+
         <div class="qr-section">
             <h4 style="color: #fff; margin-bottom: 8px;">📱 Özel QR Kod:</h4>
             <div id="qrcode" class="qr-container"></div>
@@ -454,8 +463,14 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
     const generatedUrlInput = document.getElementById("generatedUrl");
     const copyBtn = document.getElementById("copyBtn");
     const bigOpenBtn = document.getElementById("bigOpenBtn");
+    const whatsappShareBtn = document.getElementById("whatsappShareBtn");
+    const nativeShareBtn = document.getElementById("nativeShareBtn");
     const qrcodeDiv = document.getElementById("qrcode");
     const downloadQrBtn = document.getElementById("downloadQrBtn");
+
+    if (navigator.share) {
+        nativeShareBtn.style.display = "inline-flex";
+    }
 
     function handleMusicPresetChange() {
         const preset = document.getElementById("musicPreset").value;
@@ -531,6 +546,18 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
         // 5. Ekrana bas
         generatedUrlInput.value = finalUrl;
         bigOpenBtn.href = finalUrl;
+        whatsappShareBtn.href = `https://api.whatsapp.com/send?text=${encodeURIComponent("Sana özel bir sürprizim var ❤️:\n" + finalUrl)}`;
+        
+        nativeShareBtn.onclick = () => {
+            if (navigator.share) {
+                navigator.share({
+                    title: coupleTitleVal,
+                    text: 'Sana özel bir sürprizim var ❤️',
+                    url: finalUrl
+                }).catch(() => {});
+            }
+        };
+
         resultCard.classList.add("show");
 
         // 6. Kolay Taranabilir Geniş Pikselli HD QR Kod
@@ -558,14 +585,42 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
         resultCard.scrollIntoView({ behavior: "smooth" });
     });
 
-    // Kopyalama
+    // Mobilde ve Masaüstünde %100 Çalışan Kopyalama Motoru
+    function copyLinkToClipboard(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            return navigator.clipboard.writeText(text);
+        }
+        return new Promise((resolve, reject) => {
+            const tempInput = document.createElement("textarea");
+            tempInput.value = text;
+            tempInput.style.position = "fixed";
+            tempInput.style.left = "-999999px";
+            tempInput.style.top = "-999999px";
+            document.body.appendChild(tempInput);
+            tempInput.focus();
+            tempInput.select();
+            try {
+                document.execCommand('copy');
+                resolve();
+            } catch (err) {
+                reject(err);
+            } finally {
+                tempInput.remove();
+            }
+        });
+    }
+
     copyBtn.addEventListener("click", () => {
-        generatedUrlInput.select();
-        navigator.clipboard.writeText(generatedUrlInput.value).then(() => {
+        const textToCopy = generatedUrlInput.value;
+        copyLinkToClipboard(textToCopy).then(() => {
             copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> Kopyalandı!';
             setTimeout(() => {
                 copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> Kopyala';
-            }, 2000);
+            }, 2500);
+        }).catch(() => {
+            generatedUrlInput.focus();
+            generatedUrlInput.select();
+            copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> Seçildi (Kopyala)';
         });
     });
 </script>
