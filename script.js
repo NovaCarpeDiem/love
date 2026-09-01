@@ -230,20 +230,23 @@ function initTextContents() {
 // ⏳ CANLI AŞK SAYACI (İLİŞKİ SÜRESİ)
 // ==============================================================================
 function initLoveTimer() {
-    const startDate = new Date(CONFIG.startDate).getTime();
+    function parseSafeDate(dStr) {
+        if (!dStr) return new Date("2023-10-14T20:00:00").getTime();
+        let formatted = dStr.toString().replace(/ /g, "T");
+        if (formatted.length === 10) formatted += "T00:00:00";
+        const parsed = new Date(formatted).getTime();
+        return isNaN(parsed) ? new Date("2023-10-14T20:00:00").getTime() : parsed;
+    }
+
+    const startDate = parseSafeDate(CONFIG.startDate);
 
     function updateTimer() {
         const now = new Date().getTime();
-        const difference = now - startDate;
+        let difference = now - startDate;
 
-        if (difference < 0) {
-            // Gelecek bir tarih girilmişse
-            document.getElementById("years").textContent = "0";
-            document.getElementById("days").textContent = "0";
-            document.getElementById("hours").textContent = "0";
-            document.getElementById("minutes").textContent = "0";
-            document.getElementById("seconds").textContent = "0";
-            return;
+        if (isNaN(difference) || difference < 0) {
+            // Gelecek bir tarihse veya bugünse en azından 1 saniye göster
+            difference = Math.abs(difference);
         }
 
         const seconds = Math.floor((difference / 1000) % 60);
@@ -255,11 +258,20 @@ function initLoveTimer() {
         const years = Math.floor(totalDays / 365.25);
         const days = Math.floor(totalDays % 365.25);
 
-        document.getElementById("years").textContent = years;
-        document.getElementById("days").textContent = days;
-        document.getElementById("hours").textContent = hours < 10 ? '0' + hours : hours;
-        document.getElementById("minutes").textContent = minutes < 10 ? '0' + minutes : minutes;
-        document.getElementById("seconds").textContent = seconds < 10 ? '0' + seconds : seconds;
+        const yEl = document.getElementById("years");
+        if (yEl) yEl.textContent = years;
+
+        const dEl = document.getElementById("days");
+        if (dEl) dEl.textContent = days;
+
+        const hEl = document.getElementById("hours");
+        if (hEl) hEl.textContent = hours < 10 ? '0' + hours : hours;
+
+        const mEl = document.getElementById("minutes");
+        if (mEl) mEl.textContent = minutes < 10 ? '0' + minutes : minutes;
+
+        const sEl = document.getElementById("seconds");
+        if (sEl) sEl.textContent = seconds < 10 ? '0' + seconds : seconds;
     }
 
     updateTimer();
