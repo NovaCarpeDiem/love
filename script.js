@@ -21,7 +21,15 @@ function initApp() {
     if (rawParam) {
         try {
             const cleanStr = decodeURIComponent(rawParam).replace(/ /g, "+");
-            const rawJson = decodeURIComponent(escape(atob(cleanStr)));
+            let rawJson = "";
+            try {
+                rawJson = decodeURIComponent(escape(atob(cleanStr)));
+            } catch (e1) {
+                const binary = atob(cleanStr);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                rawJson = new TextDecoder('utf-8').decode(bytes);
+            }
             const p = JSON.parse(rawJson);
             
             // Hem Tam Anahtarları (coupleTitle vs) Hem Kompakt Anahtarları (c, p, s vs) Destekle
