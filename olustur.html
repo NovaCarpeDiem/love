@@ -488,62 +488,37 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
             "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?w=600&auto=format&fit=crop&q=80"
         ];
 
-        const photo1 = document.getElementById("photoUrl1").value.trim() || defaultImages[0];
-        const photo2 = document.getElementById("photoUrl2").value.trim() || defaultImages[1];
-        const photo3 = document.getElementById("photoUrl3").value.trim() || defaultImages[2];
-        const photo4 = document.getElementById("photoUrl4").value.trim() || defaultImages[3];
+        const photo1 = document.getElementById("photoUrl1").value.trim();
+        const photo2 = document.getElementById("photoUrl2").value.trim();
+        const photo3 = document.getElementById("photoUrl3").value.trim();
+        const photo4 = document.getElementById("photoUrl4").value.trim();
 
-        // 2. Bilgileri topla
+        // 2. Bilgileri topla (Kompakt ve Hızlı QR İçin Optimize Edilmiş Yapı)
         const partnerNameVal = document.getElementById("partnerName").value.trim();
         const coupleTitleVal = document.getElementById("coupleTitle").value.trim();
         const senderNameVal = document.getElementById("senderName").value.trim();
-
         const spotifyUrlVal = document.getElementById("spotifyUrl").value.trim();
         const scratchMessageVal = document.getElementById("scratchMessage").value.trim();
 
+        const customPhotos = [photo1, photo2, photo3, photo4].filter(p => p.length > 0);
+
         const payload = {
-            coupleTitle: coupleTitleVal,
-            partnerName: partnerNameVal,
-            senderName: senderNameVal,
-            startDate: document.getElementById("startDate").value,
-            subTitle: document.getElementById("subTitle").value.trim(),
-            letter: {
-                heading: "Benim Güzel " + partnerNameVal + ",",
-                body: document.getElementById("letterBody").value.trim()
-            },
-            music: {
-                title: document.getElementById("musicTitle").value.trim() || "Bizim Şarkımız",
-                artist: document.getElementById("musicArtist").value.trim() || "Sana Özel",
-                url: musicUrl,
-                spotifyUrl: spotifyUrlVal
-            },
-            scratchCard: {
-                heading: "🎉 Gizli Aşk Mesajın:",
-                message: scratchMessageVal
-            },
-            memories: [
-                {
-                    image: photo1,
-                    date: "İlk Buluştuğumuz Gün",
-                    caption: "Gözlerine ilk baktığım o an, kalbimin yerinden çıkacağını sanmıştım..."
-                },
-                {
-                    image: photo2,
-                    date: "Birlikte İlk Kahvemiz",
-                    caption: "Saatlerce konuşup zamanın nasıl geçtiğini hiç anlamamıştık."
-                },
-                {
-                    image: photo3,
-                    date: "Unutulmaz Gün Batımı",
-                    caption: "Gökyüzü ne kadar güzelse, senin yanındaki huzur bin kat daha fazlaydı."
-                },
-                {
-                    image: photo4,
-                    date: "Her Anımızda Gülümseme",
-                    caption: "Birlikte saçmalamayı, çocuk gibi gülmeyi sadece seninle seviyorum."
-                }
-            ]
+            c: coupleTitleVal,
+            p: partnerNameVal,
+            s: senderNameVal,
+            d: document.getElementById("startDate").value,
+            st: document.getElementById("subTitle").value.trim(),
+            l: document.getElementById("letterBody").value.trim()
         };
+
+        if (spotifyUrlVal) payload.sp = spotifyUrlVal;
+        if (musicUrl && musicUrl !== "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=romantic-love-112199.mp3") {
+            payload.mu = musicUrl;
+        }
+        if (scratchMessageVal) payload.sc = scratchMessageVal;
+        if (customPhotos.length > 0) {
+            payload.imgs = [photo1 || "", photo2 || "", photo3 || "", photo4 || ""];
+        }
 
         // 3. Base64 UTF-8 URL-Safe Encode
         const jsonStr = JSON.stringify(payload);
@@ -558,9 +533,10 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
         bigOpenBtn.href = finalUrl;
         resultCard.classList.add("show");
 
-        // 6. QR Kod oluştur (Uzun linkleri de %100 sorunsuz destekleyen HD QR Servisi)
-        const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(finalUrl)}&color=10-09-1d&bgcolor=ffffff&qzone=1`;
-        qrcodeDiv.innerHTML = `<img id="qrImg" src="${qrApiUrl}" alt="Özel QR Kod" style="width:180px;height:180px;display:block;border-radius:8px;">`;
+        // 6. Kolay Taranabilir Geniş Pikselli HD QR Kod
+        // ecc=L (Low error correction) pikselleri büyütür, telefon kameralarının anında odaklanmasını sağlar
+        const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(finalUrl)}&color=000000&bgcolor=ffffff&qzone=2&ecc=L`;
+        qrcodeDiv.innerHTML = `<img id="qrImg" src="${qrApiUrl}" alt="Özel QR Kod" style="width:200px;height:200px;display:block;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,0.15);">`;
 
         // QR Kod İndirme Butonunu Güncelle
         downloadQrBtn.onclick = async () => {

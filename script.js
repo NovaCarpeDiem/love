@@ -11,14 +11,47 @@ function initApp() {
             const rawParam = urlParams.get("data");
             const cleanStr = decodeURIComponent(rawParam).replace(/ /g, "+");
             const rawJson = decodeURIComponent(escape(atob(cleanStr)));
-            const parsedData = JSON.parse(rawJson);
+            const p = JSON.parse(rawJson);
             
-            // CONFIG'i gelen verilerle güncelle
-            Object.assign(CONFIG, parsedData);
-            if (parsedData.letter) Object.assign(CONFIG.letter, parsedData.letter);
-            if (parsedData.music) Object.assign(CONFIG.music, parsedData.music);
-            if (parsedData.scratchCard) Object.assign(CONFIG.scratchCard, parsedData.scratchCard);
-            if (parsedData.memories) CONFIG.memories = parsedData.memories;
+            // Hem Tam Anahtarları (coupleTitle vs) Hem Kompakt Anahtarları (c, p, s vs) Destekle
+            if (p.coupleTitle || p.c) CONFIG.coupleTitle = p.coupleTitle || p.c;
+            if (p.partnerName || p.p) CONFIG.partnerName = p.partnerName || p.p;
+            if (p.senderName || p.s) CONFIG.senderName = p.senderName || p.s;
+            if (p.startDate || p.d) CONFIG.startDate = p.startDate || p.d;
+            if (p.subTitle || p.st) CONFIG.subTitle = p.subTitle || p.st;
+            
+            if (p.letter) {
+                if (typeof p.letter === "string") CONFIG.letter.body = p.letter;
+                else Object.assign(CONFIG.letter, p.letter);
+            } else if (p.l) {
+                CONFIG.letter.body = p.l;
+            }
+
+            if (p.music) Object.assign(CONFIG.music, p.music);
+            if (p.sp) {
+                if (!CONFIG.music) CONFIG.music = {};
+                CONFIG.music.spotifyUrl = p.sp;
+            }
+            if (p.mu) {
+                if (!CONFIG.music) CONFIG.music = {};
+                CONFIG.music.url = p.mu;
+            }
+
+            if (p.scratchCard) Object.assign(CONFIG.scratchCard, p.scratchCard);
+            else if (p.sc) {
+                if (!CONFIG.scratchCard) CONFIG.scratchCard = {};
+                CONFIG.scratchCard.message = p.sc;
+            }
+
+            if (p.memories) {
+                CONFIG.memories = p.memories;
+            } else if (p.imgs && Array.isArray(p.imgs)) {
+                p.imgs.forEach((imgUrl, i) => {
+                    if (imgUrl && CONFIG.memories[i]) {
+                        CONFIG.memories[i].image = imgUrl;
+                    }
+                });
+            }
         } catch (e) {
             console.error("Özel veri çözümlenirken hata oluştu:", e);
         }
