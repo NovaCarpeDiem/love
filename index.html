@@ -261,7 +261,7 @@ window.CONFIG = {
         message: "Sen benim bu hayatta başıma gelen en güzel şeysin... ❤️✨"
     },
     letter: {
-        heading: "Benim Güzel Şirin'im,",
+        heading: "",
         body: "Hayatıma girdiğin andan itibaren her şey o kadar güzelleşti ki, bazen seni hak edecek ne yaptım diye düşünüyorum.\nGülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.\n\nİyi ki varsın, iyi ki hayatımdasın. Seni her şeyden çok seviyorum! ❤️"
     },
     interactiveQuestion: {
@@ -443,7 +443,13 @@ function initTextContents() {
     }
 
     const lHead = document.getElementById("letterHeading");
-    if (lHead) lHead.textContent = (CONFIG.letter && CONFIG.letter.heading) ? CONFIG.letter.heading : `Benim Güzel ${CONFIG.partnerName},`;
+    if (lHead) {
+        if (CONFIG.letter && CONFIG.letter.heading && CONFIG.letter.heading.trim() !== "" && CONFIG.letter.heading !== "Benim Güzel Şirin'im,") {
+            lHead.textContent = CONFIG.letter.heading;
+        } else {
+            lHead.textContent = `Benim Güzel ${CONFIG.partnerName},`;
+        }
+    }
     
     const sName = document.getElementById("senderNameDisplay");
     if (sName) sName.textContent = CONFIG.senderName;

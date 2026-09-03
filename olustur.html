@@ -338,9 +338,8 @@
                 </div>
 
                 <div class="form-group full-width">
-                    <label><i class="fa-solid fa-envelope-open-text"></i> Aşk / Mektup Metni</label>
-                    <textarea id="letterBody">Benim Güzel Şirin'im,
-Hayatıma girdiğin andan itibaren her şey o kadar güzelleşti ki, bazen seni hak edecek ne yaptım diye düşünüyorum. 
+                    <label><i class="fa-solid fa-envelope-open-text"></i> Aşk / Mektup Metni <span style="font-size: 11px; opacity: 0.8; font-weight: normal;">(Mektup başlığı otomatik "Benim Güzel [Partner İsmi]," olarak başlar)</span></label>
+                    <textarea id="letterBody" style="min-height: 120px;">Hayatıma girdiğin andan itibaren her şey o kadar güzelleşti ki, bazen seni hak edecek ne yaptım diye düşünüyorum. 
 Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel. 
 
 İyi ki varsın, iyi ki hayatımdasın. Seni her şeyden çok seviyorum! ❤️</textarea>
@@ -525,8 +524,13 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
             payload.st = subTitleVal;
         }
 
-        if (letterBodyVal && !letterBodyVal.startsWith("Benim Güzel Şirin'im")) {
-            payload.l = letterBodyVal;
+        const defaultLetter = "Hayatıma girdiğin andan itibaren her şey o kadar güzelleşti ki, bazen seni hak edecek ne yaptım diye düşünüyorum.\nGülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.\n\nİyi ki varsın, iyi ki hayatımdasın. Seni her şeyden çok seviyorum! ❤️";
+        let cleanLetter = letterBodyVal.replace(/\r\n/g, "\n").trim();
+        // Eğer kullanıcı mektup metninin başına "Benim Güzel..." yazdıysa temizleyelim
+        cleanLetter = cleanLetter.replace(/^Benim Güzel [^,\n]+,?\s*/i, "").trim();
+
+        if (cleanLetter && cleanLetter !== defaultLetter) {
+            payload.l = cleanLetter;
         }
 
         if (spotifyUrlVal) {
