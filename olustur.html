@@ -555,9 +555,22 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
         const jsonStr = JSON.stringify(payload);
         const encodedData = encodeURIComponent(btoa(unescape(encodeURIComponent(jsonStr))));
 
-        // 4. Mevcut site URL'ini oluştur
+        // 4. Mevcut site URL'ini oluştur (Direct Parametreler + Koruma Data'sı)
         const baseUrl = window.location.origin + window.location.pathname.replace("olustur.html", "index.html");
-        const finalUrl = `${baseUrl}?data=${encodedData}`;
+        
+        const params = new URLSearchParams();
+        params.set("c", coupleTitleVal);
+        params.set("p", partnerNameVal);
+        params.set("s", senderNameVal);
+        params.set("d", document.getElementById("startDate").value || "2023-10-14T20:00");
+        if (payload.st) params.set("st", payload.st);
+        if (payload.sp) params.set("sp", payload.sp);
+        if (payload.sc) params.set("sc", payload.sc);
+        if (payload.l) params.set("l", payload.l);
+        if (payload.imgs && payload.imgs.length > 0) params.set("imgs", payload.imgs.join(","));
+        params.set("data", encodedData);
+
+        const finalUrl = `${baseUrl}?${params.toString()}`;
 
         // 5. Ekrana bas
         generatedUrlInput.value = finalUrl;
@@ -594,27 +607,29 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
         resultCard.scrollIntoView({ behavior: "smooth" });
     });
 
-    // Mobilde ve Masaüstünde Güvenilir Kopyalama
+    // Mobilde (iOS & Android) ve Masaüstünde %100 Güvenilir Kopyalama
     function copyLinkToClipboard(text) {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
+        if (navigator.clipboard && window.isSecureContext) {
             return navigator.clipboard.writeText(text);
         }
         return new Promise((resolve, reject) => {
             const tempInput = document.createElement("textarea");
             tempInput.value = text;
-            tempInput.style.position = "fixed";
-            tempInput.style.left = "-999999px";
-            tempInput.style.top = "-999999px";
+            tempInput.setAttribute("readonly", "");
+            tempInput.style.position = "absolute";
+            tempInput.style.left = "-9999px";
+            tempInput.style.fontSize = "16px";
             document.body.appendChild(tempInput);
-            tempInput.focus();
             tempInput.select();
+            tempInput.setSelectionRange(0, 99999);
             try {
-                document.execCommand('copy');
-                resolve();
+                const successful = document.execCommand('copy');
+                if (successful) resolve();
+                else reject(new Error('execCommand copy failed'));
             } catch (err) {
                 reject(err);
             } finally {
-                tempInput.remove();
+                document.body.removeChild(tempInput);
             }
         });
     }

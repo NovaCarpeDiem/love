@@ -2,6 +2,34 @@
 // 💖 İNTERAKTİF MOTOR / ROMANTIC INTERACTIVE ENGINE (script.js)
 // ==============================================================================
 
+function safeDecodeBase64(str) {
+    if (!str) return "";
+    try {
+        let s = str.trim().replace(/[\/\s#?&]+$/, "");
+        try {
+            while (s.includes("%")) {
+                const dec = decodeURIComponent(s);
+                if (dec === s) break;
+                s = dec;
+            }
+        } catch(e) {}
+        s = s.replace(/ /g, "+");
+        while (s.length % 4 !== 0) {
+            s += "=";
+        }
+        try {
+            const binary = atob(s);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+            return new TextDecoder('utf-8').decode(bytes);
+        } catch(e1) {
+            return decodeURIComponent(escape(atob(s)));
+        }
+    } catch(err) {
+        return "";
+    }
+}
+
 function initApp() {
     // 1. URL DATA DECODE (Tüm Telefonlar, Mobil Tarayıcılar ve WebViews İçin %100 Uyumlu)
     const urlParams = new URLSearchParams(window.location.search);
@@ -14,24 +42,17 @@ function initApp() {
     }
 
     if (rawParam) {
-        try {
-            const cleanStr = decodeURIComponent(rawParam).replace(/ /g, "+");
-            let rawJson = "";
+        const rawJson = safeDecodeBase64(rawParam);
+        if (rawJson) {
             try {
-                const binary = atob(cleanStr);
-                const bytes = new Uint8Array(binary.length);
-                for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-                rawJson = new TextDecoder('utf-8').decode(bytes);
-            } catch (e1) {
-                rawJson = decodeURIComponent(escape(atob(cleanStr)));
+                parsedData = JSON.parse(rawJson);
+            } catch (e) {
+                console.warn("JSON parse error:", e);
             }
-            parsedData = JSON.parse(rawJson);
-        } catch (e) {
-            console.error("Özel veri çözümlenirken hata oluştu:", e);
         }
     }
 
-    // Doğrudan URL Parametreleri (Örn: ?c=Merve&p=Orkide&s=Ali&d=2025-02-17...)
+    // 2. DOĞRUDAN URL PARAMETRELERİ (Daima En Öncelikli & Asla Bozulmaz)
     if (urlParams.has("c")) parsedData.c = urlParams.get("c");
     if (urlParams.has("p")) parsedData.p = urlParams.get("p");
     if (urlParams.has("s")) parsedData.s = urlParams.get("s");
@@ -40,6 +61,7 @@ function initApp() {
     if (urlParams.has("sp")) parsedData.sp = urlParams.get("sp");
     if (urlParams.has("sc")) parsedData.sc = urlParams.get("sc");
     if (urlParams.has("l")) parsedData.l = urlParams.get("l");
+    if (urlParams.has("imgs")) parsedData.imgs = urlParams.get("imgs").split(",").map(x => x.trim()).filter(Boolean);
 
     if (urlParams.has("cift")) parsedData.c = urlParams.get("cift");
     if (urlParams.has("tarih")) parsedData.d = urlParams.get("tarih");
@@ -186,7 +208,13 @@ function initTextContents() {
     }
 
     const lHead = document.getElementById("letterHeading");
-    if (lHead) lHead.textContent = (CONFIG.letter && CONFIG.letter.heading) ? CONFIG.letter.heading : `Benim Güzel ${CONFIG.partnerName},`;
+    if (lHead) {
+        if (CONFIG.letter && CONFIG.letter.heading && CONFIG.letter.heading.trim() !== "" && CONFIG.letter.heading !== "Benim Güzel Şirin'im,") {
+            lHead.textContent = CONFIG.letter.heading;
+        } else {
+            lHead.textContent = `Benim Güzel ${CONFIG.partnerName},`;
+        }
+    }
     
     const sName = document.getElementById("senderNameDisplay");
     if (sName) sName.textContent = CONFIG.senderName;
