@@ -537,8 +537,10 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
             payload.sp = spotifyUrlVal;
         }
 
-        if (scratchMessageVal && !scratchMessageVal.startsWith("Sen benim bu hayatta başıma gelen en güzel")) {
-            payload.sc = scratchMessageVal;
+        const defaultScratch = "Sen benim bu hayatta başıma gelen en güzel şeysin... Seni çok seviyorum! ❤️✨";
+        const cleanScratch = scratchMessageVal.trim();
+        if (cleanScratch && cleanScratch !== defaultScratch) {
+            payload.sc = cleanScratch;
         }
 
         if (musicUrl && musicUrl !== "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=romantic-love-112199.mp3") {
