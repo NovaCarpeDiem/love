@@ -1195,6 +1195,14 @@ body {
 /* ==============================================================================
    🎬 SİNEMATİK FRAGMAN & 🔐 6 HANELİ ŞİFRELİ AŞK KASASI
    ============================================================================== */
+body.cinematic-active {
+    overflow: hidden !important;
+    height: 100vh !important;
+    touch-action: none !important;
+    position: fixed !important;
+    width: 100% !important;
+}
+
 .cinematic-overlay {
     position: fixed;
     top: 0;
@@ -1207,6 +1215,8 @@ body {
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    touch-action: none !important;
+    overscroll-behavior: contain !important;
     transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), transform 1s cubic-bezier(0.4, 0, 0.2, 1);
     will-change: opacity, transform;
 }
@@ -1504,6 +1514,18 @@ body {
 .vault-unlock-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 12px 30px rgba(255, 209, 102, 0.5);
+}
+
+.vault-unlock-btn.ready {
+    background: linear-gradient(135deg, #ffd166, #ff758f) !important;
+    color: #10091d !important;
+    animation: btnPulseGlow 1.5s infinite alternate ease-in-out !important;
+    box-shadow: 0 0 25px rgba(255, 209, 102, 0.6) !important;
+}
+
+@keyframes btnPulseGlow {
+    0% { transform: scale(1); box-shadow: 0 0 15px rgba(255, 209, 102, 0.4); }
+    100% { transform: scale(1.03); box-shadow: 0 0 30px rgba(255, 117, 143, 0.8); }
 }
 
 /* ==============================================================================

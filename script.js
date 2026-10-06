@@ -811,16 +811,31 @@ function initMoonPhase() {
     const age = phaseProgress * synodicMonth;
     const illumination = Math.round(0.5 * (1 - Math.cos(2 * Math.PI * phaseProgress)) * 100);
 
-    let phaseName = "";
-    if (age < 1.84) phaseName = "Yeni Ay";
-    else if (age < 5.53) phaseName = "Hilal (Büyüyen)";
-    else if (age < 9.22) phaseName = "İlk Dördün";
-    else if (age < 12.91) phaseName = "Şişkin Ay (Büyüyen)";
-    else if (age < 16.61) phaseName = "Dolunay";
-    else if (age < 20.30) phaseName = "Şişkin Ay (Küçülen)";
-    else if (age < 23.99) phaseName = "Son Dördün";
-    else if (age < 27.68) phaseName = "Hilal (Küçülen)";
-    else phaseName = "Yeni Ay";
+    let phaseTitleText = "";
+    let phasePoeticDesc = "";
+
+    if (age < 1.84 || age >= 27.68) {
+        // Yeni Ay (New Moon)
+        phaseTitleText = "Yeni Ay 🌑 (Gizemli & Özel)";
+        phasePoeticDesc = "Bizim başladığımız gece gökyüzünde Ay görünmüyordu; çünkü gökyüzü tüm ışığını ve zarafetini sana devretmişti... O gece bu dünyada parlayan tek ışık sendin. ✨";
+    } else if (age < 5.53 || age >= 23.99) {
+        // Hilal (Crescent)
+        phaseTitleText = `Zarif Hilal 🌙 (%${illumination} Aydınlık)`;
+        phasePoeticDesc = "Bizim başladığımız gece gökyüzünde zarif bir hilal gülümsüyordu; tıpkı senin yüzündeki o ilk tatlı tebessüm gibi... Küçücük bir kıvılcımla başlayan sevgimiz tüm kalbimi aydınlattı. ✨";
+    } else if (age < 9.22 || age >= 20.30) {
+        // İlk Dördün / Son Dördün (Quarter)
+        const dName = age < 9.22 ? "İlk Dördün 🌓" : "Son Dördün 🌗";
+        phaseTitleText = `${dName} (%${illumination} Aydınlık)`;
+        phasePoeticDesc = "Bizim hikayemiz eksik olan her şeyin tamamlandığı o gece başladı. Gökyüzündeki Ay gibi biz de birbirimize kavuşunca kusursuz bir bütün olduk... ✨";
+    } else if (age < 12.91 || age >= 16.61) {
+        // Şişkin Ay (Gibbous)
+        phaseTitleText = `Görkemli Şişkin Ay 🌔 (%${illumination} Aydınlık)`;
+        phasePoeticDesc = "Bizim başladığımız gece gökyüzü aşka uyanıyordu. Ay adım adım dolunaya doğru büyürken, içimdeki sevgin de her saniye daha da büyüyordu... ✨";
+    } else {
+        // Dolunay (Full Moon)
+        phaseTitleText = `Büyüleyici Dolunay 🌕 (%${illumination} Aydınlık)`;
+        phasePoeticDesc = "Bizim başladığımız gece gökyüzü en görkemli halindeydi. Dolunay bu büyük aşkın doğuşunu kutlarcasına parıldıyordu; ama en güzel ışık senin gözlerindeydi... ✨";
+    }
 
     // Türkçe Tarih Formatı
     const monthsTr = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
@@ -830,10 +845,10 @@ function initMoonPhase() {
         moonBadge.innerHTML = `<i class="fa-solid fa-moon"></i> O Geceki Gökyüzü (${formattedDate})`;
     }
     if (moonTitle) {
-        moonTitle.textContent = `${phaseName} (%${illumination} Aydınlık) ✨`;
+        moonTitle.textContent = phaseTitleText;
     }
     if (moonDesc) {
-        moonDesc.textContent = `Bizim başladığımız o gece gökyüzünde bu ${phaseName.toLowerCase()} parlıyordu. Ama senin ışıltın o gece bile gökyüzünden daha parlaktı... ✨`;
+        moonDesc.textContent = phasePoeticDesc;
     }
 
     // Canvas Üzerine Gerçekçi Ay Çizimi
@@ -980,6 +995,7 @@ function initCinematicIntroAndVault() {
 
         setTimeout(() => {
             overlay.classList.add("unlocked");
+            document.body.classList.remove("cinematic-active");
             setTimeout(() => {
                 overlay.style.display = "none";
             }, 1000);
@@ -1041,14 +1057,36 @@ function initCinematicIntroAndVault() {
         });
     }
 
-    // 3. PIN Kutuları Giriş & Otomatik Atlama Mekanizması
+    // 3. PIN Kutuları Giriş & Butonla Açma Mekanizması
     function getEnteredPin() {
         return pinInputs.map(input => (input ? input.value : "")).join("");
     }
 
+    function updatePinReadyState() {
+        const pinLen = getEnteredPin().length;
+        if (pinLen === 6) {
+            if (unlockBtn) unlockBtn.classList.add("ready");
+            if (vaultStatusMsg && !vaultStatusMsg.classList.contains("success")) {
+                vaultStatusMsg.className = "vault-status-msg";
+                vaultStatusMsg.textContent = "Hazırsan 'Kilidi Aç' butonuna bas sevgilim ✨";
+            }
+        } else {
+            if (unlockBtn) unlockBtn.classList.remove("ready");
+            if (vaultStatusMsg && !vaultStatusMsg.classList.contains("success")) {
+                vaultStatusMsg.textContent = "";
+            }
+        }
+    }
+
     function checkCurrentPin() {
         const entered = getEnteredPin();
-        if (entered.length < 6) return;
+        if (entered.length < 6) {
+            if (vaultStatusMsg) {
+                vaultStatusMsg.className = "vault-status-msg";
+                vaultStatusMsg.textContent = "Lütfen 6 haneli tarihi eksiksiz gir sevgilim 📅";
+            }
+            return;
+        }
 
         if (entered === targetPin) {
             unlockEverything();
@@ -1063,6 +1101,7 @@ function initCinematicIntroAndVault() {
             setTimeout(() => {
                 if (vaultBox) vaultBox.classList.remove("shake");
                 pinInputs.forEach(inp => { if (inp) inp.value = ""; });
+                updatePinReadyState();
                 if (pinInputs[0]) pinInputs[0].focus();
             }, 900);
         }
@@ -1079,9 +1118,7 @@ function initCinematicIntroAndVault() {
                 pinInputs[index + 1].focus();
             }
 
-            if (getEnteredPin().length === 6) {
-                checkCurrentPin();
-            }
+            updatePinReadyState();
         });
 
         input.addEventListener("keydown", (e) => {
@@ -1092,6 +1129,7 @@ function initCinematicIntroAndVault() {
             } else if (e.key === "Enter") {
                 checkCurrentPin();
             }
+            setTimeout(updatePinReadyState, 50);
         });
 
         // Yapıştırma (Paste) Desteği
@@ -1105,9 +1143,7 @@ function initCinematicIntroAndVault() {
                 }
             }
             if (pinInputs[5]) pinInputs[5].focus();
-            if (getEnteredPin().length === 6) {
-                checkCurrentPin();
-            }
+            updatePinReadyState();
         });
     });
 
