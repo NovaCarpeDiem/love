@@ -141,6 +141,12 @@ function initApp() {
 
     // 10. UÇUŞAN KALPLER ARKA PLANI
     startFloatingHearts();
+
+    // 11. 🌙 O GECE GÖKYÜZÜ / AYIN EVRESİ
+    initMoonPhase();
+
+    // 12. 🎬 SİNEMATİK FRAGMAN & 🔐 6 HANELİ ŞİFRELİ AŞK KASASI
+    initCinematicIntroAndVault();
 }
 
 if (document.readyState === "loading") {
@@ -767,4 +773,345 @@ function initScratchCard() {
 
     setTimeout(resizeCanvas, 100);
     window.addEventListener("resize", resizeCanvas);
+}
+
+// ==============================================================================
+// 🌙 O GECE GÖKYÜZÜ / AYIN EVRESİ MOTORU
+// ==============================================================================
+function initMoonPhase() {
+    const moonCard = document.getElementById("moonPhaseCard");
+    const moonCanvas = document.getElementById("moonCanvas");
+    const moonBadge = document.getElementById("moonBadge");
+    const moonTitle = document.getElementById("moonPhaseTitle");
+    const moonDesc = document.getElementById("moonPhaseDesc");
+
+    if (!moonCard || !moonCanvas) return;
+
+    let targetDate = new Date(CONFIG.startDate);
+    if (isNaN(targetDate.getTime())) targetDate = new Date("2023-10-14T20:00:00");
+
+    // Conway & Julian Day Ay Fazı Hesabı
+    let year = targetDate.getFullYear();
+    let month = targetDate.getMonth() + 1;
+    let day = targetDate.getDate();
+
+    if (month < 3) {
+        year--;
+        month += 12;
+    }
+    const a = Math.floor(year / 100);
+    const b = 2 - a + Math.floor(a / 4);
+    const jd = Math.floor(365.25 * (year + 4716)) + Math.floor(30.6001 * (month + 1)) + day + b - 1524.5;
+
+    const daysSinceNew = jd - 2451549.5;
+    const synodicMonth = 29.53058867;
+    let phaseProgress = (daysSinceNew % synodicMonth) / synodicMonth;
+    if (phaseProgress < 0) phaseProgress += 1;
+
+    const age = phaseProgress * synodicMonth;
+    const illumination = Math.round(0.5 * (1 - Math.cos(2 * Math.PI * phaseProgress)) * 100);
+
+    let phaseName = "";
+    if (age < 1.84) phaseName = "Yeni Ay";
+    else if (age < 5.53) phaseName = "Hilal (Büyüyen)";
+    else if (age < 9.22) phaseName = "İlk Dördün";
+    else if (age < 12.91) phaseName = "Şişkin Ay (Büyüyen)";
+    else if (age < 16.61) phaseName = "Dolunay";
+    else if (age < 20.30) phaseName = "Şişkin Ay (Küçülen)";
+    else if (age < 23.99) phaseName = "Son Dördün";
+    else if (age < 27.68) phaseName = "Hilal (Küçülen)";
+    else phaseName = "Yeni Ay";
+
+    // Türkçe Tarih Formatı
+    const monthsTr = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+    const formattedDate = `${targetDate.getDate()} ${monthsTr[targetDate.getMonth()]} ${targetDate.getFullYear()}`;
+
+    if (moonBadge) {
+        moonBadge.innerHTML = `<i class="fa-solid fa-moon"></i> O Geceki Gökyüzü (${formattedDate})`;
+    }
+    if (moonTitle) {
+        moonTitle.textContent = `${phaseName} (%${illumination} Aydınlık) ✨`;
+    }
+    if (moonDesc) {
+        moonDesc.textContent = `Bizim başladığımız o gece gökyüzünde bu ${phaseName.toLowerCase()} parlıyordu. Ama senin ışıltın o gece bile gökyüzünden daha parlaktı... ✨`;
+    }
+
+    // Canvas Üzerine Gerçekçi Ay Çizimi
+    const ctx = moonCanvas.getContext("2d");
+    if (!ctx) return;
+    const w = moonCanvas.width;
+    const h = moonCanvas.height;
+    const cx = w / 2;
+    const cy = h / 2;
+    const r = (w / 2) - 4;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // 1. Ayın Karanlık Küresi
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = "#140f24";
+    ctx.fill();
+    ctx.clip();
+
+    // 2. Ay Kraterleri (Gerçekçi detaylar)
+    const craters = [
+        { x: cx - 18, y: cy - 15, cr: 10 },
+        { x: cx + 12, y: cy - 20, cr: 7 },
+        { x: cx - 10, y: cy + 18, cr: 12 },
+        { x: cx + 20, y: cy + 12, cr: 8 },
+        { x: cx + 2, y: cy - 2, cr: 14 }
+    ];
+
+    // 3. Aydınlık Dilimi (phaseProgress'e göre)
+    const lightGrad = ctx.createRadialGradient(cx - 10, cy - 10, 5, cx, cy, r);
+    lightGrad.addColorStop(0, "#fffbe6");
+    lightGrad.addColorStop(0.5, "#fae29c");
+    lightGrad.addColorStop(1, "#cfa244");
+
+    ctx.fillStyle = lightGrad;
+
+    if (illumination > 0) {
+        ctx.save();
+        ctx.beginPath();
+        if (phaseProgress <= 0.5) {
+            const k = (phaseProgress / 0.5) * 2 - 1;
+            ctx.arc(cx, cy, r, -Math.PI / 2, Math.PI / 2, false);
+            ctx.ellipse(cx, cy, Math.abs(k) * r, r, 0, Math.PI / 2, -Math.PI / 2, k < 0);
+        } else {
+            const k = ((phaseProgress - 0.5) / 0.5) * 2 - 1;
+            ctx.arc(cx, cy, r, Math.PI / 2, -Math.PI / 2, false);
+            ctx.ellipse(cx, cy, Math.abs(k) * r, r, 0, -Math.PI / 2, Math.PI / 2, k < 0);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+    }
+
+    // Kraterleri aydınlık/karanlığın üstüne çiz
+    ctx.fillStyle = "rgba(40, 25, 60, 0.15)";
+    craters.forEach(c => {
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, c.cr, 0, Math.PI * 2);
+        ctx.fill();
+    });
+
+    ctx.restore();
+
+    // Dış Halka İnce Işıltı
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(255, 235, 179, 0.4)";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+}
+
+// ==============================================================================
+// 🎬 SİNEMATİK FRAGMAN & 🔐 6 HANELİ ŞİFRELİ AŞK KASASI MOTORU
+// ==============================================================================
+function initCinematicIntroAndVault() {
+    const overlay = document.getElementById("cinematicOverlay");
+    const trailerStage = document.getElementById("trailerStage");
+    const vaultStage = document.getElementById("vaultStage");
+    const s1 = document.getElementById("trailerSentence1");
+    const s2 = document.getElementById("trailerSentence2");
+    const startBtn = document.getElementById("trailerStartBtn");
+    const skipBtn = document.getElementById("cinematicSkipBtn");
+
+    const vaultBox = document.querySelector(".vault-box");
+    const vaultLockIcon = document.getElementById("vaultLockIcon");
+    const vaultStatusMsg = document.getElementById("vaultStatusMsg");
+    const unlockBtn = document.getElementById("vaultUnlockBtn");
+    const pinInputs = [
+        document.getElementById("pin0"),
+        document.getElementById("pin1"),
+        document.getElementById("pin2"),
+        document.getElementById("pin3"),
+        document.getElementById("pin4"),
+        document.getElementById("pin5")
+    ];
+
+    if (!overlay || !trailerStage || !vaultStage) return;
+
+    // 1. Hedef 6 Haneli Şifreyi startDate'den Çıkar (GG AA YY)
+    let d = new Date(CONFIG.startDate);
+    if (isNaN(d.getTime())) d = new Date("2023-10-14T20:00:00");
+    const targetDay = String(d.getDate()).padStart(2, "0");
+    const targetMonth = String(d.getMonth() + 1).padStart(2, "0");
+    const targetYear = String(d.getFullYear()).slice(-2);
+    const targetPin = `${targetDay}${targetMonth}${targetYear}`; // Örn: "141023"
+
+    let isUnlocked = false;
+
+    // Kilidi Açma Fonksiyonu
+    function unlockEverything() {
+        if (isUnlocked) return;
+        isUnlocked = true;
+
+        if (vaultLockIcon) {
+            vaultLockIcon.classList.add("unlocked");
+            vaultLockIcon.innerHTML = '<i class="fa-solid fa-lock-open"></i>';
+        }
+        if (vaultStatusMsg) {
+            vaultStatusMsg.className = "vault-status-msg success";
+            vaultStatusMsg.textContent = "🎉 Doğru! Hikayemiz Başlıyor...";
+        }
+
+        if (typeof confetti === "function") {
+            confetti({
+                particleCount: 120,
+                spread: 90,
+                origin: { y: 0.55 }
+            });
+        }
+        if (navigator.vibrate) navigator.vibrate([100, 60, 150]);
+
+        // Müziği Başlat
+        const bgAudio = document.getElementById("bgAudio");
+        const playIcon = document.getElementById("playIcon");
+        const vinyl = document.getElementById("vinylRecord");
+        if (bgAudio) {
+            bgAudio.play().then(() => {
+                if (playIcon) playIcon.className = "fa-solid fa-pause";
+                if (vinyl) vinyl.classList.add("spinning");
+            }).catch(() => {});
+        }
+
+        setTimeout(() => {
+            overlay.classList.add("unlocked");
+            setTimeout(() => {
+                overlay.style.display = "none";
+            }, 1000);
+        }, 1100);
+    }
+
+    // 2. Aşama: Kasaya Geçiş
+    function showVaultStage() {
+        trailerStage.classList.remove("active");
+        vaultStage.classList.add("active");
+        setTimeout(() => {
+            if (pinInputs[0]) pinInputs[0].focus();
+        }, 300);
+
+        // Arka planda müziği kullanıcı tıklamasıyla çöz
+        const bgAudio = document.getElementById("bgAudio");
+        if (bgAudio && bgAudio.paused) {
+            bgAudio.play().then(() => {
+                const playIcon = document.getElementById("playIcon");
+                const vinyl = document.getElementById("vinylRecord");
+                if (playIcon) playIcon.className = "fa-solid fa-pause";
+                if (vinyl) vinyl.classList.add("spinning");
+            }).catch(() => {});
+        }
+    }
+
+    // Fragman Zamanlaması
+    setTimeout(() => { if (s1) s1.classList.add("show"); }, 300);
+    setTimeout(() => {
+        if (s1) {
+            s1.classList.remove("show");
+            s1.classList.add("fade-out");
+        }
+    }, 2800);
+
+    setTimeout(() => { if (s2) s2.classList.add("show"); }, 3400);
+    setTimeout(() => {
+        if (s2) {
+            s2.classList.remove("show");
+            s2.classList.add("fade-out");
+        }
+    }, 5800);
+
+    setTimeout(() => {
+        if (startBtn) startBtn.classList.add("show");
+    }, 6200);
+
+    if (startBtn) {
+        startBtn.addEventListener("click", showVaultStage);
+    }
+
+    if (skipBtn) {
+        skipBtn.addEventListener("click", () => {
+            if (vaultStage.classList.contains("active")) {
+                unlockEverything();
+            } else {
+                showVaultStage();
+            }
+        });
+    }
+
+    // 3. PIN Kutuları Giriş & Otomatik Atlama Mekanizması
+    function getEnteredPin() {
+        return pinInputs.map(input => (input ? input.value : "")).join("");
+    }
+
+    function checkCurrentPin() {
+        const entered = getEnteredPin();
+        if (entered.length < 6) return;
+
+        if (entered === targetPin) {
+            unlockEverything();
+        } else {
+            if (vaultBox) vaultBox.classList.add("shake");
+            if (vaultStatusMsg) {
+                vaultStatusMsg.className = "vault-status-msg";
+                vaultStatusMsg.textContent = "Hımm, unutmadın değil mi sevgilim? 👀";
+            }
+            if (navigator.vibrate) navigator.vibrate([120, 80, 120]);
+
+            setTimeout(() => {
+                if (vaultBox) vaultBox.classList.remove("shake");
+                pinInputs.forEach(inp => { if (inp) inp.value = ""; });
+                if (pinInputs[0]) pinInputs[0].focus();
+            }, 900);
+        }
+    }
+
+    pinInputs.forEach((input, index) => {
+        if (!input) return;
+
+        input.addEventListener("input", (e) => {
+            const val = e.target.value.replace(/\D/g, "");
+            e.target.value = val ? val.slice(-1) : "";
+
+            if (val && index < 5) {
+                pinInputs[index + 1].focus();
+            }
+
+            if (getEnteredPin().length === 6) {
+                checkCurrentPin();
+            }
+        });
+
+        input.addEventListener("keydown", (e) => {
+            if (e.key === "Backspace") {
+                if (!input.value && index > 0) {
+                    pinInputs[index - 1].focus();
+                }
+            } else if (e.key === "Enter") {
+                checkCurrentPin();
+            }
+        });
+
+        // Yapıştırma (Paste) Desteği
+        input.addEventListener("paste", (e) => {
+            e.preventDefault();
+            const pasteData = (e.clipboardData || window.clipboardData).getData("text").replace(/\D/g, "");
+            if (!pasteData) return;
+            for (let i = 0; i < 6; i++) {
+                if (pasteData[i] && pinInputs[i]) {
+                    pinInputs[i].value = pasteData[i];
+                }
+            }
+            if (pinInputs[5]) pinInputs[5].focus();
+            if (getEnteredPin().length === 6) {
+                checkCurrentPin();
+            }
+        });
+    });
+
+    if (unlockBtn) {
+        unlockBtn.addEventListener("click", checkCurrentPin);
+    }
 }
