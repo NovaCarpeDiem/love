@@ -16,7 +16,392 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <link rel="stylesheet" href="style.css?v=7.0">
+    <link rel="stylesheet" href="style.css?v=9.0">
+    <style>
+        /* 🎬 SİNEMATİK FRAGMAN & 🔐 6 HANELİ ŞİFRELİ AŞK KASASI (Dahili ve Sıfır Önbellek Garantili) */
+        .cinematic-overlay {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            background: radial-gradient(circle at center, #1b0c2a 0%, #080312 85%, #030107 100%) !important;
+            z-index: 9999999 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            overflow: hidden !important;
+            transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), transform 1s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            will-change: opacity, transform !important;
+        }
+
+        .cinematic-overlay.unlocked {
+            opacity: 0 !important;
+            transform: scale(1.08) !important;
+            pointer-events: none !important;
+        }
+
+        .cinematic-stars {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                radial-gradient(1px 1px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 100px 150px, #ffd166, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 250px 80px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 320px 240px, #ff758f, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 180px 340px, #ffffff, rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 350px 350px;
+            opacity: 0.6;
+            animation: starsTwinkle 8s infinite ease-in-out alternate;
+            pointer-events: none;
+        }
+
+        @keyframes starsTwinkle {
+            0% { opacity: 0.35; transform: scale(1); }
+            100% { opacity: 0.75; transform: scale(1.03); }
+        }
+
+        .cinematic-skip-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 13px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        .cinematic-skip-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        .trailer-stage {
+            display: none !important;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            z-index: 5;
+        }
+        .trailer-stage.active {
+            display: flex !important;
+        }
+
+        .trailer-text-wrapper {
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+
+        .trailer-sentence {
+            position: absolute;
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(22px, 5vw, 32px);
+            font-weight: 600;
+            font-style: italic;
+            color: #ffffff;
+            text-shadow: 0 4px 20px rgba(255, 117, 143, 0.5);
+            opacity: 0;
+            transform: translateY(15px);
+            transition: opacity 1.2s ease, transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+            pointer-events: none;
+            width: 100%;
+        }
+
+        .trailer-sentence.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .trailer-sentence.fade-out {
+            opacity: 0;
+            transform: translateY(-15px);
+        }
+
+        .trailer-start-btn {
+            opacity: 0;
+            transform: scale(0.9);
+            pointer-events: none;
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            background: linear-gradient(135deg, #ff4d6d, #c9184a);
+            color: #ffffff;
+            border: none;
+            border-radius: 50px;
+            padding: 16px 36px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 30px rgba(255, 77, 109, 0.5), 0 0 20px rgba(255, 77, 109, 0.3);
+        }
+
+        .trailer-start-btn.show {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+
+        .trailer-start-btn:hover {
+            transform: scale(1.06);
+            box-shadow: 0 14px 40px rgba(255, 77, 109, 0.7);
+        }
+
+        .pulse-icon {
+            animation: heartPulse 1.2s infinite ease-in-out;
+        }
+
+        .vault-stage {
+            display: none !important;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            max-width: 440px;
+            width: 92%;
+            z-index: 5;
+            animation: vaultFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .vault-stage.active {
+            display: flex !important;
+        }
+
+        @keyframes vaultFadeIn {
+            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .vault-box {
+            width: 100%;
+            padding: 34px 24px;
+            border-radius: 28px;
+            background: rgba(26, 13, 38, 0.85);
+            border: 1px solid rgba(255, 209, 102, 0.35);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 209, 102, 0.15);
+            backdrop-filter: blur(20px);
+            position: relative;
+        }
+
+        .vault-box.shake {
+            animation: shakeBox 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+        }
+
+        @keyframes shakeBox {
+            10%, 90% { transform: translate3d(-3px, 0, 0); }
+            20%, 80% { transform: translate3d(5px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+            40%, 60% { transform: translate3d(6px, 0, 0); }
+        }
+
+        .vault-lock-icon {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 18px;
+            background: linear-gradient(135deg, #ffd166, #b38728);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: #10091d;
+            box-shadow: 0 10px 25px rgba(255, 209, 102, 0.4);
+            transition: transform 0.5s ease, background 0.5s ease;
+        }
+
+        .vault-lock-icon.unlocked {
+            background: linear-gradient(135deg, #06d6a0, #048a66);
+            transform: scale(1.15) rotate(10deg);
+            color: #ffffff;
+        }
+
+        .vault-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            color: #ffffff;
+            margin-bottom: 6px;
+        }
+
+        .vault-subtitle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 12px;
+        }
+
+        .vault-hint-format {
+            display: inline-block;
+            font-size: 12px;
+            color: #ffd166;
+            background: rgba(255, 209, 102, 0.12);
+            padding: 4px 14px;
+            border-radius: 12px;
+            margin-bottom: 22px;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .pin-inputs-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 18px;
+        }
+
+        .pin-digit {
+            width: 44px;
+            height: 54px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1.5px solid rgba(255, 255, 255, 0.25);
+            border-radius: 12px;
+            color: #ffd166;
+            font-size: 24px;
+            font-weight: 800;
+            text-align: center;
+            outline: none;
+            transition: all 0.25s ease;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .pin-digit:focus {
+            border-color: #ffd166;
+            background: rgba(255, 209, 102, 0.15);
+            box-shadow: 0 0 15px rgba(255, 209, 102, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .pin-dot {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 18px;
+            margin: 0 2px;
+        }
+
+        .vault-status-msg {
+            min-height: 22px;
+            font-size: 13px;
+            color: #ff4d6d;
+            margin-bottom: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .vault-status-msg.success {
+            color: #06d6a0;
+        }
+
+        .vault-unlock-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #ffd166, #e5a93b);
+            color: #10091d;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 8px 24px rgba(255, 209, 102, 0.35);
+            transition: all 0.3s ease;
+        }
+
+        .vault-unlock-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(255, 209, 102, 0.5);
+        }
+
+        /* 🌙 O GECE GÖKYÜZÜ */
+        .moon-phase-card {
+            margin-top: 24px;
+            padding: 24px 20px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 209, 102, 0.05) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .moon-visual-wrap {
+            position: relative;
+            width: 110px;
+            height: 110px;
+            margin: 12px auto 16px;
+        }
+
+        .moon-glow-effect {
+            position: absolute;
+            inset: -12px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 235, 179, 0.35) 0%, rgba(255, 209, 102, 0) 70%);
+            filter: blur(8px);
+            animation: moonGlowPulse 4s infinite alternate ease-in-out;
+        }
+
+        @keyframes moonGlowPulse {
+            0% { transform: scale(0.95); opacity: 0.6; }
+            100% { transform: scale(1.1); opacity: 1; }
+        }
+
+        .moon-canvas-display {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 0 25px rgba(255, 235, 179, 0.3);
+        }
+
+        .moon-card-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #ffd166;
+            background: rgba(255, 209, 102, 0.12);
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .moon-phase-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            color: #ffffff;
+            margin-bottom: 6px;
+        }
+
+        .moon-phase-desc {
+            font-size: 13px;
+            color: var(--text-dim);
+            line-height: 1.5;
+            max-width: 480px;
+            margin: 0 auto;
+            font-style: italic;
+        }
+    </style>
 </head>
 <body>
 
