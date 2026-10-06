@@ -569,6 +569,7 @@ Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.
         if (payload.l) params.set("l", payload.l);
         if (payload.imgs && payload.imgs.length > 0) params.set("imgs", payload.imgs.join(","));
         params.set("data", encodedData);
+        params.set("v", "9.2");
 
         const finalUrl = `${baseUrl}?${params.toString()}`;
 
