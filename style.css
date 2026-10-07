@@ -697,19 +697,7 @@ body {
 }
 
 .letter-seal {
-    position: absolute;
-    top: -18px;
-    right: 35px;
-    width: 38px;
-    height: 38px;
-    background: radial-gradient(circle, #ff4d6d, #a00);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 16px;
-    box-shadow: 0 4px 15px rgba(255, 77, 109, 0.6);
+    display: none !important;
 }
 
 .letter-heading {
@@ -1895,32 +1883,34 @@ body.cinematic-active {
 
 .wax-seal-wrapper {
     position: absolute;
-    top: -24px;
+    top: -26px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 20;
+    z-index: 25;
     cursor: pointer;
-    transition: transform 0.3s ease;
+    transition: transform 0.25s ease;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .wax-seal-wrapper:hover {
-    transform: translateX(-50%) scale(1.1);
+    transform: translateX(-50%) scale(1.08);
 }
 
 .wax-seal-stamp {
-    width: 58px;
-    height: 58px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     background: radial-gradient(circle at 35% 35%, #e63946 0%, #b5179e 60%, #560bad 100%);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(230, 57, 70, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.5), inset 0 -3px 6px rgba(0, 0, 0, 0.6);
-    border: 2px solid rgba(255, 215, 0, 0.5);
+    border: 2px solid rgba(255, 215, 0, 0.6);
     display: flex;
     align-items: center;
     justify-content: center;
     color: #ffd700;
-    font-size: 22px;
+    font-size: 20px;
     position: relative;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .wax-seal-stamp::before {
@@ -1931,28 +1921,86 @@ body.cinematic-active {
     border-radius: 50%;
 }
 
-.wax-seal-wrapper.broken .wax-seal-stamp {
-    transform: scale(0.6) rotate(45deg);
-    opacity: 0;
+/* 1. Tık Çatlağı */
+.wax-seal-wrapper.crack-1 .wax-seal-stamp {
+    transform: scale(0.96) rotate(4deg);
+    box-shadow: 0 4px 18px rgba(230, 57, 70, 0.8), 0 0 8px rgba(255, 209, 102, 0.6);
+    animation: sealWobble 0.28s ease;
+}
+
+.wax-seal-wrapper.crack-1 .wax-seal-stamp::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 48%;
+    width: 3px;
+    height: 48px;
+    background: linear-gradient(to bottom, #ffd166 0%, #ffffff 50%, #ffd166 100%);
+    box-shadow: 0 0 8px #ffd166;
+    transform: rotate(-15deg);
+    border-radius: 2px;
     pointer-events: none;
 }
 
+/* 2. Tık Derin Çatlağı */
+.wax-seal-wrapper.crack-2 .wax-seal-stamp {
+    transform: scale(0.92) rotate(-6deg);
+    box-shadow: 0 4px 25px rgba(255, 77, 109, 0.9), 0 0 15px rgba(255, 209, 102, 0.9);
+    animation: sealWobbleDeep 0.32s ease;
+}
+
+.wax-seal-wrapper.crack-2 .wax-seal-stamp::after {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border-radius: 50%;
+    background: 
+        linear-gradient(45deg, transparent 46%, #ffd166 48%, #ffffff 50%, #ffd166 52%, transparent 54%),
+        linear-gradient(-35deg, transparent 46%, #ffd166 48%, #ffffff 50%, #ffd166 52%, transparent 54%);
+    box-shadow: 0 0 12px #ffd166;
+    pointer-events: none;
+}
+
+@keyframes sealWobble {
+    0% { transform: scale(1) rotate(0deg); }
+    30% { transform: scale(0.9) rotate(-8deg); }
+    70% { transform: scale(1.05) rotate(6deg); }
+    100% { transform: scale(0.96) rotate(4deg); }
+}
+
+@keyframes sealWobbleDeep {
+    0% { transform: scale(0.96) rotate(4deg); }
+    25% { transform: scale(0.88) rotate(12deg); }
+    50% { transform: scale(1.08) rotate(-10deg); }
+    75% { transform: scale(0.9) rotate(6deg); }
+    100% { transform: scale(0.92) rotate(-6deg); }
+}
+
+/* 3. Tık Parçalanma */
+.wax-seal-wrapper.broken .wax-seal-stamp {
+    transform: scale(0) rotate(120deg);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.45s cubic-bezier(0.6, -0.28, 0.735, 0.045);
+}
+
 .wax-seal-hint {
-    font-size: 12px;
+    font-size: 13px;
     color: #ffd166;
     text-align: center;
-    margin-top: 15px;
+    margin-top: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    font-weight: 600;
+    font-weight: 700;
     animation: sealGlow 2s infinite alternate;
+    cursor: pointer;
 }
 
 @keyframes sealGlow {
-    0% { opacity: 0.7; }
-    100% { opacity: 1; text-shadow: 0 0 10px rgba(255, 209, 102, 0.8); }
+    0% { opacity: 0.75; }
+    100% { opacity: 1; text-shadow: 0 0 12px rgba(255, 209, 102, 0.85); }
 }
 
 .envelope-letter-body {
@@ -1979,34 +2027,139 @@ body.cinematic-active {
     display: none;
 }
 
-/* 8. 🎡 3D SİLİNDİR POLAROID ÇARKI (3D Cylinder Carousel) */
-.polaroid-3d-stage {
+/* 8. 🎞️ 3D SİNEMATİK FİLM ŞERİDİ (Continuous 35mm Film Ribbon) */
+.filmstrip-3d-stage {
     perspective: 1200px;
     width: 100%;
-    padding: 30px 0 20px;
+    padding: 35px 0 20px;
     position: relative;
     overflow: hidden;
     touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
-.polaroid-cylinder {
+.filmstrip-ribbon {
     position: relative;
-    width: 240px;
-    height: 330px;
+    width: 270px;
+    height: 380px;
     margin: 0 auto;
     transform-style: preserve-3d;
-    transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.polaroid-cylinder-item {
+.filmstrip-frame {
     position: absolute;
     top: 0;
     left: 0;
-    width: 240px;
-    height: 330px;
+    width: 270px;
+    height: 380px;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     transform-origin: center center;
+    background: #11091a;
+    border-radius: 12px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(255, 77, 109, 0.25);
+    border: 2px solid rgba(255, 209, 102, 0.3);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.filmstrip-frame:hover {
+    border-color: #ffd166;
+    box-shadow: 0 20px 50px rgba(255, 209, 102, 0.45);
+}
+
+/* Film Şeridi Perforasyon Delikleri */
+.film-sprocket-track {
+    height: 28px;
+    background: #0a0510;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
+    position: relative;
+}
+
+.film-sprocket-track.bottom-track {
+    border-bottom: none;
+    border-top: 1px dashed rgba(255, 255, 255, 0.15);
+    margin-top: auto;
+}
+
+.sprocket-holes-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.sprocket-hole {
+    width: 9px;
+    height: 14px;
+    background: #000000;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 2px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+.film-meta-tag {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: rgba(255, 209, 102, 0.85);
+    font-family: monospace;
+    text-transform: uppercase;
+}
+
+.film-photo-window {
+    position: relative;
+    width: calc(100% - 24px);
+    margin: 8px auto 6px;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: 6px;
+    background: #000;
+    box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.film-photo-window img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.filmstrip-frame:hover .film-photo-window img {
+    transform: scale(1.06);
+}
+
+.film-caption-area {
+    padding: 4px 14px 6px;
+    text-align: center;
+}
+
+.film-date-badge {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.film-caption-text {
+    font-family: var(--font-handwriting);
+    font-size: 16px;
+    color: #ffffff;
+    line-height: 1.25;
 }
 
 .cylinder-controls {

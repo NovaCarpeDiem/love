@@ -30,7 +30,7 @@ const CONFIG = {
 
     // 💌 Aşk / Özür Mektubu (Daktilo ile yazılacak yazı)
     letter: {
-        heading: "Benim Güzel Şirin'im,",
+        heading: "",
         body: `Hayatıma girdiğin andan itibaren her şey o kadar güzelleşti ki, bazen seni hak edecek ne yaptım diye düşünüyorum. 
 Gülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel. 
 

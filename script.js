@@ -546,6 +546,9 @@ function triggerConfettiCelebration() {
 // ==============================================================================
 // 📸 POLAROID ANI GALERİSİ & RESİM BÜYÜTME
 // ==============================================================================
+// ==============================================================================
+// 🎞️ 3D SİNEMATİK FİLM ŞERİDİ (Continuous 35mm Celluloid Ribbon)
+// ==============================================================================
 function initPolaroidGallery() {
     const gallery = document.getElementById("polaroidGallery");
     const imageModal = document.getElementById("imageModal");
@@ -571,38 +574,52 @@ function initPolaroidGallery() {
         { image: backupPhotos[3], date: "Her Anımızda Gülümseme", caption: "Birlikte çocuk gibi gülmeyi seviyorum..." }
     ];
 
-    // 3D Silindir Sahnesi
+    // 3D Sinematik Film Sahnesi
     const stage = document.createElement("div");
-    stage.className = "polaroid-3d-stage";
+    stage.className = "filmstrip-3d-stage";
 
-    const cylinder = document.createElement("div");
-    cylinder.className = "polaroid-cylinder";
+    const ribbon = document.createElement("div");
+    ribbon.className = "filmstrip-ribbon";
+    ribbon.id = "filmstripRibbon";
 
     const count = memories.length;
     const angleStep = 360 / Math.max(count, 3);
-    const radius = Math.max(260, Math.round((240 / 2) / Math.tan(Math.PI / Math.max(count, 3))));
+    const radius = Math.max(270, Math.round((270 / 2) / Math.tan(Math.PI / Math.max(count, 3))));
 
     memories.forEach((mem, index) => {
         const fallbackImg = backupPhotos[index % backupPhotos.length];
-        const itemWrap = document.createElement("div");
-        itemWrap.className = "polaroid-cylinder-item";
+        const frame = document.createElement("div");
+        frame.className = "filmstrip-frame";
         const curAngle = index * angleStep;
-        itemWrap.style.transform = `rotateY(${curAngle}deg) translateZ(${radius}px)`;
+        frame.style.transform = `rotateY(${curAngle}deg) translateZ(${radius}px)`;
 
-        const card = document.createElement("div");
-        card.className = "polaroid-card holo-foil-card";
-        card.innerHTML = `
-            <div class="polaroid-pin"></div>
-            <div class="polaroid-img-box">
-                <img src="${mem.image || fallbackImg}" onerror="this.onerror=null; this.src='${fallbackImg}';" alt="${mem.title || 'Anı'}" loading="lazy">
-            </div>
-            <div class="polaroid-info">
-                <span class="polaroid-date">${mem.date || 'Özel An'}</span>
-                <p class="polaroid-caption">${mem.caption || ''}</p>
+        // 35mm Perforasyon Delikleri
+        const sprocketsHtml = `
+            <div class="sprocket-holes-row">
+                <span class="sprocket-hole"></span><span class="sprocket-hole"></span><span class="sprocket-hole"></span><span class="sprocket-hole"></span>
+                <span class="sprocket-hole"></span><span class="sprocket-hole"></span><span class="sprocket-hole"></span><span class="sprocket-hole"></span>
             </div>
         `;
 
-        card.addEventListener("click", () => {
+        frame.innerHTML = `
+            <div class="film-sprocket-track">
+                ${sprocketsHtml}
+                <span class="film-meta-tag">35mm • FRAME 0${index + 1}</span>
+            </div>
+            <div class="film-photo-window">
+                <img src="${mem.image || fallbackImg}" onerror="this.onerror=null; this.src='${fallbackImg}';" alt="${mem.title || 'Anı'}" loading="lazy">
+            </div>
+            <div class="film-caption-area">
+                <span class="film-date-badge">${mem.date || 'Özel An'}</span>
+                <p class="film-caption-text">${mem.caption || ''}</p>
+            </div>
+            <div class="film-sprocket-track bottom-track">
+                ${sprocketsHtml}
+                <span class="film-meta-tag">KODAK • ROMANCE</span>
+            </div>
+        `;
+
+        frame.addEventListener("click", () => {
             if (modalImagePreview) modalImagePreview.src = mem.image || fallbackImg;
             if (modalImageDate) modalImageDate.textContent = mem.date || '';
             if (modalImageText) modalImageText.textContent = mem.caption || '';
@@ -610,64 +627,84 @@ function initPolaroidGallery() {
             if (navigator.vibrate) navigator.vibrate(25);
         });
 
-        itemWrap.appendChild(card);
-        cylinder.appendChild(itemWrap);
+        ribbon.appendChild(frame);
     });
 
-    stage.appendChild(cylinder);
+    stage.appendChild(ribbon);
 
-    // 3D Çark Kontrolleri
+    // Çevirme Kontrolleri
     const controls = document.createElement("div");
     controls.className = "cylinder-controls";
     controls.innerHTML = `
-        <button class="cyl-btn" id="cylPrevBtn" title="Önceki Anı"><i class="fa-solid fa-chevron-left"></i></button>
-        <span style="font-size:12px; color:rgba(255,209,102,0.9); font-weight:700;"><i class="fa-solid fa-arrows-rotate"></i> 3D Fotoğraf Çarkı</span>
-        <button class="cyl-btn" id="cylNextBtn" title="Sonraki Anı"><i class="fa-solid fa-chevron-right"></i></button>
+        <button class="cyl-btn" id="filmPrevBtn" title="Önceki Kare"><i class="fa-solid fa-chevron-left"></i></button>
+        <span style="font-size:12px; color:rgba(255,209,102,0.9); font-weight:700; letter-spacing:0.5px;"><i class="fa-solid fa-film"></i> 3D Sinematik Film Şeridi</span>
+        <button class="cyl-btn" id="filmNextBtn" title="Sonraki Kare"><i class="fa-solid fa-chevron-right"></i></button>
     `;
 
     gallery.appendChild(stage);
     gallery.appendChild(controls);
 
-    let curRotation = 0;
-    function updateCylinderRotation() {
-        cylinder.style.transform = `rotateY(${curRotation}deg)`;
-    }
+    // ⚡ 144Hz Akıcı Yay Fiziği (Fluid Spring RAF Loop)
+    let currentRotation = 0;
+    let targetRotation = 0;
+    let isDragging = false;
+    let dragStartX = 0;
+    let startRotation = 0;
 
-    const prevBtn = controls.querySelector("#cylPrevBtn");
-    const nextBtn = controls.querySelector("#cylNextBtn");
+    function renderFilmstrip() {
+        currentRotation += (targetRotation - currentRotation) * 0.14;
+        ribbon.style.transform = `translate3d(0,0,0) rotateY(${currentRotation}deg)`;
+        requestAnimationFrame(renderFilmstrip);
+    }
+    requestAnimationFrame(renderFilmstrip);
+
+    const prevBtn = controls.querySelector("#filmPrevBtn");
+    const nextBtn = controls.querySelector("#filmNextBtn");
     if (prevBtn) prevBtn.addEventListener("click", () => {
-        curRotation += angleStep;
-        updateCylinderRotation();
+        targetRotation += angleStep;
         if (navigator.vibrate) navigator.vibrate(15);
     });
     if (nextBtn) nextBtn.addEventListener("click", () => {
-        curRotation -= angleStep;
-        updateCylinderRotation();
+        targetRotation -= angleStep;
         if (navigator.vibrate) navigator.vibrate(15);
     });
 
-    // Mobil Touch Swipe (Parmağınla 3D Çarkı Çevir)
-    let touchStartX = 0;
-    let isSwiping = false;
+    // Touch & Mouse 3D Film Şeridi Kaydırma
     stage.addEventListener("touchstart", (e) => {
-        touchStartX = e.touches[0].clientX;
-        isSwiping = true;
+        isDragging = true;
+        dragStartX = e.touches[0].clientX;
+        startRotation = targetRotation;
     }, { passive: true });
 
     stage.addEventListener("touchmove", (e) => {
-        if (!isSwiping) return;
-        const diffX = e.touches[0].clientX - touchStartX;
-        if (Math.abs(diffX) > 45) {
-            if (diffX > 0) curRotation += angleStep;
-            else curRotation -= angleStep;
-            updateCylinderRotation();
-            touchStartX = e.touches[0].clientX;
-            isSwiping = false;
-            if (navigator.vibrate) navigator.vibrate(20);
-        }
+        if (!isDragging) return;
+        const deltaX = e.touches[0].clientX - dragStartX;
+        targetRotation = startRotation + (deltaX * 0.4);
     }, { passive: true });
 
-    stage.addEventListener("touchend", () => { isSwiping = false; });
+    stage.addEventListener("touchend", () => {
+        if (!isDragging) return;
+        isDragging = false;
+        // En yakın kareye kilitle
+        targetRotation = Math.round(targetRotation / angleStep) * angleStep;
+    });
+
+    // Mouse drag desteği (Masaüstü için)
+    stage.addEventListener("mousedown", (e) => {
+        isDragging = true;
+        dragStartX = e.clientX;
+        startRotation = targetRotation;
+    });
+    window.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+        const deltaX = e.clientX - dragStartX;
+        targetRotation = startRotation + (deltaX * 0.35);
+    });
+    window.addEventListener("mouseup", () => {
+        if (!isDragging) return;
+        isDragging = false;
+        targetRotation = Math.round(targetRotation / angleStep) * angleStep;
+    });
 
     if (imageModalClose) {
         imageModalClose.addEventListener("click", () => {
@@ -685,31 +722,34 @@ function initPolaroidGallery() {
 }
 
 // ==============================================================================
-// 💌 DAKTİLO EFEKTLİ ROMANTİK MEKTUP
+// 💌 DAKTİLO EFEKTLİ ROMANTİK MEKTUP (3 Aşamalı Balmumu Çatlama)
 // ==============================================================================
 function initTypewriterLetter() {
     const letterTextElem = document.getElementById("typewriterText");
     const letterEnvelope = document.querySelector(".letter-envelope");
     const fullText = CONFIG.letter.body;
     let isTyped = false;
+    let sealTapCount = 0;
 
-    // 3D Balmumu Mühürlü Zarf Yapısı Entegrasyonu
     if (letterEnvelope) {
+        // Eski taşan kalp ikonunu kaldır
+        const oldSeal = letterEnvelope.querySelector(".letter-seal");
+        if (oldSeal) oldSeal.remove();
+
         letterEnvelope.classList.add("envelope-3d-box", "sealed");
 
-        // Balmumu Mühür Damgası
+        // 3D Balmumu Mühür Damgası
         let waxWrap = letterEnvelope.querySelector(".wax-seal-wrapper");
         if (!waxWrap) {
             waxWrap = document.createElement("div");
             waxWrap.className = "wax-seal-wrapper";
             
-            // Baş harfler monogramı (Ferhat & Şirin -> F & Ş)
             const pInit = (CONFIG.partnerName || "Ş")[0].toUpperCase();
             const sInit = (CONFIG.senderName || "F")[0].toUpperCase();
             const monogram = `${sInit}&${pInit}`;
 
             waxWrap.innerHTML = `
-                <div class="wax-seal-stamp" title="Mührü Kır ve Aç">
+                <div class="wax-seal-stamp" title="Mühre Tıkla ve Çatlat">
                     <span style="font-family:'Playfair Display',serif; font-size:16px; font-weight:800; letter-spacing:1px;">${monogram}</span>
                 </div>
             `;
@@ -721,36 +761,50 @@ function initTypewriterLetter() {
         if (!hint) {
             hint = document.createElement("div");
             hint.className = "wax-seal-hint";
-            hint.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Mektubunu Açmak İçin Mühre Dokun ✨`;
+            hint.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Mührü Kırmak İçin Üstüne Tıkla ✨ (3 Dokunuş)`;
             letterEnvelope.appendChild(hint);
         }
 
         const letterContent = letterEnvelope.querySelector(".letter-content");
         if (letterContent) letterContent.classList.add("envelope-letter-body");
 
-        function openEnvelopeAndType() {
+        // SADECE MÜHRE TIKLANDIĞINDA ÇALIŞIR
+        waxWrap.addEventListener("click", (e) => {
+            e.stopPropagation();
             if (letterEnvelope.classList.contains("unsealed")) return;
-            letterEnvelope.classList.remove("sealed");
-            letterEnvelope.classList.add("unsealed");
-            if (waxWrap) waxWrap.classList.add("broken");
 
-            if (navigator.vibrate) navigator.vibrate([35, 25, 45]);
-            if (typeof confetti === "function") {
-                confetti({
-                    particleCount: 50,
-                    spread: 60,
-                    origin: { y: 0.7 },
-                    colors: ['#ffd166', '#ff4d6d', '#ffffff']
-                });
-            }
+            sealTapCount++;
 
-            typeWriterEffect();
-        }
+            if (sealTapCount === 1) {
+                // 1. AŞAMA: İnce Çatlak
+                waxWrap.classList.add("crack-1");
+                hint.innerHTML = `<i class="fa-solid fa-hammer"></i> Çatlıyor... (2 tık kaldı ✨)`;
+                if (navigator.vibrate) navigator.vibrate(25);
+            } else if (sealTapCount === 2) {
+                // 2. AŞAMA: Derin Çatlak & Işık Sızıntısı
+                waxWrap.classList.remove("crack-1");
+                waxWrap.classList.add("crack-2");
+                hint.innerHTML = `<i class="fa-solid fa-burst"></i> Az kaldı, kırılıyor! (Son 1 tık ❤️)`;
+                if (navigator.vibrate) navigator.vibrate([30, 20, 30]);
+            } else if (sealTapCount >= 3) {
+                // 3. AŞAMA: Tam Kırılma & Açılma
+                waxWrap.classList.remove("crack-2");
+                waxWrap.classList.add("broken");
+                letterEnvelope.classList.remove("sealed");
+                letterEnvelope.classList.add("unsealed");
+                hint.style.display = "none";
 
-        waxWrap.addEventListener("click", openEnvelopeAndType);
-        letterEnvelope.addEventListener("click", (e) => {
-            if (letterEnvelope.classList.contains("sealed")) {
-                openEnvelopeAndType();
+                if (navigator.vibrate) navigator.vibrate([40, 30, 70]);
+                if (typeof confetti === "function") {
+                    confetti({
+                        particleCount: 70,
+                        spread: 75,
+                        origin: { y: 0.65 },
+                        colors: ['#ffd166', '#ff4d6d', '#ffffff', '#e63946']
+                    });
+                }
+
+                typeWriterEffect();
             }
         });
     }
@@ -1343,8 +1397,9 @@ function initAppleParallax3D() {
 // 3. 🌙 360° DÖNEBİLEN GERÇEKÇİ 3D AY KÜRESİ (WebGL + NASA Yüzey Haritası)
 function render3DMoon(canvas, phaseProgress, illumination) {
     if (!canvas) return;
-    canvas.width = 160;
-    canvas.height = 160;
+    // Ultra-HD Retina / Super-sampled çözünürlük (Pikselleşmeyi önler)
+    canvas.width = 512;
+    canvas.height = 512;
 
     // Dokunma ipucu ekle
     const moonWrap = canvas.closest(".moon-visual-wrap");
@@ -1363,7 +1418,8 @@ function render3DMoon(canvas, phaseProgress, illumination) {
     let lastX = 0;
     let lastY = 0;
 
-    const gl = canvas.getContext("webgl", { alpha: true, antialias: true }) || canvas.getContext("experimental-webgl", { alpha: true, antialias: true });
+    const gl = canvas.getContext("webgl", { alpha: true, antialias: true, powerPreference: "high-performance" }) || 
+               canvas.getContext("experimental-webgl", { alpha: true, antialias: true });
 
     if (!gl) {
         render2DMoonFallback(canvas, phaseProgress, illumination);
@@ -1479,8 +1535,10 @@ function render3DMoon(canvas, phaseProgress, illumination) {
     moonImg.crossOrigin = "anonymous";
     moonImg.onload = () => {
         gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, moonImg);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.generateMipmap(gl.TEXTURE_2D);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -1488,13 +1546,19 @@ function render3DMoon(canvas, phaseProgress, illumination) {
     };
     moonImg.src = "assets/moon_1024.jpg";
 
-    function draw() {
+    let lastTime = performance.now();
+    function draw(now) {
+        now = now || performance.now();
+        const dt = Math.min((now - lastTime) / 1000, 0.05);
+        lastTime = now;
+        const timeScale = dt * 60; // 144Hz monitor normalization
+
         if (!isDragging) {
-            rotY += 0.0025;
-            velX *= 0.92;
-            velY *= 0.92;
-            rotY += velX;
-            rotX += velY;
+            rotY += 0.0022 * timeScale;
+            velX *= Math.pow(0.92, timeScale);
+            velY *= Math.pow(0.92, timeScale);
+            rotY += velX * timeScale;
+            rotX += velY * timeScale;
         }
 
         rotX = Math.max(-1.1, Math.min(1.1, rotX));
@@ -1510,7 +1574,7 @@ function render3DMoon(canvas, phaseProgress, illumination) {
 
         requestAnimationFrame(draw);
     }
-    draw();
+    requestAnimationFrame(draw);
 
     function onPointerStart(x, y) {
         isDragging = true;
