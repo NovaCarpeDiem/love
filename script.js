@@ -547,7 +547,7 @@ function triggerConfettiCelebration() {
 // 📸 POLAROID ANI GALERİSİ & RESİM BÜYÜTME
 // ==============================================================================
 // ==============================================================================
-// 🎞️ 3D SİNEMATİK FİLM ŞERİDİ (Continuous 35mm Celluloid Ribbon)
+// 🎞️ 3D SİNEMATİK FİLM ŞERİDİ (4'lü Dönen Makara Carousel)
 // ==============================================================================
 function initPolaroidGallery() {
     const gallery = document.getElementById("polaroidGallery");
@@ -582,16 +582,15 @@ function initPolaroidGallery() {
     ribbon.className = "filmstrip-ribbon";
     ribbon.id = "filmstripRibbon";
 
-    const count = memories.length;
-    const angleStep = 360 / Math.max(count, 3);
-    const radius = Math.max(270, Math.round((270 / 2) / Math.tan(Math.PI / Math.max(count, 3))));
+    const count = Math.max(memories.length, 3);
+    const angleStep = 360 / count;
+    const frameElements = [];
 
     memories.forEach((mem, index) => {
         const fallbackImg = backupPhotos[index % backupPhotos.length];
         const frame = document.createElement("div");
         frame.className = "filmstrip-frame";
-        const curAngle = index * angleStep;
-        frame.style.transform = `rotateY(${curAngle}deg) translateZ(${radius}px)`;
+        frame.setAttribute("data-index", index);
 
         // 35mm Perforasyon Delikleri
         const sprocketsHtml = `
@@ -620,31 +619,60 @@ function initPolaroidGallery() {
         `;
 
         frame.addEventListener("click", () => {
-            if (modalImagePreview) modalImagePreview.src = mem.image || fallbackImg;
-            if (modalImageDate) modalImageDate.textContent = mem.date || '';
-            if (modalImageText) modalImageText.textContent = mem.caption || '';
-            if (imageModal) imageModal.classList.add("active");
-            if (navigator.vibrate) navigator.vibrate(25);
+            // Öndeki karta tıklandıysa modal'da büyüt
+            if (frame.classList.contains("is-active-front")) {
+                if (modalImagePreview) modalImagePreview.src = mem.image || fallbackImg;
+                if (modalImageDate) modalImageDate.textContent = mem.date || '';
+                if (modalImageText) modalImageText.textContent = mem.caption || '';
+                if (imageModal) imageModal.classList.add("active");
+                if (navigator.vibrate) navigator.vibrate(25);
+            } else {
+                // Arkadaki veya yandaki karta tıklandıysa onu öne getir ve büyüt!
+                const currentCardAngle = (index * angleStep) + targetRotation;
+                let delta = -currentCardAngle;
+                delta = ((((delta % 360) + 540) % 360) - 180);
+                targetRotation += delta;
+                if (navigator.vibrate) navigator.vibrate(15);
+            }
         });
 
         ribbon.appendChild(frame);
+        frameElements.push(frame);
     });
 
     stage.appendChild(ribbon);
 
-    // Çevirme Kontrolleri
+    // Çevirme Kontrolleri & Sayfa Noktaları
     const controls = document.createElement("div");
     controls.className = "cylinder-controls";
     controls.innerHTML = `
         <button class="cyl-btn" id="filmPrevBtn" title="Önceki Kare"><i class="fa-solid fa-chevron-left"></i></button>
-        <span style="font-size:12px; color:rgba(255,209,102,0.9); font-weight:700; letter-spacing:0.5px;"><i class="fa-solid fa-film"></i> 3D Sinematik Film Şeridi</span>
+        <div class="film-dots-container" id="filmDots"></div>
         <button class="cyl-btn" id="filmNextBtn" title="Sonraki Kare"><i class="fa-solid fa-chevron-right"></i></button>
     `;
 
     gallery.appendChild(stage);
     gallery.appendChild(controls);
 
-    // ⚡ 144Hz Akıcı Yay Fiziği (Fluid Spring RAF Loop)
+    // Noktaları oluştur
+    const dotsContainer = controls.querySelector("#filmDots");
+    const dotElements = [];
+    memories.forEach((_, dIdx) => {
+        const dot = document.createElement("span");
+        dot.className = "film-dot" + (dIdx === 0 ? " active" : "");
+        dot.setAttribute("data-dot-index", dIdx);
+        dot.addEventListener("click", () => {
+            const currentCardAngle = (dIdx * angleStep) + targetRotation;
+            let delta = -currentCardAngle;
+            delta = ((((delta % 360) + 540) % 360) - 180);
+            targetRotation += delta;
+            if (navigator.vibrate) navigator.vibrate(15);
+        });
+        dotsContainer.appendChild(dot);
+        dotElements.push(dot);
+    });
+
+    // ⚡ 144Hz Akıcı Yay Fiziği (4'lü Fotoğraf 3D Hesaplama)
     let currentRotation = 0;
     let targetRotation = 0;
     let isDragging = false;
@@ -652,8 +680,59 @@ function initPolaroidGallery() {
     let startRotation = 0;
 
     function renderFilmstrip() {
-        currentRotation += (targetRotation - currentRotation) * 0.14;
-        ribbon.style.transform = `translate3d(0,0,0) rotateY(${currentRotation}deg)`;
+        currentRotation += (targetRotation - currentRotation) * 0.12;
+
+        const isMobile = window.innerWidth < 580;
+        const radiusX = isMobile ? 115 : 185;
+        const radiusZ = isMobile ? 75 : 125;
+        const elevateY = isMobile ? 34 : 46;
+
+        let frontIdx = 0;
+        let maxDepth = -999;
+
+        frameElements.forEach((frame, idx) => {
+            const baseAngle = (idx * angleStep) + currentRotation;
+            const rad = (baseAngle * Math.PI) / 180;
+            const sin = Math.sin(rad);
+            const cos = Math.cos(rad);
+
+            const x = sin * radiusX;
+            const z = cos * radiusZ;
+            const y = -((1 - cos) / 2) * elevateY; // Arkadaki fotoğraf yukarı kalkar, öndekinin arkasında kalmaz
+
+            const depthNorm = (cos + 1) / 2; // 0 (arka) -> 1 (ön)
+            const scale = 0.68 + (depthNorm * 0.40); // 0.68'den 1.08'e büyür
+            const rotY = -sin * 30; // İçe doğru hafif kavis
+            const opacity = 0.70 + (depthNorm * 0.30);
+            const brightness = 0.70 + (depthNorm * 0.30);
+            const zIndex = Math.round(depthNorm * 100);
+
+            frame.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, ${z.toFixed(1)}px) rotateY(${rotY.toFixed(1)}deg) scale(${scale.toFixed(3)})`;
+            frame.style.zIndex = zIndex;
+            frame.style.opacity = opacity.toFixed(2);
+            frame.style.filter = `brightness(${brightness.toFixed(2)})`;
+
+            if (depthNorm > maxDepth) {
+                maxDepth = depthNorm;
+                frontIdx = idx;
+            }
+
+            if (depthNorm > 0.85) {
+                frame.classList.add("is-active-front");
+            } else {
+                frame.classList.remove("is-active-front");
+            }
+        });
+
+        // Noktaları güncelle
+        dotElements.forEach((dot, dIdx) => {
+            if (dIdx === frontIdx) {
+                dot.classList.add("active");
+            } else {
+                dot.classList.remove("active");
+            }
+        });
+
         requestAnimationFrame(renderFilmstrip);
     }
     requestAnimationFrame(renderFilmstrip);
@@ -679,13 +758,12 @@ function initPolaroidGallery() {
     stage.addEventListener("touchmove", (e) => {
         if (!isDragging) return;
         const deltaX = e.touches[0].clientX - dragStartX;
-        targetRotation = startRotation + (deltaX * 0.4);
+        targetRotation = startRotation + (deltaX * 0.45);
     }, { passive: true });
 
     stage.addEventListener("touchend", () => {
         if (!isDragging) return;
         isDragging = false;
-        // En yakın kareye kilitle
         targetRotation = Math.round(targetRotation / angleStep) * angleStep;
     });
 
@@ -698,7 +776,7 @@ function initPolaroidGallery() {
     window.addEventListener("mousemove", (e) => {
         if (!isDragging) return;
         const deltaX = e.clientX - dragStartX;
-        targetRotation = startRotation + (deltaX * 0.35);
+        targetRotation = startRotation + (deltaX * 0.4);
     });
     window.addEventListener("mouseup", () => {
         if (!isDragging) return;
