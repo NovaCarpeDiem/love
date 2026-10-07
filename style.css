@@ -1603,3 +1603,513 @@ body.cinematic-active {
     margin: 0 auto;
     font-style: italic;
 }
+
+/* ==============================================================================
+   🌟 VIP & LUXURY 3D INTERACTIVE SUITE (Awwwards / Apple Vision Pro Grade)
+   ============================================================================== */
+
+/* 1. 🌊 AKIŞKAN SIVI CAM & AURORA ARKA PLANI (Liquid Mesh Gradient) */
+.aurora-mesh-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    z-index: -4;
+    pointer-events: none;
+    opacity: 0.65;
+    filter: blur(80px);
+}
+
+.aurora-blob {
+    position: absolute;
+    border-radius: 50%;
+    mix-blend-mode: screen;
+    animation: auroraFloat 18s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+    will-change: transform;
+}
+
+.aurora-blob-1 {
+    width: 60vw;
+    height: 60vw;
+    max-width: 650px;
+    max-height: 650px;
+    top: -10%;
+    left: -10%;
+    background: radial-gradient(circle, #ff2a6d 0%, #7928ca 50%, transparent 75%);
+    animation-duration: 20s;
+}
+
+.aurora-blob-2 {
+    width: 70vw;
+    height: 70vw;
+    max-width: 700px;
+    max-height: 700px;
+    bottom: -15%;
+    right: -10%;
+    background: radial-gradient(circle, #43126b 0%, #ff758f 40%, #ffd166 70%, transparent 85%);
+    animation-duration: 24s;
+    animation-delay: -5s;
+}
+
+.aurora-blob-3 {
+    width: 50vw;
+    height: 50vw;
+    max-width: 550px;
+    max-height: 550px;
+    top: 35%;
+    left: 25%;
+    background: radial-gradient(circle, #00f2fe 0%, #4facfe 35%, transparent 70%);
+    opacity: 0.35;
+    animation-duration: 28s;
+    animation-delay: -10s;
+}
+
+@keyframes auroraFloat {
+    0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+    50% { transform: translate(60px, 40px) scale(1.18) rotate(45deg); }
+    100% { transform: translate(-40px, 80px) scale(0.92) rotate(-30deg); }
+}
+
+/* 2. 🃏 APPLE PARALLAX 3D GLASS CARDS & HOLOGRAPHIC GLARE */
+.main-wrapper {
+    perspective: 1200px;
+    perspective-origin: center center;
+}
+
+.glass-card {
+    transform-style: preserve-3d;
+    transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease, border-color 0.3s ease;
+    position: relative;
+    will-change: transform;
+}
+
+.glass-card .card-glare {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.18) 0%, rgba(255, 209, 102, 0.08) 35%, transparent 65%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    mix-blend-mode: overlay;
+    z-index: 5;
+}
+
+.glass-card:hover .card-glare,
+.glass-card.active-tilt .card-glare {
+    opacity: 1;
+}
+
+/* 3. 🌙 360° PARMAKLA DÖNDÜRÜLEBİLEN 3D AY KÜRESİ & KOZMİK HALO */
+.moon-phase-card {
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: pan-y;
+}
+
+.moon-phase-card:active {
+    cursor: grabbing;
+}
+
+.moon-visual-wrap {
+    position: relative;
+    width: 170px;
+    height: 170px;
+    margin: 16px auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.moon-canvas-display {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    position: relative;
+    z-index: 2;
+    filter: drop-shadow(0 0 35px rgba(255, 225, 150, 0.45));
+    transition: transform 0.15s ease-out;
+}
+
+.moon-touch-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: rgba(255, 209, 102, 0.9);
+    background: rgba(255, 209, 102, 0.1);
+    padding: 4px 12px;
+    border-radius: 12px;
+    margin-top: 6px;
+    letter-spacing: 0.5px;
+    animation: touchPulse 2.5s infinite ease-in-out;
+}
+
+@keyframes touchPulse {
+    0%, 100% { opacity: 0.7; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.04); }
+}
+
+/* 4. 💎 3D KRİSTAL KALP MADALYON (Floating Glass Gem) */
+.gem-medallion-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.gem-medallion-3d {
+    width: 64px;
+    height: 64px;
+    position: relative;
+    transform-style: preserve-3d;
+    animation: gemFloat 6s ease-in-out infinite alternate;
+    cursor: pointer;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.gem-medallion-3d:hover {
+    transform: scale(1.2) rotateY(180deg);
+}
+
+.gem-heart-body {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 117, 143, 0.45) 0%, rgba(255, 209, 102, 0.35) 50%, rgba(121, 40, 202, 0.55) 100%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255, 255, 255, 0.65);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 25px rgba(255, 77, 109, 0.5), inset 0 0 15px rgba(255, 255, 255, 0.4);
+    transform: rotate(45deg);
+    position: relative;
+}
+
+.gem-initials {
+    transform: rotate(-45deg);
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(255, 209, 102, 0.8), 0 0 20px rgba(255, 77, 109, 0.6);
+    letter-spacing: 1px;
+}
+
+@keyframes gemFloat {
+    0% { transform: translateY(0) rotateY(-15deg) rotateX(10deg); }
+    100% { transform: translateY(-10px) rotateY(15deg) rotateX(-10deg); }
+}
+
+/* 5. ⏳ 3D ALTIN KUM SAATİ (Hourglass of Love) */
+.hourglass-section-widget {
+    margin-top: 18px;
+    padding: 14px 18px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px dashed rgba(255, 209, 102, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.hourglass-section-widget:hover {
+    background: rgba(255, 209, 102, 0.08);
+    border-color: rgba(255, 209, 102, 0.6);
+}
+
+.hourglass-3d-icon {
+    font-size: 26px;
+    color: #ffd166;
+    filter: drop-shadow(0 0 10px rgba(255, 209, 102, 0.7));
+    transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.hourglass-section-widget.flipped .hourglass-3d-icon {
+    transform: rotate(180deg);
+}
+
+.hourglass-text {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.4;
+    text-align: left;
+}
+
+.hourglass-text strong {
+    color: #ffd166;
+    display: block;
+    font-size: 14px;
+}
+
+/* 6. 🌠 CELESTIAL CONSTELLATION LINK (Gökyüzü Aşk Takımyıldızı) */
+.constellation-wrapper {
+    width: 100%;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    position: relative;
+}
+
+.constellation-canvas {
+    width: 100%;
+    height: 120px;
+    border-radius: 12px;
+    background: rgba(10, 5, 20, 0.5);
+    display: block;
+}
+
+.constellation-hint {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 6px;
+    font-style: italic;
+}
+
+/* 7. 💌 3D ALTIN BALMUMU MÜHÜR & AÇILAN ZARF (Wax Seal & Envelope Unfold) */
+.envelope-3d-container {
+    perspective: 1200px;
+    width: 100%;
+    position: relative;
+    margin: 20px 0;
+}
+
+.envelope-3d-box {
+    background: linear-gradient(145deg, rgba(35, 20, 50, 0.95), rgba(20, 10, 30, 0.98));
+    border: 1.5px solid rgba(255, 182, 193, 0.3);
+    border-radius: 20px;
+    padding: 35px 25px 25px;
+    position: relative;
+    transform-style: preserve-3d;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(255, 77, 109, 0.2);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wax-seal-wrapper {
+    position: absolute;
+    top: -24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.wax-seal-wrapper:hover {
+    transform: translateX(-50%) scale(1.1);
+}
+
+.wax-seal-stamp {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #e63946 0%, #b5179e 60%, #560bad 100%);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(230, 57, 70, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.5), inset 0 -3px 6px rgba(0, 0, 0, 0.6);
+    border: 2px solid rgba(255, 215, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffd700;
+    font-size: 22px;
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.wax-seal-stamp::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border: 1px dashed rgba(255, 215, 0, 0.6);
+    border-radius: 50%;
+}
+
+.wax-seal-wrapper.broken .wax-seal-stamp {
+    transform: scale(0.6) rotate(45deg);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.wax-seal-hint {
+    font-size: 12px;
+    color: #ffd166;
+    text-align: center;
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-weight: 600;
+    animation: sealGlow 2s infinite alternate;
+}
+
+@keyframes sealGlow {
+    0% { opacity: 0.7; }
+    100% { opacity: 1; text-shadow: 0 0 10px rgba(255, 209, 102, 0.8); }
+}
+
+.envelope-letter-body {
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: top center;
+}
+
+.envelope-3d-box.sealed .envelope-letter-body {
+    filter: blur(5px);
+    opacity: 0.25;
+    pointer-events: none;
+    max-height: 160px;
+    overflow: hidden;
+}
+
+.envelope-3d-box.unsealed .envelope-letter-body {
+    filter: blur(0);
+    opacity: 1;
+    pointer-events: auto;
+    max-height: 2000px;
+}
+
+.envelope-3d-box.unsealed .wax-seal-hint {
+    display: none;
+}
+
+/* 8. 🎡 3D SİLİNDİR POLAROID ÇARKI (3D Cylinder Carousel) */
+.polaroid-3d-stage {
+    perspective: 1200px;
+    width: 100%;
+    padding: 30px 0 20px;
+    position: relative;
+    overflow: hidden;
+    touch-action: pan-y;
+}
+
+.polaroid-cylinder {
+    position: relative;
+    width: 240px;
+    height: 330px;
+    margin: 0 auto;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.polaroid-cylinder-item {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 240px;
+    height: 330px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform-origin: center center;
+}
+
+.cylinder-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: 25px;
+}
+
+.cyl-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 182, 193, 0.3);
+    color: #fff;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    backdrop-filter: blur(10px);
+}
+
+.cyl-btn:hover {
+    background: var(--primary);
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(255, 77, 109, 0.6);
+}
+
+/* 9. 🎵 ŞARKIYLA DANS EDEN 3D NEON SES DALGALARI (Audio Visualizer) */
+.neon-audio-waves {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    height: 24px;
+    margin-left: 10px;
+}
+
+.audio-wave-bar {
+    width: 3.5px;
+    height: 6px;
+    background: linear-gradient(to top, #ff4d6d, #ffd166);
+    border-radius: 3px;
+    box-shadow: 0 0 8px rgba(255, 77, 109, 0.6);
+    transition: height 0.15s ease;
+}
+
+.music-floating-player.playing .audio-wave-bar {
+    animation: waveBounce 1.2s ease-in-out infinite alternate;
+}
+
+.audio-wave-bar:nth-child(1) { animation-delay: 0.1s; }
+.audio-wave-bar:nth-child(2) { animation-delay: 0.4s; }
+.audio-wave-bar:nth-child(3) { animation-delay: 0.2s; }
+.audio-wave-bar:nth-child(4) { animation-delay: 0.5s; }
+.audio-wave-bar:nth-child(5) { animation-delay: 0.3s; }
+
+@keyframes waveBounce {
+    0% { height: 4px; }
+    50% { height: 22px; }
+    100% { height: 8px; }
+}
+
+/* 10. 🎫 HOLOGRAFİK FOIL & ALTIN YALDIZ (Rainbow Sheen on Cards) */
+.holo-foil-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.holo-foil-card::after {
+    content: '';
+    position: absolute;
+    inset: -100%;
+    background: linear-gradient(
+        115deg,
+        transparent 20%,
+        rgba(255, 255, 255, 0.15) 35%,
+        rgba(255, 180, 220, 0.35) 45%,
+        rgba(180, 240, 255, 0.35) 55%,
+        rgba(255, 235, 179, 0.3) 65%,
+        transparent 80%
+    );
+    transform: rotate(25deg) translateY(-100%);
+    pointer-events: none;
+    transition: transform 0.75s ease;
+    mix-blend-mode: color-dodge;
+}
+
+.holo-foil-card:hover::after {
+    transform: rotate(25deg) translateY(100%);
+}
+
+/* ✨ DOKUNMATİK 3D YILDIZ TOZU (Touch Particle Canvas) */
+#touchFxCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 999999;
+}

@@ -147,6 +147,21 @@ function initApp() {
 
     // 12. 🎬 SİNEMATİK FRAGMAN & 🔐 6 HANELİ ŞİFRELİ AŞK KASASI
     initCinematicIntroAndVault();
+
+    // 13. 🌊 AKIŞKAN SIVI CAM & AURORA ARKA PLANI
+    initFluidAuroraBackground();
+
+    // 14. 🃏 APPLE PARALLAX 3D GLASS KARTLAR
+    initAppleParallax3D();
+
+    // 15. ⏳ 3D ALTIN KUM SAATİ & 💎 KRİSTAL KALP MADALYON
+    initHourglassAndGem();
+
+    // 16. ✨ DOKUNMATİK 3D YILDIZ TOZU VE PARÇACIK PATLAMASI
+    initTouchParticleStardust();
+
+    // 17. 🎵 3D NEON SES DALGALARI
+    initAudioVisualizer();
 }
 
 if (document.readyState === "loading") {
@@ -486,6 +501,7 @@ function initPolaroidGallery() {
     const modalImageText = document.getElementById("modalImageText");
     const imageModalClose = document.getElementById("imageModalClose");
 
+    if (!gallery) return;
     gallery.innerHTML = "";
 
     const backupPhotos = [
@@ -495,40 +511,124 @@ function initPolaroidGallery() {
         "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?w=600&auto=format&fit=crop&q=80"
     ];
 
-    CONFIG.memories.forEach((mem, index) => {
+    const memories = (CONFIG.memories && CONFIG.memories.length > 0) ? CONFIG.memories : [
+        { image: backupPhotos[0], date: "İlk Buluştuğumuz Gün", caption: "Gözlerine ilk baktığım o an..." },
+        { image: backupPhotos[1], date: "Birlikte İlk Kahvemiz", caption: "Saatlerce konuşup zamanı unutmuştuk..." },
+        { image: backupPhotos[2], date: "Unutulmaz Gün Batımı", caption: "Senin yanındaki huzur bin kat daha fazlaydı..." },
+        { image: backupPhotos[3], date: "Her Anımızda Gülümseme", caption: "Birlikte çocuk gibi gülmeyi seviyorum..." }
+    ];
+
+    // 3D Silindir Sahnesi
+    const stage = document.createElement("div");
+    stage.className = "polaroid-3d-stage";
+
+    const cylinder = document.createElement("div");
+    cylinder.className = "polaroid-cylinder";
+
+    const count = memories.length;
+    const angleStep = 360 / Math.max(count, 3);
+    const radius = Math.max(260, Math.round((240 / 2) / Math.tan(Math.PI / Math.max(count, 3))));
+
+    memories.forEach((mem, index) => {
         const fallbackImg = backupPhotos[index % backupPhotos.length];
+        const itemWrap = document.createElement("div");
+        itemWrap.className = "polaroid-cylinder-item";
+        const curAngle = index * angleStep;
+        itemWrap.style.transform = `rotateY(${curAngle}deg) translateZ(${radius}px)`;
+
         const card = document.createElement("div");
-        card.className = "polaroid-card";
+        card.className = "polaroid-card holo-foil-card";
         card.innerHTML = `
             <div class="polaroid-pin"></div>
             <div class="polaroid-img-box">
                 <img src="${mem.image || fallbackImg}" onerror="this.onerror=null; this.src='${fallbackImg}';" alt="${mem.title || 'Anı'}" loading="lazy">
             </div>
             <div class="polaroid-info">
-                <span class="polaroid-date">${mem.date}</span>
-                <p class="polaroid-caption">${mem.caption}</p>
+                <span class="polaroid-date">${mem.date || 'Özel An'}</span>
+                <p class="polaroid-caption">${mem.caption || ''}</p>
             </div>
         `;
 
         card.addEventListener("click", () => {
-            modalImagePreview.src = mem.image || fallbackImg;
-            modalImageDate.textContent = mem.date;
-            modalImageText.textContent = mem.caption;
-            imageModal.classList.add("active");
+            if (modalImagePreview) modalImagePreview.src = mem.image || fallbackImg;
+            if (modalImageDate) modalImageDate.textContent = mem.date || '';
+            if (modalImageText) modalImageText.textContent = mem.caption || '';
+            if (imageModal) imageModal.classList.add("active");
+            if (navigator.vibrate) navigator.vibrate(25);
         });
 
-        gallery.appendChild(card);
+        itemWrap.appendChild(card);
+        cylinder.appendChild(itemWrap);
     });
 
-    imageModalClose.addEventListener("click", () => {
-        imageModal.classList.remove("active");
+    stage.appendChild(cylinder);
+
+    // 3D Çark Kontrolleri
+    const controls = document.createElement("div");
+    controls.className = "cylinder-controls";
+    controls.innerHTML = `
+        <button class="cyl-btn" id="cylPrevBtn" title="Önceki Anı"><i class="fa-solid fa-chevron-left"></i></button>
+        <span style="font-size:12px; color:rgba(255,209,102,0.9); font-weight:700;"><i class="fa-solid fa-arrows-rotate"></i> 3D Fotoğraf Çarkı</span>
+        <button class="cyl-btn" id="cylNextBtn" title="Sonraki Anı"><i class="fa-solid fa-chevron-right"></i></button>
+    `;
+
+    gallery.appendChild(stage);
+    gallery.appendChild(controls);
+
+    let curRotation = 0;
+    function updateCylinderRotation() {
+        cylinder.style.transform = `rotateY(${curRotation}deg)`;
+    }
+
+    const prevBtn = controls.querySelector("#cylPrevBtn");
+    const nextBtn = controls.querySelector("#cylNextBtn");
+    if (prevBtn) prevBtn.addEventListener("click", () => {
+        curRotation += angleStep;
+        updateCylinderRotation();
+        if (navigator.vibrate) navigator.vibrate(15);
+    });
+    if (nextBtn) nextBtn.addEventListener("click", () => {
+        curRotation -= angleStep;
+        updateCylinderRotation();
+        if (navigator.vibrate) navigator.vibrate(15);
     });
 
-    imageModal.addEventListener("click", (e) => {
-        if (e.target === imageModal) {
-            imageModal.classList.remove("active");
+    // Mobil Touch Swipe (Parmağınla 3D Çarkı Çevir)
+    let touchStartX = 0;
+    let isSwiping = false;
+    stage.addEventListener("touchstart", (e) => {
+        touchStartX = e.touches[0].clientX;
+        isSwiping = true;
+    }, { passive: true });
+
+    stage.addEventListener("touchmove", (e) => {
+        if (!isSwiping) return;
+        const diffX = e.touches[0].clientX - touchStartX;
+        if (Math.abs(diffX) > 45) {
+            if (diffX > 0) curRotation += angleStep;
+            else curRotation -= angleStep;
+            updateCylinderRotation();
+            touchStartX = e.touches[0].clientX;
+            isSwiping = false;
+            if (navigator.vibrate) navigator.vibrate(20);
         }
-    });
+    }, { passive: true });
+
+    stage.addEventListener("touchend", () => { isSwiping = false; });
+
+    if (imageModalClose) {
+        imageModalClose.addEventListener("click", () => {
+            imageModal.classList.remove("active");
+        });
+    }
+
+    if (imageModal) {
+        imageModal.addEventListener("click", (e) => {
+            if (e.target === imageModal) {
+                imageModal.classList.remove("active");
+            }
+        });
+    }
 }
 
 // ==============================================================================
@@ -536,9 +636,71 @@ function initPolaroidGallery() {
 // ==============================================================================
 function initTypewriterLetter() {
     const letterTextElem = document.getElementById("typewriterText");
-    const letterSection = document.querySelector(".letter-section");
+    const letterEnvelope = document.querySelector(".letter-envelope");
     const fullText = CONFIG.letter.body;
     let isTyped = false;
+
+    // 3D Balmumu Mühürlü Zarf Yapısı Entegrasyonu
+    if (letterEnvelope) {
+        letterEnvelope.classList.add("envelope-3d-box", "sealed");
+
+        // Balmumu Mühür Damgası
+        let waxWrap = letterEnvelope.querySelector(".wax-seal-wrapper");
+        if (!waxWrap) {
+            waxWrap = document.createElement("div");
+            waxWrap.className = "wax-seal-wrapper";
+            
+            // Baş harfler monogramı (Ferhat & Şirin -> F & Ş)
+            const pInit = (CONFIG.partnerName || "Ş")[0].toUpperCase();
+            const sInit = (CONFIG.senderName || "F")[0].toUpperCase();
+            const monogram = `${sInit}&${pInit}`;
+
+            waxWrap.innerHTML = `
+                <div class="wax-seal-stamp" title="Mührü Kır ve Aç">
+                    <span style="font-family:'Playfair Display',serif; font-size:16px; font-weight:800; letter-spacing:1px;">${monogram}</span>
+                </div>
+            `;
+            letterEnvelope.prepend(waxWrap);
+        }
+
+        // İpucu Yazısı
+        let hint = letterEnvelope.querySelector(".wax-seal-hint");
+        if (!hint) {
+            hint = document.createElement("div");
+            hint.className = "wax-seal-hint";
+            hint.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Mektubunu Açmak İçin Mühre Dokun ✨`;
+            letterEnvelope.appendChild(hint);
+        }
+
+        const letterContent = letterEnvelope.querySelector(".letter-content");
+        if (letterContent) letterContent.classList.add("envelope-letter-body");
+
+        function openEnvelopeAndType() {
+            if (letterEnvelope.classList.contains("unsealed")) return;
+            letterEnvelope.classList.remove("sealed");
+            letterEnvelope.classList.add("unsealed");
+            if (waxWrap) waxWrap.classList.add("broken");
+
+            if (navigator.vibrate) navigator.vibrate([35, 25, 45]);
+            if (typeof confetti === "function") {
+                confetti({
+                    particleCount: 50,
+                    spread: 60,
+                    origin: { y: 0.7 },
+                    colors: ['#ffd166', '#ff4d6d', '#ffffff']
+                });
+            }
+
+            typeWriterEffect();
+        }
+
+        waxWrap.addEventListener("click", openEnvelopeAndType);
+        letterEnvelope.addEventListener("click", (e) => {
+            if (letterEnvelope.classList.contains("sealed")) {
+                openEnvelopeAndType();
+            }
+        });
+    }
 
     function typeWriterEffect() {
         if (isTyped) return;
@@ -556,18 +718,6 @@ function initTypewriterLetter() {
             }
         }, 28);
     }
-
-    // Kullanıcı mektup bölümüne scroll ettiğinde daktilo başlasın
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                typeWriterEffect();
-                observer.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.3 });
-
-    observer.observe(letterSection);
 }
 
 // ==============================================================================
@@ -851,75 +1001,11 @@ function initMoonPhase() {
         moonDesc.textContent = phasePoeticDesc;
     }
 
-    // Canvas Üzerine Gerçekçi Ay Çizimi
-    const ctx = moonCanvas.getContext("2d");
-    if (!ctx) return;
-    const w = moonCanvas.width;
-    const h = moonCanvas.height;
-    const cx = w / 2;
-    const cy = h / 2;
-    const r = (w / 2) - 4;
+    // 🌙 360° Parmağınla Çevrilebilen 3D Gerçekçi Ay Küresi (WebGL + NASA Yüzey Dokusu)
+    render3DMoon(moonCanvas, phaseProgress, illumination);
 
-    ctx.clearRect(0, 0, w, h);
-
-    // 1. Ayın Karanlık Küresi
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.fillStyle = "#140f24";
-    ctx.fill();
-    ctx.clip();
-
-    // 2. Ay Kraterleri (Gerçekçi detaylar)
-    const craters = [
-        { x: cx - 18, y: cy - 15, cr: 10 },
-        { x: cx + 12, y: cy - 20, cr: 7 },
-        { x: cx - 10, y: cy + 18, cr: 12 },
-        { x: cx + 20, y: cy + 12, cr: 8 },
-        { x: cx + 2, y: cy - 2, cr: 14 }
-    ];
-
-    // 3. Aydınlık Dilimi (phaseProgress'e göre)
-    const lightGrad = ctx.createRadialGradient(cx - 10, cy - 10, 5, cx, cy, r);
-    lightGrad.addColorStop(0, "#fffbe6");
-    lightGrad.addColorStop(0.5, "#fae29c");
-    lightGrad.addColorStop(1, "#cfa244");
-
-    ctx.fillStyle = lightGrad;
-
-    if (illumination > 0) {
-        ctx.save();
-        ctx.beginPath();
-        if (phaseProgress <= 0.5) {
-            const k = (phaseProgress / 0.5) * 2 - 1;
-            ctx.arc(cx, cy, r, -Math.PI / 2, Math.PI / 2, false);
-            ctx.ellipse(cx, cy, Math.abs(k) * r, r, 0, Math.PI / 2, -Math.PI / 2, k < 0);
-        } else {
-            const k = ((phaseProgress - 0.5) / 0.5) * 2 - 1;
-            ctx.arc(cx, cy, r, Math.PI / 2, -Math.PI / 2, false);
-            ctx.ellipse(cx, cy, Math.abs(k) * r, r, 0, -Math.PI / 2, Math.PI / 2, k < 0);
-        }
-        ctx.closePath();
-        ctx.fill();
-        ctx.restore();
-    }
-
-    // Kraterleri aydınlık/karanlığın üstüne çiz
-    ctx.fillStyle = "rgba(40, 25, 60, 0.15)";
-    craters.forEach(c => {
-        ctx.beginPath();
-        ctx.arc(c.x, c.y, c.cr, 0, Math.PI * 2);
-        ctx.fill();
-    });
-
-    ctx.restore();
-
-    // Dış Halka İnce Işıltı
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.strokeStyle = "rgba(255, 235, 179, 0.4)";
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
+    // 🌠 Gökyüzü Burç Takımyıldızı Köprüsü
+    initConstellationLink();
 }
 
 // ==============================================================================
@@ -1149,5 +1235,572 @@ function initCinematicIntroAndVault() {
 
     if (unlockBtn) {
         unlockBtn.addEventListener("click", checkCurrentPin);
+    }
+}
+
+// ==============================================================================
+// 🌟 VIP 3D ENGINE & AWWWARDS-TIER INTERACTIVE SUITE
+// ==============================================================================
+
+// 1. 🌊 AKIŞKAN SIVI CAM & AURORA ARKA PLANI
+function initFluidAuroraBackground() {
+    if (document.querySelector(".aurora-mesh-container")) return;
+    const mesh = document.createElement("div");
+    mesh.className = "aurora-mesh-container";
+    mesh.innerHTML = `
+        <div class="aurora-blob aurora-blob-1"></div>
+        <div class="aurora-blob aurora-blob-2"></div>
+        <div class="aurora-blob aurora-blob-3"></div>
+    `;
+    document.body.prepend(mesh);
+}
+
+// 2. 🃏 APPLE PARALLAX 3D GLASS KARTLAR & HOLOGRAFİK YANSIMA
+function initAppleParallax3D() {
+    const cards = document.querySelectorAll(".glass-card");
+    cards.forEach(card => {
+        if (!card.querySelector(".card-glare")) {
+            const glare = document.createElement("div");
+            glare.className = "card-glare";
+            card.appendChild(glare);
+        }
+
+        card.addEventListener("mousemove", (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const cx = rect.width / 2;
+            const cy = rect.height / 2;
+            const rx = ((y - cy) / cy) * -6;
+            const ry = ((x - cx) / cx) * 6;
+
+            card.style.transform = `perspective(1000px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) scale3d(1.01, 1.01, 1.01)`;
+            card.style.setProperty("--mouse-x", `${x}px`);
+            card.style.setProperty("--mouse-y", `${y}px`);
+        });
+
+        card.addEventListener("mouseleave", () => {
+            card.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)";
+        });
+    });
+}
+
+// 3. 🌙 360° DÖNEBİLEN GERÇEKÇİ 3D AY KÜRESİ (WebGL + NASA Yüzey Haritası)
+function render3DMoon(canvas, phaseProgress, illumination) {
+    if (!canvas) return;
+    canvas.width = 160;
+    canvas.height = 160;
+
+    // Dokunma ipucu ekle
+    const moonWrap = canvas.closest(".moon-visual-wrap");
+    if (moonWrap && !moonWrap.parentElement.querySelector(".moon-touch-hint")) {
+        const hint = document.createElement("span");
+        hint.className = "moon-touch-hint";
+        hint.innerHTML = `<i class="fa-solid fa-arrows-rotate"></i> Parmağınla 360° Çevir`;
+        moonWrap.after(hint);
+    }
+
+    let rotX = 0.1;
+    let rotY = 0;
+    let velX = 0;
+    let velY = 0;
+    let isDragging = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    const gl = canvas.getContext("webgl", { alpha: true, antialias: true }) || canvas.getContext("experimental-webgl", { alpha: true, antialias: true });
+
+    if (!gl) {
+        render2DMoonFallback(canvas, phaseProgress, illumination);
+        return;
+    }
+
+    const vsSource = `
+        attribute vec2 a_pos;
+        varying vec2 v_pos;
+        void main() {
+            v_pos = a_pos;
+            gl_Position = vec4(a_pos, 0.0, 1.0);
+        }
+    `;
+
+    const fsSource = `
+        precision highp float;
+        varying vec2 v_pos;
+        uniform sampler2D u_texture;
+        uniform int u_hasTexture;
+        uniform vec2 u_rotation;
+        uniform vec3 u_lightDir;
+        #define PI 3.141592653589793
+
+        vec3 rotateY(vec3 p, float a) {
+            float c = cos(a), s = sin(a);
+            return vec3(p.x * c + p.z * s, p.y, -p.x * s + p.z * c);
+        }
+
+        vec3 rotateX(vec3 p, float a) {
+            float c = cos(a), s = sin(a);
+            return vec3(p.x, p.y * c - p.z * s, p.y * s + p.z * c);
+        }
+
+        void main() {
+            float dist = length(v_pos);
+            if (dist > 1.0) {
+                if (dist < 1.18) {
+                    float halo = pow((1.18 - dist) / 0.18, 2.2) * 0.45;
+                    gl_FragColor = vec4(vec3(1.0, 0.9, 0.72) * halo, halo);
+                } else {
+                    discard;
+                }
+                return;
+            }
+
+            float z = sqrt(1.0 - dist * dist);
+            vec3 normal = vec3(v_pos.x, -v_pos.y, z);
+
+            vec3 rotNorm = rotateY(normal, u_rotation.y);
+            rotNorm = rotateX(rotNorm, u_rotation.x);
+
+            float u = 0.5 - atan(rotNorm.z, rotNorm.x) / (2.0 * PI);
+            float v = 0.5 - asin(clamp(rotNorm.y, -1.0, 1.0)) / PI;
+
+            vec3 texColor;
+            if (u_hasTexture == 1) {
+                texColor = texture2D(u_texture, vec2(fract(u), clamp(v, 0.001, 0.999))).rgb;
+            } else {
+                float n = sin(u * 35.0) * cos(v * 35.0) * 0.15 + sin(u * 70.0 + 1.0) * cos(v * 70.0) * 0.08;
+                texColor = vec3(0.85 + n);
+            }
+
+            float diffuse = dot(normal, normalize(u_lightDir));
+            float light = smoothstep(-0.12, 0.12, diffuse);
+            
+            vec3 ambient = texColor * 0.08;
+            vec3 lit = texColor * (0.12 + 0.88 * light);
+            float rim = pow(1.0 - z, 3.0) * 0.35;
+            vec3 finalColor = lit + ambient + vec3(rim * 0.85, rim * 0.75, rim * 0.55);
+
+            gl_FragColor = vec4(finalColor, 1.0);
+        }
+    `;
+
+    function createShader(gl, type, source) {
+        const shader = gl.createShader(type);
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        return shader;
+    }
+
+    const prog = gl.createProgram();
+    gl.attachShader(prog, createShader(gl, gl.VERTEX_SHADER, vsSource));
+    gl.attachShader(prog, createShader(gl, gl.FRAGMENT_SHADER, fsSource));
+    gl.linkProgram(prog);
+    gl.useProgram(prog);
+
+    const posBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+        -1, -1,  1, -1, -1,  1,
+        -1,  1,  1, -1,  1,  1
+    ]), gl.STATIC_DRAW);
+
+    const aPos = gl.getAttribLocation(prog, "a_pos");
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+    const uTexture = gl.getUniformLocation(prog, "u_texture");
+    const uHasTexture = gl.getUniformLocation(prog, "u_hasTexture");
+    const uRotation = gl.getUniformLocation(prog, "u_rotation");
+    const uLightDir = gl.getUniformLocation(prog, "u_lightDir");
+
+    const sunAngle = (phaseProgress - 0.5) * Math.PI * 2;
+    const lightDirX = Math.sin(sunAngle);
+    const lightDirZ = Math.cos(sunAngle);
+    gl.uniform3f(uLightDir, lightDirX, 0.15, lightDirZ);
+
+    let hasLoadedTexture = 0;
+    const tex = gl.createTexture();
+    const moonImg = new Image();
+    moonImg.crossOrigin = "anonymous";
+    moonImg.onload = () => {
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, moonImg);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        hasLoadedTexture = 1;
+    };
+    moonImg.src = "assets/moon_1024.jpg";
+
+    function draw() {
+        if (!isDragging) {
+            rotY += 0.0025;
+            velX *= 0.92;
+            velY *= 0.92;
+            rotY += velX;
+            rotX += velY;
+        }
+
+        rotX = Math.max(-1.1, Math.min(1.1, rotX));
+
+        gl.viewport(0, 0, canvas.width, canvas.height);
+        gl.clearColor(0, 0, 0, 0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+
+        gl.useProgram(prog);
+        gl.uniform1i(uHasTexture, hasLoadedTexture);
+        gl.uniform2f(uRotation, rotX, rotY);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+        requestAnimationFrame(draw);
+    }
+    draw();
+
+    function onPointerStart(x, y) {
+        isDragging = true;
+        lastX = x;
+        lastY = y;
+        velX = 0;
+        velY = 0;
+    }
+
+    function onPointerMove(x, y) {
+        if (!isDragging) return;
+        const dx = x - lastX;
+        const dy = y - lastY;
+        velX = dx * 0.008;
+        velY = dy * 0.008;
+        rotY += velX;
+        rotX += velY;
+        lastX = x;
+        lastY = y;
+    }
+
+    function onPointerEnd() {
+        isDragging = false;
+    }
+
+    canvas.addEventListener("mousedown", (e) => onPointerStart(e.clientX, e.clientY));
+    window.addEventListener("mousemove", (e) => onPointerMove(e.clientX, e.clientY));
+    window.addEventListener("mouseup", onPointerEnd);
+
+    canvas.addEventListener("touchstart", (e) => {
+        if (e.touches.length > 0) onPointerStart(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: true });
+
+    window.addEventListener("touchmove", (e) => {
+        if (isDragging && e.touches.length > 0) onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: true });
+
+    window.addEventListener("touchend", onPointerEnd);
+}
+
+// 2D Güvenli Ay Çizimi (WebGL Desteklenmeyen Tarayıcılar İçin)
+function render2DMoonFallback(canvas, phaseProgress, illumination) {
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const w = canvas.width, h = canvas.height, cx = w / 2, cy = h / 2, r = (w / 2) - 4;
+    ctx.clearRect(0, 0, w, h);
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = "#140f24";
+    ctx.fill();
+    ctx.clip();
+
+    const lightGrad = ctx.createRadialGradient(cx - 10, cy - 10, 5, cx, cy, r);
+    lightGrad.addColorStop(0, "#fffbe6");
+    lightGrad.addColorStop(0.5, "#fae29c");
+    lightGrad.addColorStop(1, "#cfa244");
+    ctx.fillStyle = lightGrad;
+
+    if (illumination > 0) {
+        ctx.save();
+        ctx.beginPath();
+        if (phaseProgress <= 0.5) {
+            const k = (phaseProgress / 0.5) * 2 - 1;
+            ctx.arc(cx, cy, r, -Math.PI / 2, Math.PI / 2, false);
+            ctx.ellipse(cx, cy, Math.abs(k) * r, r, 0, Math.PI / 2, -Math.PI / 2, k < 0);
+        } else {
+            const k = ((phaseProgress - 0.5) / 0.5) * 2 - 1;
+            ctx.arc(cx, cy, r, Math.PI / 2, -Math.PI / 2, false);
+            ctx.ellipse(cx, cy, Math.abs(k) * r, r, 0, -Math.PI / 2, Math.PI / 2, k < 0);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+    }
+    ctx.restore();
+}
+
+// 4. 🌠 GÖKYÜZÜ AŞK TAKIMYILDIZI KÖPRÜSÜ
+function initConstellationLink() {
+    const moonCard = document.getElementById("moonPhaseCard");
+    if (!moonCard) return;
+
+    let wrap = moonCard.querySelector(".constellation-wrapper");
+    if (!wrap) {
+        wrap = document.createElement("div");
+        wrap.className = "constellation-wrapper";
+        wrap.innerHTML = `
+            <canvas id="constellationCanvas" class="constellation-canvas"></canvas>
+            <p class="constellation-hint">✨ Gökyüzünde Aşkımızın Takımyıldızı... Dokundukça birleşen kalpler.</p>
+        `;
+        moonCard.appendChild(wrap);
+    }
+
+    const cCanvas = wrap.querySelector("#constellationCanvas");
+    if (!cCanvas) return;
+    const ctx = cCanvas.getContext("2d");
+    if (!ctx) return;
+
+    cCanvas.width = cCanvas.offsetWidth || 300;
+    cCanvas.height = 120;
+
+    const partnerInit = (CONFIG.partnerName || "Ş")[0].toUpperCase();
+    const senderInit = (CONFIG.senderName || "F")[0].toUpperCase();
+
+    const stars = [
+        { x: 45, y: 35, r: 3.5, label: senderInit, isMain: true },
+        { x: 95, y: 22, r: 2 },
+        { x: 150, y: 32, r: 2.5 },
+        { x: 205, y: 22, r: 2 },
+        { x: 255, y: 35, r: 3.5, label: partnerInit, isMain: true },
+        { x: 75, y: 75, r: 2 },
+        { x: 150, y: 98, r: 3.8, isHeartTip: true },
+        { x: 225, y: 75, r: 2 }
+    ];
+
+    const connections = [
+        [0, 1], [1, 2], [2, 3], [3, 4],
+        [0, 5], [5, 6], [6, 7], [7, 4],
+        [2, 6]
+    ];
+
+    function drawConstellation() {
+        ctx.clearRect(0, 0, cCanvas.width, cCanvas.height);
+        const sx = cCanvas.width / 300;
+        const sy = cCanvas.height / 120;
+
+        connections.forEach(([i1, i2]) => {
+            const s1 = stars[i1];
+            const s2 = stars[i2];
+            ctx.beginPath();
+            ctx.moveTo(s1.x * sx, s1.y * sy);
+            ctx.lineTo(s2.x * sx, s2.y * sy);
+            ctx.strokeStyle = "rgba(255, 209, 102, 0.4)";
+            ctx.lineWidth = 1.3;
+            ctx.stroke();
+        });
+
+        const t = Date.now() * 0.003;
+        stars.forEach((s, idx) => {
+            const px = s.x * sx;
+            const py = s.y * sy;
+            const twinkle = Math.sin(t + idx * 1.5) * 0.6 + 1;
+            const rad = s.r * twinkle;
+
+            ctx.beginPath();
+            ctx.arc(px, py, rad, 0, Math.PI * 2);
+            ctx.fillStyle = s.isMain ? "#ffd166" : "#ffffff";
+            ctx.shadowColor = "#ffd166";
+            ctx.shadowBlur = s.isMain ? 14 : 5;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            if (s.label) {
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "bold 12px 'Playfair Display', serif";
+                ctx.textAlign = "center";
+                ctx.fillText(s.label, px, py - 9);
+            }
+        });
+
+        requestAnimationFrame(drawConstellation);
+    }
+    drawConstellation();
+
+    cCanvas.addEventListener("click", () => {
+        if (typeof confetti === "function") {
+            confetti({ particleCount: 35, spread: 55, origin: { y: 0.6 } });
+        }
+        if (navigator.vibrate) navigator.vibrate(20);
+    });
+}
+
+// 5. ⏳ 3D ALTIN KUM SAATİ & 💎 KRİSTAL KALP MADALYON
+function initHourglassAndGem() {
+    const timerCard = document.querySelector(".timer-card");
+    if (!timerCard) return;
+
+    // 💎 3D Kristal Madalyon
+    if (!timerCard.querySelector(".gem-medallion-container")) {
+        const partnerInit = (CONFIG.partnerName || "Ş")[0].toUpperCase();
+        const senderInit = (CONFIG.senderName || "F")[0].toUpperCase();
+        const monogram = `${senderInit} ♥ ${partnerInit}`;
+
+        const gemWrap = document.createElement("div");
+        gemWrap.className = "gem-medallion-container";
+        gemWrap.innerHTML = `
+            <div class="gem-medallion-3d" title="Aşkımızın Kristal Madalyonu">
+                <div class="gem-heart-body">
+                    <span class="gem-initials">${monogram}</span>
+                </div>
+            </div>
+        `;
+
+        const timerHeader = timerCard.querySelector(".timer-header");
+        if (timerHeader) {
+            timerCard.insertBefore(gemWrap, timerHeader.nextSibling);
+        } else {
+            timerCard.prepend(gemWrap);
+        }
+
+        gemWrap.addEventListener("click", () => {
+            if (typeof confetti === "function") {
+                confetti({ particleCount: 40, spread: 60, origin: { y: 0.5 }, colors: ['#ff4d6d', '#ffd166', '#ffffff'] });
+            }
+            if (navigator.vibrate) navigator.vibrate([25, 20, 35]);
+        });
+    }
+
+    // ⏳ 3D Altın Kum Saati
+    if (!timerCard.querySelector(".hourglass-section-widget")) {
+        const hWidget = document.createElement("div");
+        hWidget.className = "hourglass-section-widget";
+        hWidget.innerHTML = `
+            <i class="fa-solid fa-hourglass-half hourglass-3d-icon" id="hourglassIcon"></i>
+            <div class="hourglass-text">
+                <strong>Zamanın Akışı & Aşk Kum Saati</strong>
+                <span>Seninle geçen her saniye altın değerinde... (Ters çevirmek için dokun ⏳)</span>
+            </div>
+        `;
+
+        const timerSub = timerCard.querySelector(".timer-subtext");
+        if (timerSub) {
+            timerCard.insertBefore(hWidget, timerSub.nextSibling);
+        } else {
+            timerCard.appendChild(hWidget);
+        }
+
+        hWidget.addEventListener("click", () => {
+            hWidget.classList.toggle("flipped");
+            if (typeof confetti === "function") {
+                confetti({ particleCount: 45, spread: 65, origin: { y: 0.5 }, colors: ['#ffd166', '#ffeaa7', '#ffffff'] });
+            }
+            if (navigator.vibrate) navigator.vibrate([30, 20, 30]);
+        });
+    }
+}
+
+// 6. ✨ DOKUNMATİK 3D YILDIZ TOZU VE PARÇACIK PATLAMASI
+function initTouchParticleStardust() {
+    let canvas = document.getElementById("touchFxCanvas");
+    if (!canvas) {
+        canvas = document.createElement("canvas");
+        canvas.id = "touchFxCanvas";
+        document.body.appendChild(canvas);
+    }
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    const particles = [];
+    const colors = ["#ffd166", "#ff758f", "#ffffff", "#f8bbd0", "#ff4d6d"];
+
+    function spawnParticles(x, y, count = 8) {
+        for (let i = 0; i < count; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = Math.random() * 3.5 + 1.5;
+            particles.push({
+                x, y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed - 1.2,
+                size: Math.random() * 5 + 3,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                alpha: 1,
+                rot: Math.random() * Math.PI,
+                rotSpeed: (Math.random() - 0.5) * 0.15,
+                shape: Math.random() > 0.4 ? "star" : "heart"
+            });
+        }
+    }
+
+    function renderParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.09;
+            p.alpha -= 0.024;
+            p.rot += p.rotSpeed;
+
+            if (p.alpha <= 0) {
+                particles.splice(i, 1);
+                continue;
+            }
+
+            ctx.save();
+            ctx.globalAlpha = p.alpha;
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rot);
+            ctx.fillStyle = p.color;
+
+            if (p.shape === "star") {
+                ctx.beginPath();
+                const s = p.size;
+                ctx.moveTo(0, -s);
+                ctx.quadraticCurveTo(0, 0, s, 0);
+                ctx.quadraticCurveTo(0, 0, 0, s);
+                ctx.quadraticCurveTo(0, 0, -s, 0);
+                ctx.quadraticCurveTo(0, 0, 0, -s);
+                ctx.fill();
+            } else {
+                const s = p.size * 0.7;
+                ctx.beginPath();
+                ctx.moveTo(0, s * 0.3);
+                ctx.bezierCurveTo(-s, -s * 0.5, -s * 1.2, s * 0.5, 0, s * 1.2);
+                ctx.bezierCurveTo(s * 1.2, s * 0.5, s, -s * 0.5, 0, s * 0.3);
+                ctx.fill();
+            }
+
+            ctx.restore();
+        }
+
+        requestAnimationFrame(renderParticles);
+    }
+    renderParticles();
+
+    window.addEventListener("pointerdown", (e) => {
+        spawnParticles(e.clientX, e.clientY, 10);
+    }, { passive: true });
+}
+
+// 7. 🎵 3D NEON SES DALGALARI
+function initAudioVisualizer() {
+    const player = document.querySelector(".music-floating-player");
+    if (!player) return;
+
+    if (!player.querySelector(".neon-audio-waves")) {
+        const waves = document.createElement("div");
+        waves.className = "neon-audio-waves";
+        waves.innerHTML = `
+            <div class="audio-wave-bar"></div>
+            <div class="audio-wave-bar"></div>
+            <div class="audio-wave-bar"></div>
+            <div class="audio-wave-bar"></div>
+            <div class="audio-wave-bar"></div>
+        `;
+        player.appendChild(waves);
     }
 }
