@@ -1223,6 +1223,59 @@
 // 💖 İNTERAKTİF MOTOR / ROMANTIC INTERACTIVE ENGINE (script.js)
 // ==============================================================================
 
+window.CONFIG = window.CONFIG || {
+    partnerName: "Şirin'im",
+    senderName: "Ferhat",
+    coupleTitle: "Ferhat & Şirin",
+    subTitle: "Seninle geçen her saniye hayatımın en güzel anı...",
+    startDate: "2023-10-14T20:00:00",
+    music: {
+        title: "Bizim Şarkımız",
+        artist: "Sana Özel",
+        url: "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=romantic-love-112199.mp3",
+        spotifyUrl: ""
+    },
+    scratchCard: {
+        heading: "🎉 Gizli Aşk Mesajın:",
+        message: "Sen benim bu hayatta başıma gelen en güzel şeysin... ❤️✨"
+    },
+    letter: {
+        heading: "",
+        body: "Hayatıma girdiğin andan itibaren her şey o kadar güzelleşti ki, bazen seni hak edecek ne yaptım diye düşünüyorum.\nGülüşün, sesin, bana olan bakışın dünyadaki her şeye bedel.\n\nİyi ki varsın, iyi ki hayatımdasın. Seni her şeyden çok seviyorum! ❤️"
+    },
+    interactiveQuestion: {
+        question: "Beni dünyalar kadar seviyor musun? (Ve beni affettin mi?)",
+        yesBtn: "Evet, Sonsuza Dek! ❤️",
+        noBtn: "Hayır 😜",
+        successEmoji: "🥰🎉💍",
+        successTitle: "Biliyordum! Seni Çok Seviyorum!",
+        successMessage: "Dünyanın en tatlı, en harika sevgilisi sensin. Artık kaçışın yok, hep benimlesin! ❤️✨"
+    },
+    memories: [
+        { image: "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600&auto=format&fit=crop&q=80", date: "İlk Buluştuğumuz Gün", caption: "Gözlerine ilk baktığım o an, kalbimin yerinden çıkacağını sanmıştım..." },
+        { image: "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=600&auto=format&fit=crop&q=80", date: "Birlikte İlk Kahvemiz", caption: "Saatlerce konuşup zamanın nasıl geçtiğini hiç anlamamıştık." },
+        { image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&auto=format&fit=crop&q=80", date: "Unutulmaz Gün Batımı", caption: "Gökyüzü ne kadar güzelse, senin yanındaki huzur bin kat daha fazlaydı." },
+        { image: "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?w=600&auto=format&fit=crop&q=80", date: "Her Anımızda Gülümseme", caption: "Birlikte saçmalamayı, çocuk gibi gülmeyi sadece seninle seviyorum." }
+    ],
+    loveReasons: [
+        "Gözlerinin içindeki o benzersiz sıcaklık ve ışık ✨",
+        "Ne zaman canım sıkılsa bir gülüşünle beni neşelendirmen 🥰",
+        "Bana hissettirdiğin o eşsiz güven ve huzur duygusu 🛡️",
+        "En saçma şakalarıma bile benimle birlikte kahkaha atman 😂",
+        "Beni her halimle kabul edip her gün daha iyi biri olmamı sağlaman 🌟",
+        "Birlikte kurduğumuz o güzel gelecek hayalleri 🏡❤️"
+    ],
+    coupons: [
+        { icon: "🫂", title: "Sınırsız Sarılma Kuponu", desc: "İstediğin an ve yerde geçerli, 7/24 koşulsuz sıcacık bir sarılma." },
+        { icon: "☕", title: "Kahve & Tatlı Ismarlama", desc: "En sevdiğin kafede istediğin tatlı ve kahve benden!" },
+        { icon: "🎬", title: "Film & Dizi Gecesi", desc: "Filmi sen seçiyorsun, mısırlar ve atıştırmalıklar benden." },
+        { icon: "💆‍♀️", title: "Günün Yorgunluğunu Silen Masaj", desc: "Tüm stresini alacak 30 dakikalık omuz ve boyun masajı." },
+        { icon: "🍕", title: "Gece Kaçamağı & Yemek Ismarlama", desc: "Saat kaç olursa olsun canın ne çekerse anında kapında!" },
+        { icon: "👑", title: "Bugün Ne Dersen O! (Joker Kupon)", desc: "Tartışmasız ve itirazsız, gün boyu tüm kararlar senin." }
+    ]
+};
+var CONFIG = window.CONFIG;
+
 function safeDecodeBase64(str) {
     if (!str) return "";
     try {
@@ -1333,56 +1386,56 @@ function initApp() {
         CONFIG.memories = parsedData.memories;
     }
 
+    // 🎬 SİNEMATİK FRAGMAN & 🔐 6 HANELİ ŞİFRELİ AŞK KASASI (EN İLK VE EN ÖNCELİKLİ ÇALIŞIR)
+    try { initCinematicIntroAndVault(); } catch(e) { console.error("Vault intro error:", e); }
+
     // 2. METİNLERİ VE BİLGİLERİ DOLDURMA
-    initTextContents();
+    try { initTextContents(); } catch(e) { console.error(e); }
 
     // 3. AŞK SAYACINI BAŞLATMA
-    initLoveTimer();
+    try { initLoveTimer(); } catch(e) { console.error(e); }
 
     // 4. MÜZİK ÇALAR & İLK TIKLAMA YÖNETİMİ
-    initMusicPlayer();
+    try { initMusicPlayer(); } catch(e) { console.error(e); }
 
     // 5. KAÇAN BUTON & İNTERAKTİF AF/SEVGİ OYUNU
-    initInteractiveGame();
+    try { initInteractiveGame(); } catch(e) { console.error(e); }
 
     // 5.5 🪙 KAZI KAZAN SÜRPRİZ KARTI
-    initScratchCard();
+    try { initScratchCard(); } catch(e) { console.error(e); }
 
     // 6. POLAROID GALERİSİ
-    initPolaroidGallery();
+    try { initPolaroidGallery(); } catch(e) { console.error(e); }
 
     // 7. DAKTİLO MEKTUP (SCROLL İLE TETİKLENEN)
-    initTypewriterLetter();
+    try { initTypewriterLetter(); } catch(e) { console.error(e); }
 
     // 8. SENİ SEVMEMİN NEDENLERİ
-    initLoveReasons();
+    try { initLoveReasons(); } catch(e) { console.error(e); }
 
     // 9. SEVGİ KUPONLARI
-    initCoupons();
+    try { initCoupons(); } catch(e) { console.error(e); }
 
     // 10. UÇUŞAN KALPLER ARKA PLANI
-    startFloatingHearts();
+    try { startFloatingHearts(); } catch(e) { console.error(e); }
 
     // 11. 🌙 O GECE GÖKYÜZÜ / AYIN EVRESİ
-    initMoonPhase();
+    try { initMoonPhase(); } catch(e) { console.error(e); }
 
-    // 12. 🎬 SİNEMATİK FRAGMAN & 🔐 6 HANELİ ŞİFRELİ AŞK KASASI
-    initCinematicIntroAndVault();
+    // 12. 🌊 AKIŞKAN SIVI CAM & AURORA ARKA PLANI
+    try { initFluidAuroraBackground(); } catch(e) { console.error(e); }
 
-    // 13. 🌊 AKIŞKAN SIVI CAM & AURORA ARKA PLANI
-    initFluidAuroraBackground();
+    // 13. 🃏 APPLE PARALLAX 3D GLASS KARTLAR
+    try { initAppleParallax3D(); } catch(e) { console.error(e); }
 
-    // 14. 🃏 APPLE PARALLAX 3D GLASS KARTLAR
-    initAppleParallax3D();
+    // 14. ⏳ 3D ALTIN KUM SAATİ & 💎 KRİSTAL KALP MADALYON
+    try { initHourglassAndGem(); } catch(e) { console.error(e); }
 
-    // 15. ⏳ 3D ALTIN KUM SAATİ & 💎 KRİSTAL KALP MADALYON
-    initHourglassAndGem();
+    // 15. ✨ DOKUNMATİK 3D YILDIZ TOZU VE PARÇACIK PATLAMASI
+    try { initTouchParticleStardust(); } catch(e) { console.error(e); }
 
-    // 16. ✨ DOKUNMATİK 3D YILDIZ TOZU VE PARÇACIK PATLAMASI
-    initTouchParticleStardust();
-
-    // 17. 🎵 3D NEON SES DALGALARI
-    initAudioVisualizer();
+    // 16. 🎵 3D NEON SES DALGALARI
+    try { initAudioVisualizer(); } catch(e) { console.error(e); }
 }
 
 if (document.readyState === "loading") {
@@ -1964,9 +2017,11 @@ function initLoveReasons() {
 // ==============================================================================
 function initCoupons() {
     const grid = document.getElementById("couponsGrid");
+    if (!grid) return;
     grid.innerHTML = "";
 
-    CONFIG.coupons.forEach((coupon) => {
+    const coupons = CONFIG.coupons || [];
+    coupons.forEach((coupon) => {
         const card = document.createElement("div");
         card.className = "coupon-card";
         card.innerHTML = `
